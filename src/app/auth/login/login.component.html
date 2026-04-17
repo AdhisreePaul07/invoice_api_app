@@ -4,7 +4,7 @@
       <div class="col-xl-5 col-lg-6 col-md-8 px-sm-4 align-self-center py-4">
         <div class="card card-body p-4 p-sm-5 maxw-450px m-auto rounded-4">
           <div class="mb-4 text-center">
-            <a routerLink="/login" aria-label="Clienet Logo">
+            <a routerLink="/login" aria-label="Clienet Logo" (mousedown)="prepareAuthRouteChange()" (click)="prepareAuthRouteChange()">
               <img src="/assets/images/clienet-logo.png" alt="Clienet logo">
             </a>
           </div>
@@ -14,7 +14,16 @@
             <p>Sign in to access your secure admin dashboard.</p>
           </div>
 
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+          <form
+            [formGroup]="form"
+            (ngSubmit)="onSubmit()"
+            novalidate
+            autocomplete="off"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-bwignore="true"
+            data-form-type="other"
+          >
             <div class="mb-4">
               <label class="form-label" for="loginEmail">Email Address</label>
               <input
@@ -22,6 +31,12 @@
                 type="email"
                 class="form-control auth-input"
                 autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 formControlName="email"
                 placeholder="info@example.com"
                 [class.is-invalid]="isInvalid('email')"
@@ -42,6 +57,12 @@
                   [type]="showPassword ? 'text' : 'password'"
                   class="form-control password-input auth-input"
                   autocomplete="current-password"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
                   formControlName="password"
                   placeholder="••••••••"
                   [class.is-invalid]="isInvalid('password')"
@@ -73,7 +94,7 @@
                   >
                   <label class="form-check-label" for="rememberMe">Remember Me</label>
                 </div>
-                <a routerLink="/reset-password">Forgot Password?</a>
+                <a routerLink="/reset-password" (mousedown)="prepareAuthRouteChange()" (click)="prepareAuthRouteChange()">Forgot Password?</a>
               </div>
             </div>
 
@@ -89,7 +110,7 @@
 
             <p class="text-center">
               Don't have an account?
-              <a routerLink="/register">Sign Up here</a>
+              <a routerLink="/register" (mousedown)="prepareAuthRouteChange()" (click)="prepareAuthRouteChange()">Sign Up here</a>
             </p>
 
             <!-- <div class="border-bottom position-relative my-4 text-center">

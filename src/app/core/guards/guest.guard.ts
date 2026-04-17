@@ -16,6 +16,10 @@ export class GuestGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, _: RouterStateSnapshot): Observable<boolean | UrlTree> {
     const requestedReturnUrl = route.queryParamMap.get('returnUrl');
 
+    if (!this.auth.getAccessToken()) {
+      return of(true);
+    }
+
     return this.auth.ensureSession().pipe(
       switchMap((ok) => {
         if (!ok) {

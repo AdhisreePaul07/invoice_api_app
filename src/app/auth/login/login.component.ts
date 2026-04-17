@@ -58,6 +58,15 @@ export class LoginComponent {
     this.showPassword = !this.showPassword;
   }
 
+  prepareAuthRouteChange(): void {
+    if (typeof document === 'undefined') return;
+
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
+  }
+
   isInvalid(controlName: 'email' | 'password'): boolean {
     const control = this.form.get(controlName);
     return !!control && control.invalid && (control.touched || control.dirty || this.submitted);

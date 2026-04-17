@@ -1,3 +1,10 @@
 :host {
   display: block;
 }
+
+:host ::ng-deep [data-lastpass-icon-root],
+:host ::ng-deep [data-lastpass-root],
+:host ::ng-deep .lpiframeoverlay {
+  display: none !important;
+  pointer-events: none !important;
+}

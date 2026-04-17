@@ -2,6 +2,7 @@ import { Component, ElementRef, OnDestroy, QueryList, ViewChildren, inject } fro
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { extractApiError } from '../../core/utils/api-error.util';
@@ -20,6 +21,11 @@ type StagedRegistration = {
 type PasswordRule = {
   label: string;
   met: boolean;
+};
+
+type PasswordRuleCheck = {
+  label: string;
+  test: (value: string) => boolean;
 };
 
 @Component({
@@ -48,6 +54,7 @@ export class RegisterComponent implements OnDestroy {
   private readonly resendCooldownSeconds = 30;
   private stagedRegistration: StagedRegistration | null = null;
   private resendTimerId: number | null = null;
+  private passwordValueSubscription?: Subscription;
   private readonly detailControlNames = [
     'first_name',
     'last_name',
@@ -55,6 +62,19 @@ export class RegisterComponent implements OnDestroy {
     'business_name',
     'password',
   ] as const;
+  private readonly passwordRuleChecks: PasswordRuleCheck[] = [
+    { label: 'Lowercase (abc)', test: (value) => /[a-z]/.test(value) },
+    { label: 'Uppercase (ABC)', test: (value) => /[A-Z]/.test(value) },
+    { label: 'Numbers (123)', test: (value) => /\d/.test(value) },
+    { label: 'Special characters (!#$@&*)', test: (value) => /[^A-Za-z0-9\s]/.test(value) },
+  ];
+
+  passwordValue = '';
+  readonly passwordRules: PasswordRule[] = this.passwordRuleChecks.map(({ label }) => ({ label, met: false }));
+  passwordCriteriaMatched = 0;
+  passwordStrengthPercent = 0;
+  passwordStrengthBarClass = 'bg-secondary';
+  passwordStrengthLabel = 'Start typing';
 
   readonly form: FormGroup = this.fb.group({
     first_name: ['', [Validators.required, Validators.minLength(2)]],
@@ -74,9 +94,16 @@ export class RegisterComponent implements OnDestroy {
     if (prefilledEmail) {
       this.form.patchValue({ email: prefilledEmail });
     }
+
+    this.updatePasswordStrength(this.form.get('password')?.value);
+    this.passwordValueSubscription = this.form
+      .get('password')
+      ?.valueChanges.subscribe((value) => this.updatePasswordStrength(value));
   }
 
   ngOnDestroy(): void {
+    this.prepareAuthRouteChange();
+    this.passwordValueSubscription?.unsubscribe();
     this.stopResendCountdown();
   }
 
@@ -95,89 +122,26 @@ export class RegisterComponent implements OnDestroy {
     return 'Resend OTP';
   }
 
-  get passwordValue(): string {
-    return String(this.form.get('password')?.value || '');
-  }
-
-  get passwordHasLowercase(): boolean {
-    return /[a-z]/.test(this.passwordValue);
-  }
-
-  get passwordHasUppercase(): boolean {
-    return /[A-Z]/.test(this.passwordValue);
-  }
-
-  get passwordHasNumber(): boolean {
-    return /\d/.test(this.passwordValue);
-  }
-
-  get passwordHasSpecialSymbol(): boolean {
-    return /[^A-Za-z0-9\s]/.test(this.passwordValue);
-  }
-
-  get passwordLengthMet(): boolean {
-    return this.passwordValue.length >= 8;
-  }
-
-  get passwordRules(): PasswordRule[] {
-    return [
-      { label: 'Lowercase (abc)', met: this.passwordHasLowercase },
-      { label: 'Uppercase (ABC)', met: this.passwordHasUppercase },
-      { label: 'Numbers (123)', met: this.passwordHasNumber },
-      { label: 'Special characters (!#$@&*)', met: this.passwordHasSpecialSymbol },
-    ];
-  }
-
-  get passwordCriteriaMatched(): number {
-    return this.passwordRules.filter((rule) => rule.met).length;
-  }
-
-  get passwordStrengthPercent(): number {
-    return this.passwordCriteriaMatched * 25;
-  }
-
-  get passwordStrengthBarClass(): string {
-    switch (this.passwordCriteriaMatched) {
-      case 1:
-        return 'bg-danger';
-      case 2:
-        return 'bg-warning';
-      case 3:
-        return 'bg-info';
-      case 4:
-        return 'bg-success';
-      default:
-        return 'bg-secondary';
-    }
-  }
-
-  get passwordStrengthLabel(): string {
-    if (!this.passwordValue) {
-      return 'Start typing';
-    }
-
-    switch (this.passwordCriteriaMatched) {
-      case 0:
-      case 1:
-        return 'Weak';
-      case 2:
-        return 'Fair';
-      case 3:
-        return 'Good';
-      case 4:
-        return 'Strong';
-      default:
-        return 'Weak';
-    }
-  }
-
   isInvalid(controlName: string): boolean {
     const control = this.form.get(controlName);
     return !!control && control.invalid && (control.touched || control.dirty || this.submitted);
   }
 
+  trackPasswordRule(_: number, rule: PasswordRule): string {
+    return rule.label;
+  }
+
   togglePassword(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  prepareAuthRouteChange(): void {
+    if (typeof document === 'undefined') return;
+
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
   }
 
   onOtpInput(index: number, event: Event): void {
@@ -396,6 +360,60 @@ export class RegisterComponent implements OnDestroy {
       business_name,
       organization_name,
     };
+  }
+
+  private updatePasswordStrength(rawValue: unknown): void {
+    const value = String(rawValue || '');
+    this.passwordValue = value;
+
+    let matched = 0;
+    this.passwordRuleChecks.forEach((rule, index) => {
+      const met = rule.test(value);
+      this.passwordRules[index].met = met;
+      if (met) {
+        matched += 1;
+      }
+    });
+
+    this.passwordCriteriaMatched = matched;
+    this.passwordStrengthPercent = matched * 25;
+    this.passwordStrengthBarClass = this.getPasswordStrengthBarClass(matched);
+    this.passwordStrengthLabel = this.getPasswordStrengthLabel(value, matched);
+  }
+
+  private getPasswordStrengthBarClass(matched: number): string {
+    switch (matched) {
+      case 1:
+        return 'bg-danger';
+      case 2:
+        return 'bg-warning';
+      case 3:
+        return 'bg-info';
+      case 4:
+        return 'bg-success';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  private getPasswordStrengthLabel(value: string, matched: number): string {
+    if (!value) {
+      return 'Start typing';
+    }
+
+    switch (matched) {
+      case 0:
+      case 1:
+        return 'Weak';
+      case 2:
+        return 'Fair';
+      case 3:
+        return 'Good';
+      case 4:
+        return 'Strong';
+      default:
+        return 'Weak';
+    }
   }
 
   private completeRegistration(stagedRegistration: StagedRegistration): void {

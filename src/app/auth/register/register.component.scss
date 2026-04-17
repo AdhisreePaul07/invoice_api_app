@@ -4,6 +4,13 @@
   display: block;
 }
 
+:host ::ng-deep [data-lastpass-icon-root],
+:host ::ng-deep [data-lastpass-root],
+:host ::ng-deep .lpiframeoverlay {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 .register-cover-pane {
   min-height: 100%;
 }
@@ -15,19 +22,6 @@
 
 .register-stage {
   width: 100%;
-}
-
-.register-field-note {
-  display: grid;
-  min-height: 1.3rem;
-}
-
-.register-field-note > * {
-  grid-area: 1 / 1;
-}
-
-.register-field-note-hidden {
-  visibility: hidden;
 }
 
 .register-step {
@@ -44,9 +38,17 @@
   font-size: 0.75rem;
 }
 
-.register-field-note .register-hint,
-.register-field-note .invalid-feedback {
-  margin-top: 0.35rem;
+.register-field-note {
+  display: grid;
+  min-height: 1.15rem;
+}
+
+.register-field-note > * {
+  grid-area: 1 / 1;
+}
+
+.register-field-note-hidden {
+  visibility: hidden;
 }
 
 .reset-email-pill {
@@ -100,22 +102,7 @@
 }
 
 .password-strength {
-  max-height: 0;
-  margin-top: 0;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    max-height 160ms ease,
-    margin-top 160ms ease,
-    opacity 120ms ease;
-}
-
-.password-strength--visible {
-  max-height: 10rem;
   margin-top: 0.65rem;
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .password-strength-head {

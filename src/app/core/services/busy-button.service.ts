@@ -1,4 +1,4 @@
-import { DestroyRef, Inject, Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { DestroyRef, Inject, Injectable, NgZone, PLATFORM_ID, inject } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
@@ -12,6 +12,7 @@ export class BusyButtonService {
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
     @Inject(PLATFORM_ID) platformId: object,
+    private readonly ngZone: NgZone,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
@@ -20,14 +21,16 @@ export class BusyButtonService {
     }
 
     const start = () => {
-      this.scheduleSync();
-      this.observer = new MutationObserver(() => this.scheduleSync());
-      this.observer.observe(this.document.body, {
-        subtree: true,
-        childList: true,
-        characterData: true,
-        attributes: true,
-        attributeFilter: ['disabled', 'aria-disabled', 'class', 'data-loading'],
+      this.ngZone.runOutsideAngular(() => {
+        this.scheduleSync();
+        this.observer = new MutationObserver(() => this.scheduleSync());
+        this.observer.observe(this.document.body, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+          attributes: true,
+          attributeFilter: ['disabled', 'aria-disabled', 'class', 'data-loading'],
+        });
       });
     };
 

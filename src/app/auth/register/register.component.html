@@ -16,7 +16,7 @@
       <div class="col-md-6 align-self-center">
         <div class="px-3 py-5 p-sm-5 maxw-450px m-auto register-stage">
           <div class="mb-4 text-center">
-            <a routerLink="/login" aria-label="Clienet Logo">
+            <a routerLink="/login" aria-label="Clienet Logo" (mousedown)="prepareAuthRouteChange()" (click)="prepareAuthRouteChange()">
               <img src="/assets/images/clienet-logo.png" alt="Clienet Logo">
             </a>
           </div>
@@ -32,7 +32,16 @@
           </div>
 
           <div class="register-step" *ngIf="currentStep === 'details'">
-            <form [formGroup]="form" (ngSubmit)="sendOtp()" novalidate>
+            <form
+              [formGroup]="form"
+              (ngSubmit)="sendOtp()"
+              novalidate
+              autocomplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
+            >
               <div class="row g-3 mb-4">
                 <div class="col-sm-6">
                   <label class="form-label" for="registerFirstName">First Name</label>
@@ -41,6 +50,12 @@
                     type="text"
                     class="form-control auth-input"
                     autocomplete="given-name"
+                    autocapitalize="words"
+                    spellcheck="false"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-bwignore="true"
+                    data-form-type="other"
                     formControlName="first_name"
                     placeholder="John"
                     [class.is-invalid]="isInvalid('first_name')"
@@ -57,6 +72,12 @@
                     type="text"
                     class="form-control auth-input"
                     autocomplete="family-name"
+                    autocapitalize="words"
+                    spellcheck="false"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-bwignore="true"
+                    data-form-type="other"
                     formControlName="last_name"
                     placeholder="Doe"
                     [class.is-invalid]="isInvalid('last_name')"
@@ -74,6 +95,12 @@
                   type="email"
                   class="form-control auth-input"
                   autocomplete="email"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
                   formControlName="email"
                   placeholder="info@example.com"
                   [class.is-invalid]="isInvalid('email')"
@@ -91,36 +118,55 @@
                   type="text"
                   class="form-control auth-input"
                   autocomplete="organization"
+                  autocapitalize="words"
+                  spellcheck="false"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
                   formControlName="business_name"
                   placeholder="Clienet LLC"
                   [class.is-invalid]="isInvalid('business_name')"
                 >
                 <div class="register-field-note">
-                  <div
-                    class="form-text register-hint"
-                    [class.register-field-note-hidden]="isInvalid('business_name')"
-                    [attr.aria-hidden]="isInvalid('business_name') ? 'true' : null"
-                  >
+                  <div class="form-text register-hint" [class.register-field-note-hidden]="isInvalid('business_name')">
                     This will be used as your workspace name.
                   </div>
-                  <div
-                    class="invalid-feedback d-block"
-                    [class.register-field-note-hidden]="!isInvalid('business_name')"
-                    [attr.aria-hidden]="isInvalid('business_name') ? null : 'true'"
-                  >
+                  <div class="invalid-feedback d-block" [class.register-field-note-hidden]="!isInvalid('business_name')">
                     Business name is required.
                   </div>
                 </div>
               </div>
 
               <div class="mb-4 register-field register-field--password">
-                <label class="form-label" for="registerPassword">Password</label>
+                <div class="d-flex justify-content-between align-items-center">
+                  <label class="form-label" for="registerPassword">Password</label>
+                  <div class="d-flex gap-2 align-items-center" *ngIf="passwordValue">
+                    <div class="w-60 text-end" >
+                      <span class="fs-6">{{ passwordStrengthLabel }}</span>
+                    </div>
+
+                    <div class="progress password-strength-progress mb-0" style="width: 100px;" role="progressbar" aria-label="Password strength progress" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="passwordStrengthPercent">
+                      <div
+                        class="progress-bar progress-bar-striped progress-bar-animated"
+                        [ngClass]="passwordStrengthBarClass"
+                        [style.width.%]="passwordStrengthPercent"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
                 <div class="password-wrapper">
                   <input
                     id="registerPassword"
                     [type]="showPassword ? 'text' : 'password'"
                     class="form-control password-input auth-input"
                     autocomplete="new-password"
+                    autocapitalize="none"
+                    spellcheck="false"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-bwignore="true"
+                    data-form-type="other"
                     formControlName="password"
                     placeholder="Enter password"
                     [class.is-invalid]="isInvalid('password')"
@@ -142,27 +188,10 @@
                   Minimum 8 characters.
                 </div>
 
-                <div
-                  class="password-strength"
-                  [class.password-strength--visible]="passwordValue"
-                  [attr.aria-hidden]="passwordValue ? null : 'true'"
-                >
-                  <div class="d-flex align-items-center justify-content-between gap-3 password-strength-head">
-                    <span class="password-strength-label">Password strength: {{ passwordStrengthLabel }}</span>
-                    <small class="password-strength-score">{{ passwordCriteriaMatched }}/4</small>
-                  </div>
-
-                  <div class="progress password-strength-progress" role="progressbar" aria-label="Password strength progress" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="passwordStrengthPercent">
-                    <div
-                      class="progress-bar progress-bar-striped progress-bar-animated"
-                      [ngClass]="passwordStrengthBarClass"
-                      [style.width.%]="passwordStrengthPercent"
-                    ></div>
-                  </div>
-
+                <div class="password-strength" *ngIf="passwordValue">
                   <div class="password-strength-copy">
                     <div class="password-strength-rules">
-                      <span class="password-rule" *ngFor="let rule of passwordRules" [class.is-met]="rule.met">
+                      <span class="password-rule" *ngFor="let rule of passwordRules; trackBy: trackPasswordRule" [class.is-met]="rule.met">
                         <span class="rule-indicator"></span>
                         <span>{{ rule.label }}</span>
                       </span>
@@ -192,7 +221,16 @@
               {{ emailAddress }}
             </div>
 
-            <form [formGroup]="form" (ngSubmit)="verifyOtp()" novalidate>
+            <form
+              [formGroup]="form"
+              (ngSubmit)="verifyOtp()"
+              novalidate
+              autocomplete="off"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bwignore="true"
+              data-form-type="other"
+            >
               <div class="mb-4">
                 <label class="form-label" for="registerOtp">OTP code</label>
                 <div class="otp-digit-grid">
@@ -208,6 +246,10 @@
                     [class.is-invalid]="isInvalid('otp_code')"
                     [attr.aria-label]="'OTP digit ' + (index + 1)"
                     [autocomplete]="index === 0 ? 'one-time-code' : 'off'"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-bwignore="true"
+                    data-form-type="other"
                     [value]="otpDigits[index]"
                     (input)="onOtpInput(index, $event)"
                     (keydown)="onOtpKeydown(index, $event)"
@@ -253,7 +295,7 @@
 
           <p class="mb-0 mt-4 text-center register-footer">
             Already have an account?
-            <a routerLink="/login">Sign In here</a>
+            <a routerLink="/login" (mousedown)="prepareAuthRouteChange()" (click)="prepareAuthRouteChange()">Sign In here</a>
           </p>
         </div>
       </div>

@@ -1,0 +1,305 @@
+<div class="container">
+  <div class="card md mx-auto">
+    <form [formGroup]="form" (ngSubmit)="create()" class="org-add-card" novalidate>
+      <div class="card-header border">
+        <div>
+          <h2 class="card-title">Add your organization</h2>
+          <p class="muted text-sm mb-0">Create the tenant profile used across invoices, receipts, and CRM modules.</p>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p *ngIf="error" class="error text-sm mb-4">{{ error }}</p>
+
+        <div class="form-row">
+          <div class="field">
+            <label class="form-label">Organization Name <em>*</em></label>
+            <input
+              class="form-control"
+              type="text"
+              formControlName="org_name"
+              placeholder="e.g. Abhinava Innovations Pvt Ltd"
+            />
+            <div class="err-msg" *ngIf="form.get('org_name')?.touched && form.get('org_name')?.invalid">
+              <span *ngIf="form.get('org_name')?.errors?.['required']">Organization name is required.</span>
+              <span *ngIf="form.get('org_name')?.errors?.['minlength']">Minimum 2 characters.</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="form-label">Plan <em>*</em></label>
+            <div class="search-select selectlike" [class.open]="orgTypeOpen">
+              <button
+                type="button"
+                class="form-control select-trigger"
+                (click)="toggleOrgType()"
+                [attr.aria-expanded]="orgTypeOpen"
+              >
+                <span class="select-value">{{ getOrgTypeLabel() }}</span>
+                <span class="select-caret" aria-hidden="true">
+                  <i class="ph ph-caret-down"></i>
+                </span>
+              </button>
+
+              <div class="dropdown" *ngIf="orgTypeOpen">
+                <button type="button" class="dropdown-item" (mousedown)="setOrgType(0)">
+                  Starter
+                  <i class="ph-bold ph-check ms-auto" *ngIf="form.get('org_type')?.value === 0"></i>
+                </button>
+                <button type="button" class="dropdown-item" (mousedown)="setOrgType(1)">
+                  Growth
+                  <i class="ph-bold ph-check ms-auto" *ngIf="form.get('org_type')?.value === 1"></i>
+                </button>
+                <button type="button" class="dropdown-item" (mousedown)="setOrgType(2)">
+                  Enterprise
+                  <i class="ph-bold ph-check ms-auto" *ngIf="form.get('org_type')?.value === 2"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="err-msg" *ngIf="form.get('org_type')?.touched && form.get('org_type')?.invalid">
+              Plan is required.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <div class="flex items-center gap-3 mb-2">
+              <label class="form-label mb-0">Legal Identifiers</label>
+              <button type="button" class="btn xs soft primary" (click)="addOrgId()">
+                <i class="ph-bold ph-plus"></i> Add
+              </button>
+            </div>
+
+            <div class="repeat" formArrayName="org_id">
+              <div
+                class="repeat-row justify-between items-center"
+                *ngFor="let _ of orgIdArr.controls; let i = index"
+                [formGroupName]="i"
+              >
+                <div class="search-select selectlike w-40" [class.open]="orgIdTypeOpenIndex === i">
+                  <button
+                    type="button"
+                    class="form-control select-trigger"
+                    (click)="toggleOrgIdType(i)"
+                    [attr.aria-expanded]="orgIdTypeOpenIndex === i"
+                  >
+                    <span class="select-value">
+                      {{ orgIdArr.at(i).get('type')?.value || 'Select type' }}
+                    </span>
+                    <span class="select-caret" aria-hidden="true">
+                      <i class="ph ph-caret-down"></i>
+                    </span>
+                  </button>
+
+                  <div class="dropdown" *ngIf="orgIdTypeOpenIndex === i">
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      *ngFor="let opt of getAvailableOrgIdTypes(i)"
+                      (mousedown)="setOrgIdType(i, opt)"
+                    >
+                      {{ opt }}
+                      <i class="ph-bold ph-check ms-auto" *ngIf="orgIdArr.at(i).get('type')?.value === opt"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <input class="form-control w-60" type="text" formControlName="value" placeholder="Value" />
+
+                <button
+                  type="button"
+                  class="btn icon-circle xs danger soft"
+                  (click)="removeOrgId(i)"
+                  aria-label="Remove identifier"
+                  [disabled]="orgIdArr.length <= 1"
+                >
+                  <i class="ph-bold ph-x"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <div class="flex items-center gap-3 mb-2">
+              <label class="form-label mb-0">Tax Details</label>
+              <button type="button" class="btn xs soft primary" (click)="addTax()">
+                <i class="ph-bold ph-plus"></i> Add
+              </button>
+            </div>
+
+            <div class="repeat" formArrayName="tax_detail">
+              <div
+                class="repeat-row justify-between items-center"
+                *ngFor="let _ of taxArr.controls; let i = index"
+                [formGroupName]="i"
+              >
+                <div class="search-select selectlike w-40" [class.open]="taxTypeOpenIndex === i">
+                  <button
+                    type="button"
+                    class="form-control select-trigger"
+                    (click)="toggleTaxType(i)"
+                    [attr.aria-expanded]="taxTypeOpenIndex === i"
+                  >
+                    <span class="select-value">
+                      {{ taxArr.at(i).get('type')?.value || 'Select type' }}
+                    </span>
+                    <span class="select-caret" aria-hidden="true">
+                      <i class="ph ph-caret-down"></i>
+                    </span>
+                  </button>
+
+                  <div class="dropdown" *ngIf="taxTypeOpenIndex === i">
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      *ngFor="let opt of getAvailableTaxTypes(i)"
+                      (mousedown)="setTaxType(i, opt)"
+                    >
+                      {{ opt }}
+                      <i class="ph-bold ph-check ms-auto" *ngIf="taxArr.at(i).get('type')?.value === opt"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <input class="form-control w-60" type="text" formControlName="value" placeholder="Value" />
+
+                <button
+                  type="button"
+                  class="btn icon-circle xs danger soft"
+                  (click)="removeTax(i)"
+                  aria-label="Remove tax detail"
+                  [disabled]="taxArr.length <= 1"
+                >
+                  <i class="ph-bold ph-x"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row" formGroupName="address">
+          <div class="field">
+            <label class="form-label mb-2">Primary Address</label>
+
+            <div class="form-row">
+              <div class="field">
+                <input class="form-control" type="text" formControlName="address_line1" placeholder="Address Line 1" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <input class="form-control" type="text" formControlName="address_line2" placeholder="Address Line 2" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <input class="form-control" type="text" formControlName="city" placeholder="City" />
+              </div>
+              <div class="field">
+                <input class="form-control" type="text" formControlName="state" placeholder="State / County" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <input class="form-control" type="text" formControlName="country" placeholder="Country" />
+              </div>
+              <div class="field">
+                <input class="form-control" type="text" formControlName="pin_code" placeholder="Pin code" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label class="form-label">Currencies</label>
+
+            <div class="flex items-center gap-4">
+              <div class="search-select w-50">
+                <input
+                  type="text"
+                  class="form-control"
+                  [formControl]="currencySearchCtrl"
+                  placeholder="Type to search (e.g. INR, USD, Euro)"
+                  autocomplete="off"
+                  (focus)="openCurrency()"
+                  (blur)="closeCurrencyDropdownSoon()"
+                />
+
+                <div class="dropdown" *ngIf="currencyDropdownOpen">
+                  <button
+                    type="button"
+                    class="dropdown-item"
+                    *ngFor="let cur of filteredCurrencies"
+                    (mousedown)="selectCurrencyFromDropdown(cur)"
+                  >
+                    <span class="mono">{{ cur.shortname }}</span>
+                    <span class="muted ms-2">{{ cur.symbol }}</span>
+                    <span class="ms-auto clamp-1">{{ cur.name }}</span>
+                  </button>
+
+                  <div class="dropdown-empty" *ngIf="currencySearchCtrl.value?.trim() && filteredCurrencies.length === 0">
+                    No currency found.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn sm icon-circle primary"
+                [disabled]="!selectedCurrency"
+                (click)="addSelectedCurrency()"
+              >
+                <i class="ph-bold ph-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive" *ngIf="currencyArr.length">
+          <table class="table table-custom table-hover w-full mb-0">
+            <thead class="thead-sm">
+              <tr class="text-uppercase">
+                <th>Symbol</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody formArrayName="currencies">
+              <tr *ngFor="let _ of currencyArr.controls; let i = index" [formGroupName]="i">
+                <td class="semibold">{{ currencyArr.at(i).get('symbol')?.value }}</td>
+                <td>{{ currencyArr.at(i).get('shortname')?.value }}</td>
+                <td>{{ currencyArr.at(i).get('name')?.value }}</td>
+                <td class="text-right">
+                  <button type="button" class="btn xs icon-circle soft danger" (click)="removeCurrency(i)" aria-label="Remove">
+                    <i class="ph-bold ph-x"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="flex items-center gap-3 ml-auto">
+          <button type="button" class="btn light" [routerLink]="['/organizations']">Cancel</button>
+
+          <button type="submit" class="btn primary" [disabled]="form.invalid || saving">
+            <i class="ph-bold ph-check"></i>
+            {{ saving ? 'Creating...' : 'Create' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

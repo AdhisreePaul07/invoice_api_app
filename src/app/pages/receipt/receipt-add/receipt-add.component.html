@@ -1,0 +1,173 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/receipts']">Receipts</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add Receipt</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="create()" novalidate>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-danger" *ngIf="error" role="alert">
+        {{ error }}
+      </div>
+
+      <div class="card entity-loading-card" *ngIf="loading">
+        <div class="card-body">
+          <div class="app-skeleton-form-state" aria-hidden="true">
+            <div class="app-skeleton-form-card__head">
+              <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+            </div>
+            <div class="app-skeleton-form-grid">
+              <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+                <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+                <span class="app-skeleton app-skeleton--input"></span>
+              </div>
+            </div>
+            <div class="app-skeleton-form-grid app-skeleton-form-grid--single">
+              <div class="app-skeleton-form-field">
+                <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+                <span class="app-skeleton app-skeleton--block"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="entity-section-stack" *ngIf="!loading">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Receipt identity, status, linked account, and invoice selection</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Receipt No <em>*</em></label>
+                <input class="form-control" type="text" formControlName="receipt_no" placeholder="RCPT-2026-001">
+                <div class="err-msg" *ngIf="form.get('receipt_no')?.touched && form.get('receipt_no')?.invalid">
+                  <span *ngIf="form.get('receipt_no')?.errors?.['required']">Receipt number is required.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Receipt Status</label>
+                <select class="form-select" formControlName="receipt_status">
+                  <option *ngFor="let status of receiptStatuses" [ngValue]="status.value">{{ status.label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="detail-grid receipt-add-grid-block">
+              <div>
+                <label class="form-label">Account</label>
+                <select class="form-select" formControlName="account" (change)="onAccountChange()">
+                  <option [ngValue]="null">Select account</option>
+                  <option *ngFor="let account of accountOptions" [ngValue]="account.id">
+                    {{ account.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Invoice <em>*</em></label>
+                <select class="form-select" formControlName="invoice" (change)="onInvoiceChange()">
+                  <option [ngValue]="null">Select invoice</option>
+                  <option *ngFor="let invoice of availableInvoices" [ngValue]="invoice.id">
+                    {{ invoice.invoice_no }}
+                  </option>
+                </select>
+                <div class="err-msg" *ngIf="form.get('invoice')?.touched && form.get('invoice')?.invalid">
+                  <span *ngIf="form.get('invoice')?.errors?.['required']">Invoice is required.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Payment Details</h5>
+              <span class="entity-card__meta">Receipt dates, payment details, reference, and notes</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Receipt Date <em>*</em></label>
+                <input class="form-control" type="date" formControlName="receipt_date">
+                <div class="err-msg" *ngIf="form.get('receipt_date')?.touched && form.get('receipt_date')?.invalid">
+                  <span *ngIf="form.get('receipt_date')?.errors?.['required']">Receipt date is required.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Payment Date</label>
+                <input class="form-control" type="date" formControlName="payment_date">
+              </div>
+            </div>
+
+            <div class="detail-grid receipt-add-grid-block">
+              <div>
+                <label class="form-label">Amount Received <em>*</em></label>
+                <input class="form-control" type="number" formControlName="amount_received" placeholder="0.00">
+                <div class="err-msg" *ngIf="form.get('amount_received')?.touched && form.get('amount_received')?.invalid">
+                  <span *ngIf="form.get('amount_received')?.errors?.['required']">Amount received is required.</span>
+                  <span *ngIf="form.get('amount_received')?.errors?.['min']">Amount must be greater than 0.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Payment Method</label>
+                <select class="form-select" formControlName="payment_method">
+                  <option *ngFor="let method of paymentMethods" [ngValue]="method.value">{{ method.label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="detail-grid detail-grid--full receipt-add-grid-block">
+              <div>
+                <label class="form-label">Transaction Reference</label>
+                <input class="form-control" type="text" formControlName="transaction_ref" placeholder="Bank ref / UTR / Txn ID">
+              </div>
+            </div>
+
+            <div class="detail-grid detail-grid--full receipt-add-grid-block">
+              <div>
+                <label class="form-label">Notes</label>
+                <textarea class="form-control receipt-add-notes" rows="5" formControlName="receipt_notes" placeholder="Payment notes"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="saving">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-light" [routerLink]="['/receipts']" [disabled]="saving">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="form.invalid || saving">
+            {{ saving ? 'Creating...' : 'Create Receipt' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,23 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.detail-grid {
+  column-gap: calc(1rem + 0.75%);
+}
+
+.deal-create-description {
+  margin-top: 1.5rem;
+}
+
+.deal-create-notes {
+  min-height: 120px !important;
+}
+
+.err-msg {
+  margin-top: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}

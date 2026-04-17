@@ -1,0 +1,54 @@
+:host {
+  display: block;
+}
+
+.app-menubar-tabs button.menu-link {
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+}
+
+.app-menubar-tabs button.menu-link:hover,
+.app-menubar-tabs button.menu-link.active,
+.app-menubar-tabs button.menu-link:focus-visible {
+  background-color: var(--app-light);
+}
+
+.app-menubar-tabs button.btn {
+  border: 0;
+  background: transparent;
+}
+
+.app-menubar-tabs .menu-link {
+  text-decoration: none;
+}
+
+.app-menubar-tabs .tab-pane {
+  display: none;
+}
+
+.app-menubar-tabs .tab-pane.show.active {
+  display: block;
+}
+
+.app-side-brands img {
+  max-height: 28px;
+  width: auto;
+}
+
+.side-menubar .menu-link .badge {
+  margin-left: auto;
+}
+
+.modal.d-block {
+  background: rgba(12, 36, 60, 0.32);
+}
+
+.modal-dialog {
+  pointer-events: none;
+}
+
+.modal-content {
+  pointer-events: auto;
+}

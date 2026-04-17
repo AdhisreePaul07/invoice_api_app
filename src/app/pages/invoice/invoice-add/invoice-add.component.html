@@ -1,0 +1,357 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/invoices']">Invoices</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add Invoice</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="create()" novalidate>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-danger" *ngIf="error" role="alert">
+        {{ error }}
+      </div>
+
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Invoice identity, type, dates, and status</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid detail-grid--three">
+              <div>
+                <label class="form-label">Invoice No <em>*</em></label>
+                <input
+                  class="form-control invoice-add-autonumber"
+                  type="text"
+                  formControlName="invoice_no"
+                  placeholder="INV-2026-00000001"
+                  readonly
+                >
+                <div class="invoice-add-help">
+                  Auto-generated from invoice settings and the latest invoice number in your database.
+                </div>
+                <div class="err-msg" *ngIf="form.get('invoice_no')?.touched && form.get('invoice_no')?.invalid">
+                  <span *ngIf="form.get('invoice_no')?.errors?.['required']">Invoice number is required.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Invoice Type</label>
+                <select class="form-select" formControlName="invoice_type">
+                  <option *ngFor="let type of invoiceTypeOptions" [ngValue]="type.value">{{ type.label }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Status</label>
+                <select class="form-select" formControlName="invoice_status">
+                  <option *ngFor="let status of invoiceStatusOptions" [ngValue]="status.value">{{ status.label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="detail-grid invoice-add-grid-block">
+              <div>
+                <label class="form-label">Invoice Date <em>*</em></label>
+                <input class="form-control" type="date" formControlName="invoice_date">
+                <div class="err-msg" *ngIf="form.get('invoice_date')?.touched && form.get('invoice_date')?.invalid">
+                  <span *ngIf="form.get('invoice_date')?.errors?.['required']">Invoice date is required.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Due Date</label>
+                <input class="form-control" type="date" formControlName="due_date">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Relationships</h5>
+              <span class="entity-card__meta">Link this invoice to its organization, account, contact, and deal</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Organization</label>
+                <select class="form-select" formControlName="organization">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let org of organizations" [ngValue]="org.id">{{ org.org_name }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Account</label>
+                <select class="form-select" formControlName="account">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let account of accounts" [ngValue]="account.id">{{ account.account_name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="detail-grid invoice-add-grid-block">
+              <div>
+                <label class="form-label">Contact</label>
+                <select class="form-select" formControlName="contact">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let contact of filteredContacts" [ngValue]="contact.id">
+                    {{ contact.first_name }} {{ contact.last_name }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Deal</label>
+                <select class="form-select" formControlName="deal">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let deal of filteredDeals" [ngValue]="deal.id">{{ deal.deal_name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Invoice Items</h5>
+              <span class="entity-card__meta">Catalog selection, pricing, quantity, taxes, and line item details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="entity-subsection__head">
+              <h6 class="entity-subsection__title invoice-add-subtitle-soft">Invoice Line Items</h6>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="addItem()" [disabled]="saving">
+                Add Line
+              </button>
+            </div>
+
+            <div class="address-list" formArrayName="invoice_items">
+              <div
+                class="address-card invoice-item-card"
+                *ngFor="let item of itemArr.controls; let i = index; trackBy: trackByIndex"
+                [formGroupName]="i"
+              >
+                <div class="address-card__head">
+                  <span>Invoice Item {{ i + 1 }}</span>
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeItem(i)"
+                    [disabled]="itemArr.length <= 1 || saving"
+                    aria-label="Remove invoice item"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="detail-grid">
+                  <div>
+                    <label class="form-label">Catalog Item</label>
+                    <select class="form-select" formControlName="item_catalog_id" (change)="onCatalogChange(i)">
+                      <option [ngValue]="null">Custom line item</option>
+                      <option *ngFor="let catalog of items" [ngValue]="catalog.id">
+                        {{ catalog.item_name }} ({{ catalog.item_code }})
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="form-label">Currency</label>
+                    <input class="form-control" type="text" formControlName="currency_code" placeholder="INR">
+                  </div>
+                </div>
+
+                <div class="detail-grid invoice-add-grid-block">
+                  <div>
+                    <label class="form-label">Item Name</label>
+                    <input class="form-control" type="text" formControlName="item_name" placeholder="Consulting services">
+                  </div>
+
+                  <div>
+                    <label class="form-label">Item Code</label>
+                    <input class="form-control" type="text" formControlName="item_code" placeholder="ITM-001">
+                  </div>
+                </div>
+
+                <div class="detail-grid invoice-add-grid-block">
+                  <div>
+                    <label class="form-label">Unit Price</label>
+                    <input class="form-control" type="number" formControlName="unit_price" placeholder="0.00">
+                  </div>
+
+                  <div>
+                    <label class="form-label">Quantity</label>
+                    <input class="form-control" type="number" formControlName="quantity" placeholder="1">
+                  </div>
+                </div>
+
+                <div class="detail-grid invoice-add-grid-block">
+                  <div>
+                    <label class="form-label">Tax Value</label>
+                    <input class="form-control" type="number" formControlName="tax_value" placeholder="0.00">
+                  </div>
+
+                  <div>
+                    <label class="form-label">Item Details</label>
+                    <textarea class="form-control invoice-add-item-details" rows="3" formControlName="item_details" placeholder="Line item details"></textarea>
+                  </div>
+                </div>
+
+                <div class="invoice-line-summary">
+                  <span>Subtotal <strong>{{ lineSubtotal(i) | number:'1.2-2' }}</strong></span>
+                  <span>Total <strong>{{ lineTotal(i) | number:'1.2-2' }}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Discount, Notes & Sharing</h5>
+              <span class="entity-card__meta">Financial adjustments, invoice notes, terms, and public sharing</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="invoice-add-financial-layout">
+              <div class="invoice-add-financial-main">
+                <div class="invoice-add-financial-copy">
+                  <h6 class="invoice-add-subtitle-soft mb-1">Adjustments</h6>
+                  <p class="entity-muted mb-0">Apply invoice-level discount or adjustment. Totals update automatically.</p>
+                </div>
+
+                <div class="detail-grid invoice-add-grid-block">
+                  <div>
+                    <label class="form-label">Discount</label>
+                    <input class="form-control" type="number" formControlName="discount" placeholder="0.00">
+                  </div>
+
+                  <div>
+                    <label class="form-label">Adjustment</label>
+                    <input class="form-control" type="number" formControlName="adjustment" placeholder="0.00">
+                  </div>
+                </div>
+              </div>
+
+              <aside class="invoice-total-panel invoice-add-total-panel">
+                <div class="invoice-add-summary-head">
+                  <h6 class="invoice-add-summary-title">Invoice Summary</h6>
+                  <span class="invoice-add-summary-meta">Calculated from line items</span>
+                </div>
+
+                <div class="invoice-total-row">
+                  <span>Subtotal</span>
+                  <strong>{{ subtotal | number:'1.2-2' }}</strong>
+                </div>
+                <div class="invoice-total-row">
+                  <span>Total Tax</span>
+                  <strong>{{ totalTax | number:'1.2-2' }}</strong>
+                </div>
+                <div class="invoice-total-row invoice-total-row--grand">
+                  <span>Grand Total</span>
+                  <strong>{{ grandTotal | number:'1.2-2' }}</strong>
+                </div>
+              </aside>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Header Notes</label>
+                <textarea class="form-control invoice-add-notes" rows="3" formControlName="invoice_header_text" placeholder="Top note or greeting"></textarea>
+              </div>
+
+              <div>
+                <label class="form-label">Footer Notes</label>
+                <textarea class="form-control invoice-add-notes" rows="3" formControlName="invoice_footer_text" placeholder="Footer text"></textarea>
+              </div>
+            </div>
+
+            <div class="detail-grid invoice-add-grid-block">
+              <div>
+                <label class="form-label">Description</label>
+                <textarea class="form-control invoice-add-notes" rows="4" formControlName="invoice_desc_text" placeholder="Invoice description"></textarea>
+              </div>
+
+              <div>
+                <label class="form-label">Terms</label>
+                <textarea class="form-control invoice-add-notes" rows="4" formControlName="invoice_terms_text" placeholder="One term per line"></textarea>
+              </div>
+            </div>
+
+            <div class="detail-grid detail-grid--full invoice-add-grid-block">
+              <div class="invoice-share-row">
+                <label class="invoice-checkbox">
+                  <input type="checkbox" formControlName="public_share_enabled">
+                  <span>Enable public share after save</span>
+                </label>
+                <span class="invoice-share-meta">A public invoice link will be generated once the invoice is created.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card invoice-designer-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Invoice Designer</h5>
+              <span class="entity-card__meta">
+                Build reusable invoice layouts from scratch with an Elementor-style widget rail and a Figma-style design inspector.
+              </span>
+            </div>
+            <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/invoices/templates']">
+              Open Full Template Library
+            </a>
+          </div>
+
+          <div class="card-body invoice-designer-card__body">
+            <div class="invoice-designer-intro">
+              <div>
+                <h6 class="invoice-add-subtitle-soft mb-1">Live design studio</h6>
+                <p class="entity-muted mb-0">
+                  The preview updates from the invoice data you enter on this page, and you can save the resulting layout as a reusable invoice template.
+                </p>
+              </div>
+            </div>
+
+            <app-invoice-designer-studio [previewData]="designerPreviewData"></app-invoice-designer-studio>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="saving">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-light" [routerLink]="['/invoices']" [disabled]="saving">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="form.invalid || saving">
+            {{ saving ? 'Creating...' : 'Create Invoice' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

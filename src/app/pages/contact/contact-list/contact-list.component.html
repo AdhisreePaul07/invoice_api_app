@@ -1,0 +1,186 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Contacts</li>
+      </ol>
+    </nav>
+  </div>
+
+  <a [routerLink]="['/contacts/add']" class="btn-link">
+    <i class="fi fi-rr-plus me-1"></i> New Contact
+  </a>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card overflow-hidden crm-card">
+      <div class="card-header d-flex flex-wrap gap-3 align-items-center justify-content-between border-0 pb-0">
+        <h6 class="card-title mb-0">Contact List</h6>
+
+        <div class="crm-toolbar">
+          <div class="crm-search">
+            <i class="fi fi-rr-search"></i>
+            <input type="text" class="form-control" [formControl]="searchCtrl" placeholder="Search contacts..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body px-1 pt-2 pb-2">
+        <div *ngIf="loading" class="app-skeleton-list-state" aria-hidden="true">
+          <div class="app-skeleton-list-table">
+            <div class="app-skeleton-list-head">
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-xs"></span>
+            </div>
+
+            <div class="app-skeleton-list-row" *ngFor="let _ of [1, 2, 3, 4, 5]">
+              <div class="app-skeleton-list-cell">
+                <span class="app-skeleton app-skeleton--avatar-sm"></span>
+                <div class="app-skeleton-list-cell--stack">
+                  <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+                  <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-sm"></span>
+                </div>
+              </div>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--pill app-skeleton--w-sm"></span>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="error" class="alert alert-danger mx-3 mt-3 mb-0">{{ error }}</div>
+
+        <div class="table-responsive" *ngIf="!loading && !error">
+          <table class="table table-sm table-row-rounded data-row-checkbox crm-table">
+            <thead class="table-light">
+              <tr>
+                <th>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)" />
+                  </div>
+                </th>
+                <th class="minw-200px">Name &amp; Profile</th>
+                <th class="minw-150px">Phone</th>
+                <th class="minw-180px">Email</th>
+                <th class="minw-180px">Accounts</th>
+                <th class="minw-150px">Date</th>
+                <th class="minw-150px">Status</th>
+                <th class="minw-100px">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let c of filtered; trackBy: trackById">
+                <td>
+                  <div class="form-check p-0 w-auto d-inline-block">
+                    <input class="form-check-input m-0" type="checkbox" [checked]="selected.has(c)" (change)="toggleOne(c, $event)" />
+                  </div>
+                </td>
+                <td>
+                  <div class="crm-name-cell">
+                    <span class="crm-avatar">
+                      <img *ngIf="contactAvatarUrl(c); else contactListInitials" [src]="contactAvatarUrl(c)" alt="Contact avatar">
+                      <ng-template #contactListInitials>{{ initials(c) }}</ng-template>
+                    </span>
+                    <div>
+                      <a class="crm-link crm-name-title" [routerLink]="['/contacts/edit', c.id]">
+                        {{ fullName(c) }}
+                      </a>
+                      <span class="crm-name-subtitle">{{ c.designation || 'Contact record' }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ c.primary_phone || '-' }}</td>
+                <td>{{ c.primary_email || '-' }}</td>
+                <td>{{ getAccountNames(c) }}</td>
+                <td>{{ c.created_at ? (c.created_at | date: 'dd-MM-yyyy') : '-' }}</td>
+                <td>
+                  <span class="badge badge-lg crm-status" [ngClass]="contactStatusClass(c.is_active)">
+                    {{ contactStatusLabel(c.is_active) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-menu-wrap gap-2">
+                    <a class="btn btn-subtle-secondary btn-sm btn-shadow btn-icon waves-effect me-1" [routerLink]="['/contacts/edit', c.id]">
+                      <i class="fi fi-rr-eye"></i>
+                    </a>
+
+                    <button type="button" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect" (click)="c.showMenu = !c.showMenu">
+                      <i class="fi fi-rr-menu-dots"></i>
+                    </button>
+
+                    <div *ngIf="c.showMenu" class="action-dropdown">
+                      <a class="dropdown-item" [routerLink]="['/contacts/edit', c.id]" (click)="c.showMenu = false">
+                        <i class="fi fi-rr-pencil"></i>
+                        Edit
+                      </a>
+
+                      <button type="button" class="dropdown-item danger" (click)="remove(c); c.showMenu = false">
+                        <i class="fi fi-rr-trash"></i>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!filtered.length">
+                <td colspan="8" class="crm-table-empty">No contacts found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer" *ngIf="!loading && !error && totalCount > 0">
+        <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap w-100">
+          <div class="crm-meta">
+            Showing
+            <span class="fw-semibold">{{ showingFrom }}</span>
+            to
+            <span class="fw-semibold">{{ showingTo }}</span>
+            of
+            <span class="fw-semibold">{{ totalCount }}</span>
+            contacts
+          </div>
+
+          <div class="d-flex align-items-center gap-4 flex-wrap">
+            <select class="form-select form-select-sm" style="width: 84px;" [value]="listLimit" (change)="changeLimit($any($event.target).value)">
+              <option [value]="10">10</option>
+              <option [value]="25">25</option>
+              <option [value]="50">50</option>
+              <option [value]="100">100</option>
+            </select>
+
+            <ul class="pagination pagination-sm pagination-boxed mb-0" *ngIf="totalPages > 1">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" (click)="goToPage(currentPage - 1)">
+                  <i class="ph ph-caret-left"></i>
+                </a>
+              </li>
+
+              <li class="page-item" *ngFor="let p of pages" [class.active]="p === currentPage">
+                <a class="page-link" (click)="goToPage(p)">{{ p }}</a>
+              </li>
+
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" (click)="goToPage(currentPage + 1)">
+                  <i class="ph ph-caret-right"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

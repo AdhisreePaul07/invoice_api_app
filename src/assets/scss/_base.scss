@@ -1,0 +1,471 @@
+@use 'sass:color';
+@use './variables' as *;
+
+@function app-rgb($value) {
+  @return "#{color.channel($value, 'red', $space: rgb)}, #{color.channel($value, 'green', $space: rgb)}, #{color.channel($value, 'blue', $space: rgb)}";
+}
+
+@function app-shade($value, $weight) {
+  @return color.mix(#000, $value, $weight);
+}
+
+@function app-tint($value, $weight) {
+  @return color.mix(#fff, $value, $weight);
+}
+
+$badge-info: #33b5e5;
+$badge-success: #00c851;
+$badge-warning: #ffbb33;
+$badge-danger: #ff4444;
+$shell-light: $light;
+$shell-bg: $body-shell;
+$shell-sidebar-bg: $sidebar-shell;
+$shell-border: $border;
+$shell-body: $body-color;
+$shell-heading: $heading-color;
+$shell-muted: $gray;
+$shell-subtle-bg: $body-tertiary-bg;
+
+:root {
+  --app-body-font-family: #{$font-body};
+  --app-heading-font-family: #{$font-heading};
+  --app-font-sans-serif: #{$font-body};
+  --app-font-monospace: #{$font-mono};
+  --custom-modal-backdrop-bg: #{$custom-modal-backdrop};
+  --app-info: #{$badge-info};
+  --app-info-rgb: #{app-rgb($badge-info)};
+  --app-badge-info: #{$badge-info};
+  --app-badge-success: #{$badge-success};
+  --app-badge-warning: #{$badge-warning};
+  --app-badge-danger: #{$badge-danger};
+  --app-badge-info-rgb: #{app-rgb($badge-info)};
+  --app-badge-success-rgb: #{app-rgb($badge-success)};
+  --app-badge-warning-rgb: #{app-rgb($badge-warning)};
+  --app-badge-danger-rgb: #{app-rgb($badge-danger)};
+  --app-badge-info-text-emphasis: #{app-shade($badge-info, 60%)};
+  --app-badge-success-text-emphasis: #{app-shade($badge-success, 60%)};
+  --app-badge-warning-text-emphasis: #{app-shade($badge-warning, 60%)};
+  --app-badge-danger-text-emphasis: #{app-shade($badge-danger, 60%)};
+  --app-badge-info-bg-subtle: #{app-tint($badge-info, 94%)};
+  --app-badge-success-bg-subtle: #{app-tint($badge-success, 94%)};
+  --app-badge-warning-bg-subtle: #{app-tint($badge-warning, 94%)};
+  --app-badge-danger-bg-subtle: #{app-tint($badge-danger, 94%)};
+  --app-badge-info-border-subtle: #{app-tint($badge-info, 75%)};
+  --app-badge-success-border-subtle: #{app-tint($badge-success, 75%)};
+  --app-badge-warning-border-subtle: #{app-tint($badge-warning, 75%)};
+  --app-badge-danger-border-subtle: #{app-tint($badge-danger, 75%)};
+  --app-brand-button-bg: linear-gradient(
+    90deg,
+    rgba(var(--app-primary-rgb), 0.85) 0%,
+    rgba(var(--app-accent-rgb), 0.95) 100%
+  );
+  --app-brand-button-bg-hover: linear-gradient(
+    90deg,
+    rgba(var(--app-primary-rgb), 0.95) 0%,
+    rgba(var(--app-accent-rgb), 1) 100%
+  );
+  --app-brand-button-bg-active: linear-gradient(
+    90deg,
+    rgba(var(--app-primary-rgb), 1) 0%,
+    rgba(var(--app-accent-rgb), 1) 100%
+  );
+}
+
+:root,
+[data-app-theme='light'],
+html[data-app-theme='light'],
+body[data-app-theme='light'] {
+  --custom-body-bg: #{$shell-bg};
+  --app-sidebar-bg: #{$shell-sidebar-bg};
+  --app-header-bg: var(--custom-body-bg);
+
+  --app-primary: #{$primary};
+  --app-secondary: #{$secondary};
+  --app-success: #{$success};
+  --app-accent: #{$accent};
+  --app-warning: #{$warning};
+  --app-danger: #{$danger};
+  --app-light: #{$shell-light};
+  --app-dark: #{$dark};
+  --app-primary-rgb: #{app-rgb($primary)};
+  --app-secondary-rgb: #{app-rgb($secondary)};
+  --app-success-rgb: #{app-rgb($success)};
+  --app-accent-rgb: #{app-rgb($accent)};
+  --app-warning-rgb: #{app-rgb($warning)};
+  --app-danger-rgb: #{app-rgb($danger)};
+  --app-light-rgb: #{app-rgb($shell-light)};
+  --app-dark-rgb: #{app-rgb($dark)};
+  --app-white-rgb: #{app-rgb($white)};
+  --app-gray-rgb: #{app-rgb($shell-muted)};
+
+  --app-primary-text-emphasis: #{app-shade($primary, 60%)};
+  --app-secondary-text-emphasis: #{app-shade($secondary, 60%)};
+  --app-success-text-emphasis: #{app-shade($success, 60%)};
+  --app-accent-text-emphasis: #{app-shade($accent, 60%)};
+  --app-warning-text-emphasis: #{app-shade($warning, 60%)};
+  --app-danger-text-emphasis: #{app-shade($danger, 60%)};
+  --app-light-text-emphasis: #495057;
+  --app-dark-text-emphasis: #495057;
+
+  --app-primary-bg-subtle: #{app-tint($primary, 94%)};
+  --app-secondary-bg-subtle: #{app-tint($secondary, 94%)};
+  --app-success-bg-subtle: #{app-tint($success, 94%)};
+  --app-accent-bg-subtle: #{app-tint($accent, 94%)};
+  --app-warning-bg-subtle: #{app-tint($warning, 94%)};
+  --app-danger-bg-subtle: #{app-tint($danger, 94%)};
+  --app-light-bg-subtle: #f8f9fa;
+  --app-dark-bg-subtle: #{app-tint($dark, 96%)};
+
+  --app-primary-border-subtle: #{app-tint($primary, 75%)};
+  --app-secondary-border-subtle: #{app-tint($secondary, 75%)};
+  --app-success-border-subtle: #{app-tint($success, 75%)};
+  --app-accent-border-subtle: #{app-tint($accent, 75%)};
+  --app-warning-border-subtle: #{app-tint($warning, 75%)};
+  --app-danger-border-subtle: #{app-tint($danger, 75%)};
+  --app-light-border-subtle: #e9ecef;
+  --app-dark-border-subtle: #adb5bd;
+
+  --app-body-font-size: #{$fs-14};
+  --app-body-font-weight: #{$fw-500};
+  --app-body-line-height: #{$line-height-body};
+  --app-body-color: #{$shell-body};
+  --app-body-color-rgb: #{app-rgb($shell-body)};
+  --app-body-bg: #{$white};
+  --app-body-bg-rgb: #{app-rgb($white)};
+  --app-emphasis-color: #{$shell-heading};
+  --app-emphasis-color-rgb: #{app-rgb($shell-heading)};
+  --app-secondary-color: rgba(105, 105, 129, 0.78);
+  --app-secondary-color-rgb: #{app-rgb($shell-body)};
+  --app-secondary-bg: #{$shell-subtle-bg};
+  --app-secondary-bg-rgb: #{app-rgb($shell-subtle-bg)};
+  --app-tertiary-color: rgba(151, 161, 192, 0.88);
+  --app-tertiary-color-rgb: #{app-rgb($shell-muted)};
+  --app-tertiary-bg: #{$shell-subtle-bg};
+  --app-tertiary-bg-rgb: #{app-rgb($shell-subtle-bg)};
+  --app-heading-color: #{$shell-heading};
+  --app-link-color: #{$primary};
+  --app-link-color-rgb: #{app-rgb($primary)};
+  --app-link-hover-color: #{app-shade($primary, 12%)};
+  --app-link-hover-color-rgb: #{app-rgb(app-shade($primary, 12%))};
+  --app-code-color: #{app-shade($accent, 12%)};
+  --app-highlight-color: #{$shell-body};
+  --app-highlight-bg: #{app-tint($primary, 84%)};
+  --app-border-color: #{$shell-border};
+  --app-border-color-translucent: rgba(0, 0, 0, 0.1);
+  --app-focus-ring-color: rgba(var(--app-primary-rgb), 0.25);
+  --app-form-valid-color: #{$success};
+  --app-form-valid-border-color: #{$success};
+  --app-form-invalid-color: #{$danger};
+  --app-form-invalid-border-color: #{$danger};
+}
+
+[data-app-theme='dark'],
+html[data-app-theme='dark'],
+body[data-app-theme='dark'] {
+  color-scheme: dark;
+
+  --custom-body-bg: var(--app-secondary-bg);
+  --app-sidebar-bg: var(--app-body-bg);
+  --app-header-bg: var(--app-secondary-bg);
+
+  --app-secondary: #{$secondary-dark};
+  --app-light: #{$light-dark};
+  --app-dark: #{$dark-dark};
+  --app-secondary-rgb: #{app-rgb($secondary-dark)};
+  --app-light-rgb: #{app-rgb($light-dark)};
+  --app-dark-rgb: #{app-rgb($dark-dark)};
+
+  --app-body-color: #{$body-color-dark};
+  --app-body-color-rgb: #{app-rgb($body-color-dark)};
+  --app-body-bg: #{$body-shell-dark};
+  --app-body-bg-rgb: #{app-rgb($body-shell-dark)};
+  --app-emphasis-color: #{$heading-color-dark};
+  --app-emphasis-color-rgb: #{app-rgb($heading-color-dark)};
+  --app-secondary-color: rgba(147, 171, 156, 0.78);
+  --app-secondary-color-rgb: #{app-rgb($body-color-dark)};
+  --app-secondary-bg: #{$body-surface-dark};
+  --app-secondary-bg-rgb: #{app-rgb($body-surface-dark)};
+  --app-tertiary-color: rgba(147, 171, 156, 0.58);
+  --app-tertiary-color-rgb: #{app-rgb($body-color-dark)};
+  --app-tertiary-bg: #{$body-tertiary-bg-dark};
+  --app-tertiary-bg-rgb: #{app-rgb($body-tertiary-bg-dark)};
+  --app-heading-color: #{$heading-color-dark};
+  --app-link-color: #{$primary};
+  --app-link-color-rgb: #{app-rgb($primary)};
+  --app-link-hover-color: #{app-tint($primary, 12%)};
+  --app-link-hover-color-rgb: #{app-rgb(app-tint($primary, 12%))};
+  --app-border-color: #{$border-dark};
+  --app-border-color-translucent: rgba(255, 255, 255, 0.15);
+
+  --app-primary-text-emphasis: #{app-tint($primary, 62%)};
+  --app-secondary-text-emphasis: #9ab4a6;
+  --app-success-text-emphasis: #{app-tint($success, 58%)};
+  --app-accent-text-emphasis: #{app-tint($accent, 58%)};
+  --app-warning-text-emphasis: #{app-tint($warning, 52%)};
+  --app-danger-text-emphasis: #{app-tint($danger, 54%)};
+  --app-light-text-emphasis: #5e7468;
+  --app-dark-text-emphasis: #9ab4a6;
+
+  --app-primary-bg-subtle: #072419;
+  --app-secondary-bg-subtle: #16211c;
+  --app-success-bg-subtle: #{color.mix($success, $body-shell-dark, 16%)};
+  --app-accent-bg-subtle: #082826;
+  --app-warning-bg-subtle: #{color.mix($warning, $body-shell-dark, 18%)};
+  --app-danger-bg-subtle: #{color.mix($danger, $body-shell-dark, 18%)};
+  --app-light-bg-subtle: #1b2822;
+  --app-dark-bg-subtle: #0b120f;
+
+  --app-primary-border-subtle: #{color.mix($primary, $body-shell-dark, 34%)};
+  --app-secondary-border-subtle: #{color.mix($secondary-dark, $body-shell-dark, 24%)};
+  --app-success-border-subtle: #{color.mix($success, $body-shell-dark, 34%)};
+  --app-accent-border-subtle: #{color.mix($accent, $body-shell-dark, 34%)};
+  --app-warning-border-subtle: #{color.mix($warning, $body-shell-dark, 34%)};
+  --app-danger-border-subtle: #{color.mix($danger, $body-shell-dark, 34%)};
+  --app-light-border-subtle: #2c3b34;
+  --app-dark-border-subtle: #43554b;
+
+  --app-form-valid-color: #{$success};
+  --app-form-valid-border-color: #{$success};
+  --app-form-invalid-color: #{$danger};
+  --app-form-invalid-border-color: #{$danger};
+  --app-badge-info-text-emphasis: #{app-tint($badge-info, 54%)};
+  --app-badge-success-text-emphasis: #{app-tint($badge-success, 54%)};
+  --app-badge-warning-text-emphasis: #{app-tint($badge-warning, 52%)};
+  --app-badge-danger-text-emphasis: #{app-tint($badge-danger, 54%)};
+  --app-badge-info-bg-subtle: #{color.mix($badge-info, $body-shell-dark, 18%)};
+  --app-badge-success-bg-subtle: #{color.mix($badge-success, $body-shell-dark, 18%)};
+  --app-badge-warning-bg-subtle: #{color.mix($badge-warning, $body-shell-dark, 18%)};
+  --app-badge-danger-bg-subtle: #{color.mix($badge-danger, $body-shell-dark, 18%)};
+  --app-badge-info-border-subtle: #{color.mix($badge-info, $body-shell-dark, 34%)};
+  --app-badge-success-border-subtle: #{color.mix($badge-success, $body-shell-dark, 34%)};
+  --app-badge-warning-border-subtle: #{color.mix($badge-warning, $body-shell-dark, 34%)};
+  --app-badge-danger-border-subtle: #{color.mix($badge-danger, $body-shell-dark, 34%)};
+}
+
+.badge.text-bg-info {
+  color: #ffffff !important;
+  background-color: rgba(var(--app-badge-info-rgb), var(--app-bg-opacity, 1)) !important;
+}
+
+.badge.text-bg-accent,
+.badge.bg-accent {
+  color: #ffffff !important;
+  background-color: rgba(var(--app-badge-info-rgb), var(--app-bg-opacity, 1)) !important;
+}
+
+.badge.text-bg-success {
+  color: #ffffff !important;
+  background-color: rgba(var(--app-badge-success-rgb), var(--app-bg-opacity, 1)) !important;
+}
+
+.badge.text-bg-warning {
+  color: #ffffff !important;
+  background-color: rgba(var(--app-badge-warning-rgb), var(--app-bg-opacity, 1)) !important;
+}
+
+.badge.text-bg-danger {
+  color: #ffffff !important;
+  background-color: rgba(var(--app-badge-danger-rgb), var(--app-bg-opacity, 1)) !important;
+}
+
+.badge.bg-info-subtle {
+  background-color: var(--app-badge-info-bg-subtle) !important;
+}
+
+.badge.bg-accent-subtle {
+  background-color: var(--app-badge-info-bg-subtle) !important;
+}
+
+.badge.bg-success-subtle {
+  background-color: var(--app-badge-success-bg-subtle) !important;
+}
+
+.badge.bg-warning-subtle {
+  background-color: var(--app-badge-warning-bg-subtle) !important;
+}
+
+.badge.bg-danger-subtle {
+  background-color: var(--app-badge-danger-bg-subtle) !important;
+}
+
+.badge.text-info {
+  color: var(--app-badge-info-text-emphasis) !important;
+}
+
+.badge.text-accent {
+  color: var(--app-badge-info-text-emphasis) !important;
+}
+
+.badge.text-success {
+  color: var(--app-badge-success-text-emphasis) !important;
+}
+
+.badge.text-warning {
+  color: var(--app-badge-warning-text-emphasis) !important;
+}
+
+.badge.text-danger {
+  color: var(--app-badge-danger-text-emphasis) !important;
+}
+
+.badge.border-info-subtle {
+  border-color: var(--app-badge-info-border-subtle) !important;
+}
+
+.badge.border-accent-subtle {
+  border-color: var(--app-badge-info-border-subtle) !important;
+}
+
+.badge.border-success-subtle {
+  border-color: var(--app-badge-success-border-subtle) !important;
+}
+
+.badge.border-warning-subtle {
+  border-color: var(--app-badge-warning-border-subtle) !important;
+}
+
+.badge.border-danger-subtle {
+  border-color: var(--app-badge-danger-border-subtle) !important;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+.tooltip,
+.popover {
+  font-family: $font-body;
+  line-height: $line-height-body;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: $font-heading;
+  line-height: $line-height-heading;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: $font-mono;
+}
+
+.btn {
+  background: var(--app-btn-bg);
+}
+
+.btn:hover {
+  background: var(--app-btn-hover-bg);
+}
+
+.btn-check + .btn:hover {
+  background: var(--app-btn-bg);
+}
+
+.btn:focus-visible {
+  background: var(--app-btn-hover-bg);
+}
+
+.btn-check:checked + .btn,
+:not(.btn-check) + .btn:active,
+.btn:first-child:active,
+.btn.active,
+.btn.show {
+  background: var(--app-btn-active-bg);
+}
+
+.btn:disabled,
+.btn.disabled,
+fieldset:disabled .btn {
+  background: var(--app-btn-disabled-bg);
+}
+
+.btn-primary {
+  --app-btn-bg: var(--app-brand-button-bg);
+  --app-btn-border-color: transparent;
+  --app-btn-hover-color: #fff;
+  --app-btn-hover-bg: var(--app-brand-button-bg-hover);
+  --app-btn-hover-border-color: transparent;
+  --app-btn-focus-shadow-rgb: var(--app-primary-rgb);
+  --app-btn-active-color: #fff;
+  --app-btn-active-bg: var(--app-brand-button-bg-active);
+  --app-btn-active-border-color: transparent;
+  --app-btn-disabled-color: #fff;
+  --app-btn-disabled-bg: var(--app-brand-button-bg);
+  --app-btn-disabled-border-color: transparent;
+}
+
+.btn-outline-primary {
+  --app-btn-hover-color: #fff;
+  --app-btn-hover-bg: var(--app-brand-button-bg-hover);
+  --app-btn-hover-border-color: transparent;
+  --app-btn-active-color: #fff;
+  --app-btn-active-bg: var(--app-brand-button-bg-active);
+  --app-btn-active-border-color: transparent;
+}
+
+.btn.btn-link {
+  --app-btn-color: #fff;
+  --app-btn-bg: var(--app-brand-button-bg);
+  --app-btn-border-color: transparent;
+  --app-btn-hover-color: #fff;
+  --app-btn-hover-bg: var(--app-brand-button-bg-hover);
+  --app-btn-hover-border-color: transparent;
+  --app-btn-active-color: #fff;
+  --app-btn-active-bg: var(--app-brand-button-bg-active);
+  --app-btn-active-border-color: transparent;
+  --app-btn-disabled-color: #fff;
+  --app-btn-disabled-bg: var(--app-brand-button-bg);
+  --app-btn-disabled-border-color: transparent;
+  text-decoration: none;
+}
+
+.btn.btn-link:hover,
+.btn.btn-link:focus,
+.btn.btn-link:focus-visible {
+  text-decoration: none;
+}
+
+.app-side-brands .navbar-brand-text {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+a[aria-label="Clienet Logo"],
+a[aria-label="Clienet logo"] {
+  display: inline-block;
+}
+
+img[src="/assets/images/clienet-logo.png"],
+img[src="/assets/images/clienet-logo-white.png"],
+.app-side-brands .navbar-brand-text img {
+  display: block;
+  width: auto;
+  height: 28px;
+  max-height: 28px;
+}
+
+.app-menubar-tabs > .app-navbar-brand {
+  display: none;
+}
+
+.app-menubar-tabs > .app-navbar-tabs {
+  height: 100%;
+}
+
+.toast:not(.show):not(.showing) {
+  display: none;
+}

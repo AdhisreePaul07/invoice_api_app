@@ -1,0 +1,555 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a href="/">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Organization</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div
+  class="profile-photo-modal-backdrop"
+  *ngIf="organizationImageModalOpen"
+  (click)="closeOrganizationImageModal()"
+></div>
+
+<div
+  class="profile-photo-modal"
+  *ngIf="organizationImageModalOpen"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="organizationPhotoModalTitle"
+  (click)="closeOrganizationImageModal()"
+>
+  <div class="profile-photo-modal__dialog" (click)="$event.stopPropagation()">
+    <div class="profile-photo-modal__header">
+      <h4 id="organizationPhotoModalTitle" class="profile-photo-modal__title">{{ organizationModalTitle }}</h4>
+      <button
+        type="button"
+        class="profile-photo-modal__close"
+        aria-label="Close organization image dialog"
+        (click)="closeOrganizationImageModal()"
+      >
+        <i class="fi fi-rr-cross-small"></i>
+      </button>
+    </div>
+
+    <div class="profile-photo-modal__body" [class.profile-photo-modal__body--editing]="isOrganizationCropDraftActive">
+      <ng-container *ngIf="isOrganizationCropDraftActive; else currentOrganizationPreviewMode">
+        <div class="profile-photo-modal__editor-stage">
+          <div
+            class="profile-photo-modal__crop-stage"
+            (mousedown)="startOrganizationCropDrag($event)"
+            (touchstart)="startOrganizationCropDrag($event)"
+            (wheel)="onOrganizationCropWheel($event)"
+          >
+            <div class="profile-photo-modal__crop-image" [ngStyle]="organizationCropImageStyle">
+              <img [src]="organizationImageDraftUrl" alt="Organization image crop preview">
+            </div>
+            <div class="profile-photo-modal__crop-grid"></div>
+            <div class="profile-photo-modal__crop-ring"></div>
+          </div>
+
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeOrganizationImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeOrganizationImageMeta }}</span>
+          </div>
+        </div>
+
+        <aside class="profile-photo-modal__editor-panel">
+          <div class="profile-photo-modal__panel-head">
+            <h5 class="profile-photo-modal__panel-title">Crop</h5>
+            <p class="profile-photo-modal__tool-copy mb-0">
+              Drag the organization photo inside the frame and fine tune the crop before saving.
+            </p>
+          </div>
+
+          <div class="profile-photo-modal__editor-content">
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="organizationCropZoom" class="profile-photo-modal__control-label">Zoom</label>
+                <span class="profile-photo-modal__control-value">{{ organizationCropZoom | number: '1.0-2' }}x</span>
+              </div>
+              <input
+                #organizationCropZoomInput
+                id="organizationCropZoom"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="1"
+                max="3"
+                step="0.01"
+                [value]="organizationCropZoom"
+                (input)="onOrganizationCropZoomChange(organizationCropZoomInput.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="organizationCropStraighten" class="profile-photo-modal__control-label">Straighten</label>
+                <span class="profile-photo-modal__control-value">{{ organizationStraighten | number: '1.0-1' }}&deg;</span>
+              </div>
+              <input
+                #organizationStraightenInput
+                id="organizationCropStraighten"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="-15"
+                max="15"
+                step="0.5"
+                [value]="organizationStraighten"
+                (input)="onOrganizationStraightenChange(organizationStraightenInput.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__tip">
+              <i class="fi fi-rr-arrows-repeat"></i>
+              <span>Use drag or mouse wheel to position the image naturally.</span>
+            </div>
+          </div>
+        </aside>
+      </ng-container>
+
+      <ng-template #currentOrganizationPreviewMode>
+        <div class="profile-photo-modal__preview-mode">
+          <div class="profile-photo-modal__preview-shell">
+            <div class="profile-photo-modal__preview">
+              <img *ngIf="activeOrganizationImageUrl; else emptyOrganizationPhoto" [src]="activeOrganizationImageUrl" alt="Organization image preview">
+              <ng-template #emptyOrganizationPhoto>
+                <div class="profile-photo-modal__empty">
+                  {{ (organization?.org_name || account?.first_name || account?.email || 'O').slice(0, 1) | uppercase }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeOrganizationImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeOrganizationImageMeta }}</span>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="alert alert-danger py-2 mb-0" *ngIf="organizationImageError" role="alert">
+        {{ organizationImageError }}
+      </div>
+      <div class="alert alert-success py-2 mb-0" *ngIf="organizationImageSuccess" role="alert">
+        {{ organizationImageSuccess }}
+      </div>
+    </div>
+
+    <div class="profile-photo-modal__footer">
+      <input
+        #organizationImageInput
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml"
+        [disabled]="organizationImageActionBusy"
+        (change)="handleOrganizationImageFileChange($event)"
+        hidden
+      >
+
+      <button
+        type="button"
+        class="profile-photo-modal__action"
+        [disabled]="organizationImageActionBusy"
+        (click)="handleOrganizationUpdateAction(organizationImageInput)"
+      >
+        <i class="fi fi-rr-camera"></i>
+        <span>{{ organizationUpdateButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--secondary"
+        [class.profile-photo-modal__action--selected]="isOrganizationCropDraftActive"
+        [disabled]="organizationImageActionBusy || (!organizationProfileImageUrl && !isOrganizationCropDraftActive)"
+        (click)="handleOrganizationCropAction()"
+      >
+        <i class="fi fi-rr-edit"></i>
+        <span>{{ organizationCropButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--danger"
+        [disabled]="organizationImageActionBusy || (!organizationProfileImageUrl && !isOrganizationCropDraftActive)"
+        (click)="removeOrganizationProfileImage()"
+      >
+        <i class="fi fi-rr-trash"></i>
+        <span>{{ isOrganizationCropDraftActive ? 'Discard' : (organizationImageRemoving ? 'Removing...' : 'Delete') }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<datalist id="organization-legal-type-options">
+  <option *ngFor="let type of legalIdentifierTypes" [value]="type"></option>
+</datalist>
+
+<datalist id="organization-tax-type-options">
+  <option *ngFor="let type of taxTypes" [value]="type"></option>
+</datalist>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12 organization-overview-column">
+    <app-profile-overview-card
+      [account]="account"
+      [organization]="organization"
+      [loading]="loading"
+      [editableAvatar]="true"
+      [avatarActionBusy]="organizationImageActionBusy"
+      (avatarActionRequested)="openOrganizationImageModal()"
+    ></app-profile-overview-card>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+    <div class="alert alert-success" *ngIf="success" role="alert">
+      {{ success }}
+    </div>
+
+    <div class="card organization-loading-card" *ngIf="loading">
+      <div class="card-body">
+        <div class="app-skeleton-form-state" aria-hidden="true">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--block"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form *ngIf="!loading" [formGroup]="form" novalidate class="organization-form">
+      <div class="organization-section-stack">
+        <section class="card organization-card">
+          <div class="card-header organization-card__head">
+            <div>
+              <h5 class="organization-card__title">Overview</h5>
+              <span class="organization-card__meta">Core workspace details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Business Name</label>
+                <input type="text" class="form-control" formControlName="org_name">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Owner</label>
+                <input type="text" class="form-control" [value]="createdByName" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Workspace Slug</label>
+                <input type="text" class="form-control" formControlName="org_slug">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Plan</label>
+                <select class="form-select" formControlName="plan_code">
+                  <option *ngFor="let option of planOptions" [value]="option.value">{{ option.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Organization UID</label>
+                <input type="text" class="form-control" formControlName="uid" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Organization Role</label>
+                <input type="text" class="form-control" [value]="roleLabel" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Created At</label>
+                <input type="text" class="form-control" [value]="formatTimestamp(organization?.created_at)" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Updated At</label>
+                <input type="text" class="form-control" [value]="formatTimestamp(organization?.updated_at)" readonly>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card organization-card">
+          <div class="card-header organization-card__head">
+            <div>
+              <h5 class="organization-card__title">Legal Identifiers & Tax Details</h5>
+              <span class="organization-card__meta">Registration and tax information for the business</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="organization-subsection">
+              <div class="organization-subsection__head">
+                <h6 class="organization-subsection__title">Legal Identifiers</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addLegalIdentifier()">Add Row</button>
+              </div>
+
+              <div class="stack-list" formArrayName="legal_identifiers">
+                <div
+                  class="stack-list__row"
+                  *ngFor="let group of legalIdentifiers.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <input type="text" class="form-control" formControlName="type" list="organization-legal-type-options" placeholder="Identifier type">
+                  <input type="text" class="form-control" formControlName="value" placeholder="Identifier value">
+                  <button type="button" class="remove-cross-button" (click)="removeLegalIdentifier(i)" aria-label="Remove legal identifier">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="legalIdentifiers.length === 0">No legal identifiers added yet.</div>
+            </div>
+
+            <div class="organization-divider"></div>
+
+            <div class="organization-subsection">
+              <div class="organization-subsection__head">
+                <h6 class="organization-subsection__title">Tax Details</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addTaxDetail()">Add Row</button>
+              </div>
+
+              <div class="stack-list" formArrayName="tax_detail">
+                <div
+                  class="stack-list__row"
+                  *ngFor="let group of taxDetails.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <input type="text" class="form-control" formControlName="type" list="organization-tax-type-options" placeholder="Tax type">
+                  <input type="text" class="form-control" formControlName="value" placeholder="Tax value">
+                  <button type="button" class="remove-cross-button" (click)="removeTaxDetail(i)" aria-label="Remove tax detail">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="taxDetails.length === 0">No tax details added yet.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card organization-card">
+          <div class="card-header organization-card__head">
+            <div>
+              <h5 class="organization-card__title">Addresses</h5>
+              <span class="organization-card__meta">Primary address plus additional locations</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="address-card" formGroupName="primary_address">
+              <div class="address-card__head">Primary Address</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Address Line 1</label>
+                  <input type="text" class="form-control" formControlName="address_line1">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Address Line 2</label>
+                  <input type="text" class="form-control" formControlName="address_line2">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">City</label>
+                  <input type="text" class="form-control" formControlName="city">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">State</label>
+                  <input type="text" class="form-control" formControlName="state">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">PIN Code</label>
+                  <input type="text" class="form-control" formControlName="pin_code">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Country</label>
+                  <input type="text" class="form-control" formControlName="Country">
+                </div>
+              </div>
+            </div>
+
+            <div class="organization-subsection organization-subsection--spaced">
+              <div class="organization-subsection__head">
+                <h6 class="organization-subsection__title">Additional Addresses</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addAdditionalAddress()">Add Address</button>
+              </div>
+
+              <div class="address-list" formArrayName="additional_addresses">
+                <div
+                  class="address-card"
+                  *ngFor="let group of additionalAddresses.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <div class="address-card__head d-flex justify-content-between align-items-center">
+                    <span>Address {{ i + 1 }}</span>
+                    <button type="button" class="remove-cross-button" (click)="removeAdditionalAddress(i)" aria-label="Remove address">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Address Line 1</label>
+                      <input type="text" class="form-control" formControlName="address_line1">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Address Line 2</label>
+                      <input type="text" class="form-control" formControlName="address_line2">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">City</label>
+                      <input type="text" class="form-control" formControlName="city">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">State</label>
+                      <input type="text" class="form-control" formControlName="state">
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">PIN Code</label>
+                      <input type="text" class="form-control" formControlName="pin_code">
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Country</label>
+                      <input type="text" class="form-control" formControlName="Country">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="additionalAddresses.length === 0">No additional addresses added yet.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card organization-card">
+          <div class="card-header organization-card__head">
+            <div>
+              <h5 class="organization-card__title">Currency Settings</h5>
+              <span class="organization-card__meta">Fetched from <code>currency.json</code> via the API</span>
+            </div>
+          </div>
+          <div class="card-body" formGroupName="currency_settings">
+            <div class="currency-picker">
+              <select class="form-select" [(ngModel)]="selectedCurrencyId" [ngModelOptions]="{ standalone: true }">
+                <option [ngValue]="null">Select a currency</option>
+                <option *ngFor="let option of availableCurrencies" [ngValue]="option.id">
+                  {{ option.shortname }} - {{ option.name }}
+                </option>
+              </select>
+              <button type="button" class="btn btn-outline-primary" (click)="addSelectedCurrency()">Add Currency</button>
+            </div>
+
+            <div class="empty-copy" *ngIf="selectedCurrencies.length === 0">No currencies selected yet.</div>
+
+            <div class="currency-list" *ngIf="selectedCurrencies.length > 0">
+              <div class="currency-item" *ngFor="let control of selectedCurrencies.controls; let i = index; trackBy: trackByIndex">
+                <div class="currency-item__info">
+                  <strong>{{ control.get('shortname')?.value }}</strong>
+                  <span>{{ control.get('name')?.value }}</span>
+                </div>
+                <div class="currency-item__meta">{{ control.get('symbol')?.value }}</div>
+                <button type="button" class="remove-cross-button" (click)="removeCurrency(i)" aria-label="Remove currency">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+              <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                  <label class="form-label">Default Currency</label>
+                  <select class="form-select" formControlName="default_currency">
+                    <option value="">Select default currency</option>
+                    <option *ngFor="let control of selectedCurrencies.controls" [value]="control.get('shortname')?.value">
+                      {{ control.get('shortname')?.value }} - {{ control.get('name')?.value }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Currency Symbol</label>
+                  <input type="text" class="form-control" [value]="defaultCurrencySymbol" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card organization-card" formGroupName="invoice_settings">
+          <div class="card-header organization-card__head">
+            <div>
+              <h5 class="organization-card__title">Invoice Settings</h5>
+              <span class="organization-card__meta">Fetched with receipt due options from <code>receiptdue.json</code></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Invoice Prefix</label>
+                <input type="text" class="form-control" formControlName="invoice_prefix" placeholder="INV">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Receipt Prefix</label>
+                <input type="text" class="form-control" formControlName="receipt_prefix" placeholder="RCP">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Invoice Number Start</label>
+                <input type="number" class="form-control" formControlName="invoice_number_start" placeholder="1001">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Receipt Number Start</label>
+                <input type="number" class="form-control" formControlName="receipt_number_start" placeholder="1">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Default Receipt Due</label>
+                <select class="form-select" formControlName="receipt_due_id">
+                  <option [ngValue]="null">Select due option</option>
+                  <option *ngFor="let option of receiptDueOptions" [ngValue]="option.id">
+                    {{ option.value }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Default Terms</label>
+                <input type="text" class="form-control" formControlName="default_terms" placeholder="Payment due within 15 days.">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Default Footer</label>
+                <textarea class="form-control" rows="4" formControlName="default_footer" placeholder="Thank you for your business."></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="organization-actions">
+          <button
+            type="button"
+            class="btn btn-outline-secondary waves-effect"
+            (click)="refreshOrganization()"
+            [disabled]="loading || saving"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            class="btn btn-success waves-effect waves-light"
+            (click)="save()"
+            [disabled]="loading || saving || !organization"
+          >
+            {{ saving ? 'Saving...' : 'Save All Changes' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

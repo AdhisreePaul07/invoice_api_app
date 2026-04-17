@@ -1,0 +1,92 @@
+<div class="container-fluid">
+  <div class="list-head">
+    <div>
+      <h2 class="mb-0">Organizations</h2>
+      <p class="muted text-sm mb-0">Manage the tenant profile that powers the new multi-tenant backend.</p>
+    </div>
+
+    <a class="btn-primary-sm" routerLink="/organizations/add">+ Add Organization</a>
+  </div>
+
+  <div class="card padded">
+    <div class="filters">
+      <div class="field">
+        <label>Search</label>
+        <input type="text" [formControl]="searchCtrl" placeholder="Search by organization name..." />
+      </div>
+
+      <div class="field">
+        <label>Plan</label>
+        <select [formControl]="typeCtrl">
+          <option [ngValue]="-1">All</option>
+          <option [ngValue]="0">STARTER</option>
+          <option [ngValue]="1">GROWTH</option>
+          <option [ngValue]="2">ENTERPRISE</option>
+        </select>
+      </div>
+
+      <div class="meta">
+        <div class="muted text-sm">Total: <b>{{ filtered.length }}</b></div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="app-skeleton-list-state px-0" aria-hidden="true">
+      <div class="app-skeleton-list-table">
+        <div class="app-skeleton-list-head">
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-xs"></span>
+        </div>
+
+        <div class="app-skeleton-list-row" *ngFor="let _ of [1, 2, 3, 4]">
+          <div class="app-skeleton-list-cell">
+            <div class="app-skeleton-list-cell--stack">
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-sm"></span>
+            </div>
+          </div>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+          <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="error" class="error text-sm">{{ error }}</p>
+
+    <table *ngIf="!loading" class="table text-sm">
+      <thead>
+        <tr>
+          <th>Organization</th>
+          <th>Plan</th>
+          <th>Country</th>
+          <th>City</th>
+          <th>Default Currency</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let org of filtered">
+          <td class="semibold">{{ org.org_name }}</td>
+          <td>{{ orgTypeLabel(planSelectionFromCode(org.plan_code)) }}</td>
+          <td>{{ org?.primary_address?.Country || org?.primary_address?.country || '-' }}</td>
+          <td>{{ org?.primary_address?.City || org?.primary_address?.city || '-' }}</td>
+          <td>{{ org?.currency_settings?.default_currency || org?.currency_settings?.currencies?.[0]?.shortname || '-' }}</td>
+          <td class="text-right">
+            <div class="row-actions">
+              <a class="badge" [routerLink]="['/organizations/edit', org.id]">Edit</a>
+              <button type="button" class="badge badge-danger" (click)="remove(org)">Delete</button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="!filtered.length">
+          <td colspan="6" class="muted">No organizations found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

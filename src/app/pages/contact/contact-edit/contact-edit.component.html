@@ -1,0 +1,450 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/contacts']">Contacts</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Contact</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12 entity-overview-column">
+    <div class="card entity-overview-card">
+      <div class="entity-summary">
+        <div class="entity-summary__avatar entity-summary__avatar--contact">
+          <img *ngIf="profileImageUrl; else contactAvatarFallback" [src]="profileImageUrl" alt="Contact profile image">
+          <ng-template #contactAvatarFallback>{{ avatarInitials }}</ng-template>
+          <button
+            type="button"
+            class="entity-summary__avatar-action"
+            [disabled]="profileImageActionBusy"
+            aria-label="Change contact image"
+            (click)="openProfileImageModal()"
+          >
+            <span class="entity-summary__avatar-action-inner">
+              <i class="fi fi-rr-camera"></i>
+            </span>
+          </button>
+        </div>
+        <div class="entity-summary__content">
+          <p class="entity-summary__eyebrow">Contact</p>
+          <h3 class="entity-summary__title">{{ displayName }}</h3>
+          <div class="entity-summary__meta">
+            <span>{{ contactMeta }}</span>
+            <span class="entity-summary__pill">{{ selectedAccounts.length }} Linked Accounts</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entity-summary__divider"></div>
+
+      <div class="entity-basic-info">
+        <h4 class="entity-basic-info__title">Basic Information</h4>
+        <div class="detail-list">
+          <div class="detail-item">
+            <span>Primary Email</span>
+            <strong>{{ form.get('primary_email')?.value || 'Not provided' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Primary Phone</span>
+            <strong>{{ form.get('primary_phone')?.value || 'Not provided' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Designation</span>
+            <strong>{{ form.get('designation')?.value || 'Not set' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="alert alert-warning" *ngIf="uploadNotice" role="alert">
+      {{ uploadNotice }}
+    </div>
+
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="card entity-loading-card" *ngIf="loading">
+      <div class="card-body">
+        <div class="app-skeleton-form-state" aria-hidden="true">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--block"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-footer">
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="update()" novalidate>
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Primary identity and communication details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">First Name</label>
+                <input class="form-control" type="text" formControlName="first_name" placeholder="Rahul">
+              </div>
+              <div>
+                <label class="form-label">Last Name</label>
+                <input class="form-control" type="text" formControlName="last_name" placeholder="Bhagat">
+              </div>
+              <div>
+                <label class="form-label">Primary Email</label>
+                <input class="form-control" type="email" formControlName="primary_email" placeholder="rahul@example.com">
+              </div>
+              <div>
+                <label class="form-label">Primary Phone</label>
+                <input class="form-control" type="text" formControlName="primary_phone" placeholder="+91 9876543210">
+              </div>
+              <div>
+                <label class="form-label">Designation</label>
+                <input class="form-control" type="text" formControlName="designation" placeholder="Finance Manager">
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Secondary Emails & Phones</h5>
+              <span class="entity-card__meta">Store alternate emails and additional phone numbers for this contact</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Secondary Emails</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSecondaryEmail()">Add Email</button>
+              </div>
+
+              <div class="stack-list" formArrayName="secondary_emails" *ngIf="secondaryEmailArr.length > 0">
+                <div
+                  class="stack-list__row stack-list__row--single"
+                  *ngFor="let control of secondaryEmailArr.controls; let i = index; trackBy: trackByIndex"
+                >
+                  <input class="form-control" type="email" [formControlName]="i" placeholder="secondary@example.com">
+                  <button type="button" class="remove-cross-button" (click)="removeSecondaryEmail(i)" aria-label="Remove email">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="secondaryEmailArr.length === 0">No secondary emails added yet.</div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Secondary Phones</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSecondaryPhone()">Add Phone</button>
+              </div>
+
+              <div class="stack-list" formArrayName="secondary_phones" *ngIf="secondaryPhoneArr.length > 0">
+                <div
+                  class="stack-list__row stack-list__row--single"
+                  *ngFor="let control of secondaryPhoneArr.controls; let i = index; trackBy: trackByIndex"
+                >
+                  <input class="form-control" type="text" [formControlName]="i" placeholder="+91 9876543210">
+                  <button type="button" class="remove-cross-button" (click)="removeSecondaryPhone(i)" aria-label="Remove phone">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="secondaryPhoneArr.length === 0">No secondary phones added yet.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Linked Accounts & Notes</h5>
+              <span class="entity-card__meta">Manage connected accounts and internal notes for this contact</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <input type="hidden" formControlName="account_ids">
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Linked Accounts</h6>
+              </div>
+
+              <div class="entity-inline-picker">
+                <div class="search-select">
+                  <input
+                    class="form-control"
+                    type="text"
+                    [formControl]="accountSearchCtrl"
+                    placeholder="Type to search account..."
+                    autocomplete="off"
+                    (focus)="openAccountDropdown()"
+                    (blur)="closeAccountDropdownSoon()"
+                  >
+
+                  <div class="dropdown" *ngIf="accountDropdownOpen">
+                    <button type="button" class="dropdown-item" *ngFor="let account of accountResults" (mousedown)="selectAccount(account)">
+                      <span>{{ account.name }}</span>
+                    </button>
+
+                    <div class="dropdown-empty" *ngIf="accountResults.length === 0">No account found.</div>
+
+                    <button type="button" class="dropdown-item addnew" (mousedown)="goToAddAccount()">
+                      <i class="ph-bold ph-plus"></i>
+                      <span>Add new account</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="selection-list" *ngIf="selectedAccounts.length > 0">
+                <div class="selection-item" *ngFor="let account of selectedAccounts; let i = index; trackBy: trackByIndex">
+                  <div class="selection-item__copy">
+                    <strong>{{ account.name }}</strong>
+                    <span>Linked account</span>
+                  </div>
+                  <button type="button" class="remove-cross-button" (click)="removeAccount(i)" aria-label="Remove account">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="selectedAccounts.length === 0">No linked accounts yet.</div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Notes</h6>
+              </div>
+
+              <label class="form-label">Internal Notes</label>
+              <textarea class="form-control" rows="4" formControlName="notes" placeholder="Internal contact notes"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="loading || saving">
+            Reset
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="form.invalid || saving">
+            {{ saving ? 'Updating...' : 'Update Contact' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div
+  class="profile-photo-modal-backdrop"
+  *ngIf="profileImageModalOpen"
+  (click)="closeProfileImageModal()"
+></div>
+
+<div
+  class="profile-photo-modal"
+  *ngIf="profileImageModalOpen"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="contactImageModalTitle"
+  (click)="closeProfileImageModal()"
+>
+  <div class="profile-photo-modal__dialog" (click)="$event.stopPropagation()">
+    <div class="profile-photo-modal__header">
+      <h4 id="contactImageModalTitle" class="profile-photo-modal__title">{{ imageModalTitle }}</h4>
+      <button
+        type="button"
+        class="profile-photo-modal__close"
+        aria-label="Close contact image dialog"
+        (click)="closeProfileImageModal()"
+      >
+        <i class="fi fi-rr-cross-small"></i>
+      </button>
+    </div>
+
+    <div class="profile-photo-modal__body" [class.profile-photo-modal__body--editing]="isCropDraftActive">
+      <ng-container *ngIf="isCropDraftActive; else currentContactPreviewMode">
+        <div class="profile-photo-modal__editor-stage">
+          <div
+            class="profile-photo-modal__crop-stage"
+            (mousedown)="startCropDrag($event)"
+            (touchstart)="startCropDrag($event)"
+            (wheel)="onCropWheel($event)"
+          >
+            <div class="profile-photo-modal__crop-image" [ngStyle]="cropImageStyle">
+              <img [src]="profileImageDraftUrl" alt="Contact image crop preview">
+            </div>
+            <div class="profile-photo-modal__crop-grid"></div>
+            <div class="profile-photo-modal__crop-ring"></div>
+          </div>
+
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeProfileImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeProfileImageMeta }}</span>
+          </div>
+        </div>
+
+        <aside class="profile-photo-modal__editor-panel">
+          <div class="profile-photo-modal__panel-head">
+            <h5 class="profile-photo-modal__panel-title">Crop</h5>
+            <p class="profile-photo-modal__tool-copy mb-0">
+              Drag the image inside the frame and fine tune the crop before saving.
+            </p>
+          </div>
+
+          <div class="profile-photo-modal__editor-content">
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="contactCropZoom" class="profile-photo-modal__control-label">Zoom</label>
+                <span class="profile-photo-modal__control-value">{{ cropZoom | number: '1.0-2' }}x</span>
+              </div>
+              <input
+                #contactCropZoom
+                id="contactCropZoom"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="1"
+                max="3"
+                step="0.01"
+                [value]="cropZoom"
+                (input)="onCropZoomChange(contactCropZoom.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="contactCropStraighten" class="profile-photo-modal__control-label">Straighten</label>
+                <span class="profile-photo-modal__control-value">{{ straighten | number: '1.0-1' }}&deg;</span>
+              </div>
+              <input
+                #contactCropStraighten
+                id="contactCropStraighten"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="-15"
+                max="15"
+                step="0.5"
+                [value]="straighten"
+                (input)="onStraightenChange(contactCropStraighten.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__tip">
+              <i class="fi fi-rr-arrows-repeat"></i>
+              <span>Use drag or mouse wheel to position the image naturally.</span>
+            </div>
+          </div>
+        </aside>
+      </ng-container>
+
+      <ng-template #currentContactPreviewMode>
+        <div class="profile-photo-modal__preview-mode">
+          <div class="profile-photo-modal__preview-shell">
+            <div class="profile-photo-modal__preview">
+              <img *ngIf="activeProfileImageUrl; else emptyContactPhoto" [src]="activeProfileImageUrl" alt="Contact image preview">
+              <ng-template #emptyContactPhoto>
+                <div class="profile-photo-modal__empty">
+                  {{ avatarInitials.slice(0, 1) || 'C' }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeProfileImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeProfileImageMeta }}</span>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="alert alert-danger py-2 mb-0" *ngIf="profileImageError" role="alert">
+        {{ profileImageError }}
+      </div>
+      <div class="alert alert-success py-2 mb-0" *ngIf="profileImageSuccess" role="alert">
+        {{ profileImageSuccess }}
+      </div>
+    </div>
+
+    <div class="profile-photo-modal__footer">
+      <input
+        #contactImageInput
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml"
+        [disabled]="profileImageActionBusy"
+        (change)="handleProfileImageFileChange($event)"
+        hidden
+      >
+
+      <button
+        type="button"
+        class="profile-photo-modal__action"
+        [disabled]="profileImageActionBusy"
+        (click)="handleUpdateAction(contactImageInput)"
+      >
+        <i class="fi fi-rr-camera"></i>
+        <span>{{ updateButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--secondary"
+        [class.profile-photo-modal__action--selected]="isCropDraftActive"
+        [disabled]="profileImageActionBusy || (!profileImageUrl && !isCropDraftActive)"
+        (click)="handleCropAction()"
+      >
+        <i class="fi fi-rr-edit"></i>
+        <span>{{ cropButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--danger"
+        [disabled]="profileImageActionBusy || (!profileImageUrl && !isCropDraftActive)"
+        (click)="deleteProfileImage()"
+      >
+        <i class="fi fi-rr-trash"></i>
+        <span>{{ isCropDraftActive ? 'Discard' : (profileImageRemoving ? 'Removing...' : 'Delete') }}</span>
+      </button>
+    </div>
+  </div>
+</div>

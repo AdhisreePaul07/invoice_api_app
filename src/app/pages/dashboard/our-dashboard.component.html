@@ -1,0 +1,293 @@
+<div class="container-fluid our-dashboard">
+  <div class="app-page-head d-flex align-items-center justify-content-between">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a routerLink="/">
+            <i class="fi fi-rr-home"></i>
+            Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Our Dashboard</li>
+      </ol>
+    </nav>
+
+    <button type="button" class="btn btn-action-primary waves-effect waves-light" (click)="refresh()" [disabled]="loading">
+      <i class="fi fi-rr-refresh"></i>
+      Refresh
+    </button>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+  <div class="alert alert-warning" *ngIf="!error && partialDataWarning">{{ partialDataWarning }}</div>
+
+  <div class="dashboard-skeleton" *ngIf="loading">
+    <div class="dashboard-skeleton__cards">
+      <span class="app-skeleton app-skeleton--card"></span>
+      <span class="app-skeleton app-skeleton--card"></span>
+      <span class="app-skeleton app-skeleton--card"></span>
+      <span class="app-skeleton app-skeleton--card"></span>
+    </div>
+    <div class="dashboard-skeleton__rows">
+      <span class="app-skeleton app-skeleton--block"></span>
+      <span class="app-skeleton app-skeleton--block"></span>
+    </div>
+  </div>
+
+  <div class="row g-3" *ngIf="!loading">
+    <div class="col-xxl-8">
+      <div class="row g-3">
+        <div class="col-xl-3 col-md-6">
+          <article class="card metric-card h-100">
+            <div class="card-body">
+              <p class="metric-card__label">Total Accounts</p>
+              <h3 class="metric-card__value">{{ totalAccounts }}</h3>
+              <p class="metric-card__meta">{{ workspaceName }}</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <article class="card metric-card h-100">
+            <div class="card-body">
+              <p class="metric-card__label">Total Contacts</p>
+              <h3 class="metric-card__value">{{ totalContacts }}</h3>
+              <p class="metric-card__meta">Linked with CRM records</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <article class="card metric-card h-100">
+            <div class="card-body">
+              <p class="metric-card__label">Deal Pipeline</p>
+              <h3 class="metric-card__value">{{ formatAmount(pipelineValue) }}</h3>
+              <p class="metric-card__meta">Won value: {{ formatAmount(wonValue) }}</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <article class="card metric-card h-100">
+            <div class="card-body">
+              <p class="metric-card__label">Collection Rate</p>
+              <h3 class="metric-card__value">{{ formatPercent(collectionRate) }}</h3>
+              <p class="metric-card__meta">Billed: {{ formatAmount(billedAmount) }}</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <div>
+                <h6 class="mb-1">Revenue Snapshot</h6>
+                <p class="text-muted mb-0">Based only on live invoices and receipts from your database.</p>
+              </div>
+              <small class="text-muted">Updated {{ updatedAt | date:'d MMM y, h:mm a' }}</small>
+            </div>
+            <div class="card-body">
+              <div class="row g-3 revenue-grid">
+                <div class="col-md-4">
+                  <div class="metric-chip">
+                    <span>Billed</span>
+                    <strong>{{ formatAmount(billedAmount) }}</strong>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="metric-chip">
+                    <span>Collected</span>
+                    <strong>{{ formatAmount(collectedAmount) }}</strong>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="metric-chip">
+                    <span>Outstanding</span>
+                    <strong>{{ formatAmount(balanceDueAmount) }}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mini-chart mt-4">
+                <div class="mini-chart__row" *ngFor="let point of monthlyInvoiceSeries; trackBy: trackByLabel">
+                  <div class="mini-chart__label">{{ point.label }}</div>
+                  <div class="mini-chart__bar">
+                    <span [style.width.%]="point.ratio"></span>
+                  </div>
+                  <div class="mini-chart__value">{{ formatAmount(point.amount) }}</div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <div>
+                <h6 class="mb-1">Recent Invoices</h6>
+                <p class="text-muted mb-0">Latest invoice records currently available.</p>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Invoice</th>
+                    <th>Account</th>
+                    <th>Status</th>
+                    <th class="text-end">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="!recentInvoices.length">
+                    <td colspan="4" class="text-center text-muted py-4">No invoice data available yet.</td>
+                  </tr>
+                  <tr *ngFor="let invoice of recentInvoices; trackBy: trackById">
+                    <td>
+                      <a class="fw-semibold text-decoration-none" [routerLink]="['/invoices/view', invoice?.id]">
+                        {{ invoice?.invoice_no || '-' }}
+                      </a>
+                      <div class="text-muted text-xs">{{ invoice?.invoice_date | date:'d MMM y' }}</div>
+                    </td>
+                    <td>{{ resolveInvoiceAccountName(invoice) }}</td>
+                    <td>{{ invoiceStatusLabel(invoice?.invoice_status) }}</td>
+                    <td class="text-end">{{ formatAmount(invoice?.total) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-4">
+      <div class="row g-3">
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <h6 class="mb-0">Workspace Snapshot</h6>
+            </div>
+            <div class="card-body">
+              <div class="snapshot-list">
+                <div class="snapshot-list__item">
+                  <span>Deals</span>
+                  <strong>{{ totalDeals }}</strong>
+                </div>
+                <div class="snapshot-list__item">
+                  <span>Invoices</span>
+                  <strong>{{ totalInvoices }}</strong>
+                </div>
+                <div class="snapshot-list__item">
+                  <span>Receipts</span>
+                  <strong>{{ totalReceipts }}</strong>
+                </div>
+                <div class="snapshot-list__item">
+                  <span>Items</span>
+                  <strong>{{ totalItems }}</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <h6 class="mb-0">Deal Pipeline Status</h6>
+            </div>
+            <div class="card-body">
+              <div class="status-list">
+                <div class="status-list__item" *ngFor="let status of dealStatusBreakdown; trackBy: trackByLabel">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>{{ status.label }}</span>
+                    <strong>{{ status.count }}</strong>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div class="progress-bar" [style.width.%]="status.ratio"></div>
+                  </div>
+                </div>
+              </div>
+              <p class="text-muted mb-0 mt-3">Win Rate: <strong>{{ formatPercent(winRate) }}</strong></p>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <h6 class="mb-0">Invoice Status</h6>
+            </div>
+            <div class="card-body">
+              <div class="status-list">
+                <div class="status-list__item" *ngFor="let status of invoiceStatusBreakdown; trackBy: trackByLabel">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span>{{ status.label }}</span>
+                    <strong>{{ status.count }}</strong>
+                  </div>
+                  <div class="progress progress-sm">
+                    <div class="progress-bar bg-accent" [style.width.%]="status.ratio"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <h6 class="mb-0">Top Accounts by Billing</h6>
+            </div>
+            <div class="card-body">
+              <div class="top-account-list" *ngIf="topAccountsByBilling.length; else noAccountData">
+                <div class="top-account-list__item" *ngFor="let account of topAccountsByBilling; trackBy: trackByName">
+                  <div>
+                    <p class="mb-0 fw-semibold">{{ account.name }}</p>
+                    <small class="text-muted">{{ account.invoiceCount }} invoice(s)</small>
+                  </div>
+                  <strong>{{ formatAmount(account.invoiceTotal) }}</strong>
+                </div>
+              </div>
+              <ng-template #noAccountData>
+                <p class="text-muted mb-0">No invoice-account mapping data available yet.</p>
+              </ng-template>
+            </div>
+          </article>
+        </div>
+
+        <div class="col-12">
+          <article class="card dashboard-card h-100">
+            <div class="card-header dashboard-card__header">
+              <h6 class="mb-0">Recent Receipts</h6>
+            </div>
+            <div class="card-body">
+              <div class="recent-list" *ngIf="recentReceipts.length; else noReceiptData">
+                <a
+                  class="recent-list__item"
+                  [routerLink]="['/receipts/edit', receipt?.id]"
+                  *ngFor="let receipt of recentReceipts; trackBy: trackById"
+                >
+                  <div>
+                    <p class="mb-0 fw-semibold">{{ receipt?.receipt_no || '-' }}</p>
+                    <small class="text-muted">
+                      {{ resolveReceiptAccountName(receipt) }} - {{ resolveReceiptInvoiceNo(receipt) }}
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <strong>{{ formatAmount(receipt?.amount_received) }}</strong>
+                    <small class="d-block text-muted">{{ receiptStatusLabel(receipt?.receipt_status) }}</small>
+                  </div>
+                </a>
+              </div>
+              <ng-template #noReceiptData>
+                <p class="text-muted mb-0">No receipt data available yet.</p>
+              </ng-template>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

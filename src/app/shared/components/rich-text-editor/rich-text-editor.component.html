@@ -1,0 +1,107 @@
+<div class="wysiwyg-editor" [class.is-focused]="focused" [class.is-disabled]="disabled">
+  <div class="wysiwyg-editor__toolbar" role="toolbar" aria-label="Text formatting toolbar">
+    <button
+      type="button"
+      class="wysiwyg-editor__tool"
+      [class.is-active]="activeState.bold"
+      [disabled]="disabled"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec('bold')"
+      aria-label="Bold"
+      title="Bold"
+    >
+      <strong>B</strong>
+    </button>
+
+    <button
+      type="button"
+      class="wysiwyg-editor__tool"
+      [class.is-active]="activeState.italic"
+      [disabled]="disabled"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec('italic')"
+      aria-label="Italic"
+      title="Italic"
+    >
+      <em>I</em>
+    </button>
+
+    <button
+      type="button"
+      class="wysiwyg-editor__tool"
+      [class.is-active]="activeState.underline"
+      [disabled]="disabled"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec('underline')"
+      aria-label="Underline"
+      title="Underline"
+    >
+      <u>U</u>
+    </button>
+
+    <span class="wysiwyg-editor__divider" aria-hidden="true"></span>
+
+    <button
+      type="button"
+      class="wysiwyg-editor__tool"
+      [class.is-active]="activeState.insertUnorderedList"
+      [disabled]="disabled"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec('insertUnorderedList')"
+      aria-label="Bulleted list"
+      title="Bulleted list"
+    >
+      • List
+    </button>
+
+    <button
+      type="button"
+      class="wysiwyg-editor__tool"
+      [class.is-active]="activeState.insertOrderedList"
+      [disabled]="disabled"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec('insertOrderedList')"
+      aria-label="Numbered list"
+      title="Numbered list"
+    >
+      1. List
+    </button>
+
+    <span class="wysiwyg-editor__divider" aria-hidden="true"></span>
+
+    <button
+      type="button"
+      class="wysiwyg-editor__tool wysiwyg-editor__tool--text"
+      [disabled]="disabled"
+      (mousedown)="$event.preventDefault()"
+      (click)="exec('removeFormat')"
+      aria-label="Clear formatting"
+      title="Clear formatting"
+    >
+      Clear
+    </button>
+  </div>
+
+  <div class="wysiwyg-editor__surface-wrap">
+    <div class="wysiwyg-editor__placeholder" *ngIf="showPlaceholder">{{ placeholder }}</div>
+    <div
+      #editor
+      class="wysiwyg-editor__surface"
+      [ngStyle]="editorStyles"
+      [attr.contenteditable]="!disabled"
+      spellcheck="true"
+      role="textbox"
+      aria-multiline="true"
+      (input)="onEditorInput()"
+      (focus)="onEditorFocus()"
+      (blur)="onEditorBlur()"
+      (keyup)="onEditorKeyup()"
+      (mouseup)="onEditorMouseup()"
+      (paste)="onEditorPaste($event)"
+    ></div>
+  </div>
+
+  <div class="wysiwyg-editor__foot">
+    <span class="wysiwyg-editor__hint">Use formatting for notes, descriptions, terms, and default text blocks.</span>
+  </div>
+</div>

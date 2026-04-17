@@ -1,0 +1,405 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/invoices']">Invoices</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Templates</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="alert alert-danger" *ngIf="error" role="alert">
+  {{ error }}
+</div>
+
+<div class="alert alert-success" *ngIf="success" role="alert">
+  {{ success }}
+</div>
+
+<div class="template-page-grid" *ngIf="!loading; else loadingCard">
+  <section class="card entity-card template-library-card">
+    <div class="card-header entity-card__head template-library__head">
+      <div>
+        <h5 class="entity-card__title">Invoice Templates</h5>
+        <span class="entity-card__meta">Select a saved template or start a fresh builder draft</span>
+      </div>
+      <button type="button" class="btn btn-success" (click)="createNewTemplate()">
+        <i class="fi fi-rr-plus"></i>
+        <span>New</span>
+      </button>
+    </div>
+
+    <div class="template-library__list">
+      <button
+        type="button"
+        class="template-item"
+        *ngFor="let template of templates; trackBy: trackByTemplateId"
+        [class.active]="template.id === selectedTemplateId"
+        (click)="selectTemplate(template.id || '')"
+      >
+        <div class="template-item__row">
+          <div class="template-item__copy">
+            <strong>{{ template.temp_name || 'Untitled Template' }}</strong>
+            <span>{{ template.description || 'Reusable layout for invoice documents.' }}</span>
+          </div>
+          <span class="template-item__badge" *ngIf="template.is_default">Default</span>
+        </div>
+
+        <div class="template-item__meta">
+          <span>{{ template.design?.fontFamily || 'Inter' }}</span>
+          <span>{{ (template.design?.blocks || []).length }} blocks</span>
+        </div>
+      </button>
+
+      <div class="empty-copy" *ngIf="!templates.length">
+        No saved templates yet. Create one and save it to build your invoice library.
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="card entity-card template-builder-card"
+    [style.--template-accent]="currentAccentColor"
+    [style.--template-font]="currentFontFamily"
+  >
+    <div class="card-header entity-card__head template-builder__head">
+      <div>
+        <h5 class="entity-card__title">{{ templateForm.getRawValue().temp_name || 'New Template' }}</h5>
+        <span class="entity-card__meta">Drag sections into the canvas, reorder them, and save the layout for future invoice rendering</span>
+      </div>
+      <div class="template-builder__head-actions">
+        <span class="template-builder__pill">A4</span>
+        <span class="template-builder__pill template-builder__pill--active" *ngIf="templateForm.getRawValue().is_default">
+          Default Template
+        </span>
+      </div>
+    </div>
+
+    <div class="template-builder__body" [formGroup]="templateForm">
+      <aside class="template-config-panel">
+        <section class="template-section">
+          <div class="template-section__head">
+            <h6 class="template-section__title">Template Settings</h6>
+            <span class="template-section__meta">Saved in app settings</span>
+          </div>
+
+          <div>
+            <label class="form-label">Template Name</label>
+            <input class="form-control" type="text" formControlName="temp_name" placeholder="Modern Invoice">
+          </div>
+
+          <div>
+            <label class="form-label">Template Description</label>
+            <textarea
+              class="form-control template-section__textarea"
+              rows="3"
+              formControlName="description"
+              placeholder="Tell your team when to use this template"
+            ></textarea>
+          </div>
+
+          <div class="detail-grid">
+            <div>
+              <label class="form-label">Font Family</label>
+              <select class="form-select" formControlName="fontFamily">
+                <option *ngFor="let font of fontOptions" [value]="font">{{ font }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">Accent Color</label>
+              <div class="template-color-input">
+                <input class="form-control form-control-color" type="color" formControlName="accentColor" aria-label="Template accent color">
+                <input class="form-control" type="text" formControlName="accentColor" placeholder="#10b981">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-check template-default-toggle">
+            <input class="form-check-input" type="checkbox" id="templateDefaultToggle" formControlName="is_default">
+            <label class="form-check-label" for="templateDefaultToggle">
+              Use this as the default invoice template
+            </label>
+          </div>
+        </section>
+
+        <section class="template-section">
+          <div class="template-section__head">
+            <h6 class="template-section__title">Template Background</h6>
+            <span class="template-section__meta">Stored as a tenant asset for this template</span>
+          </div>
+
+          <app-image-upload-field
+            label="Background Image"
+            hint="Upload a background image for the selected template. Accepted formats: PNG, JPG, WEBP, SVG."
+            [initialsSource]="templateForm.getRawValue().temp_name || 'Invoice Template'"
+            [previewUrl]="templateBackgroundUrl"
+            [fileName]="templateBackgroundFileName"
+            [meta]="templateBackgroundMeta"
+            [uploading]="templateBackgroundUploading"
+            [removing]="templateBackgroundRemoving"
+            [allowRemove]="true"
+            [error]="templateBackgroundError"
+            [success]="templateBackgroundSuccess"
+            (fileSelected)="onTemplateBackgroundSelected($event)"
+            (removeRequested)="removeTemplateBackground()"
+          ></app-image-upload-field>
+        </section>
+
+        <section class="template-section">
+          <div class="template-section__head">
+            <h6 class="template-section__title">Block Library</h6>
+            <span class="template-section__meta">Drag or click to add</span>
+          </div>
+
+          <div
+            class="template-palette"
+            cdkDropList
+            [id]="paletteDropListId"
+            [cdkDropListData]="blockLibrary"
+            [cdkDropListConnectedTo]="[canvasDropListId]"
+            [cdkDropListSortingDisabled]="true"
+            (cdkDropListDropped)="onPaletteDrop($event)"
+          >
+            <button
+              type="button"
+              class="template-palette__item"
+              *ngFor="let block of blockLibrary"
+              cdkDrag
+              [cdkDragData]="block"
+              (click)="addBlock(block.type)"
+            >
+              <span class="template-palette__icon">{{ block.label.slice(0, 2) }}</span>
+              <span class="template-palette__copy">
+                <strong>{{ block.label }}</strong>
+                <span>{{ block.description }}</span>
+              </span>
+            </button>
+          </div>
+        </section>
+      </aside>
+
+      <div class="template-canvas-panel">
+        <div class="template-canvas-toolbar">
+          <div>
+            <h6>Canvas</h6>
+            <p>Build the invoice like a WordPress section editor. Drop blocks into the paper and reorder them as needed.</p>
+          </div>
+        </div>
+
+        <div class="template-paper-frame">
+          <div
+            class="template-paper"
+            [style.background-image]="templatePaperBackgroundStyle"
+            [style.background-size]="templateBackgroundUrl ? 'cover' : null"
+            [style.background-position]="templateBackgroundUrl ? 'center' : null"
+          >
+            <div class="template-paper__masthead">
+              <div>
+                <p class="template-paper__eyebrow">Invoice Template</p>
+                <h3 class="template-paper__title">{{ templateForm.getRawValue().temp_name || 'New Template' }}</h3>
+              </div>
+              <div class="template-paper__meta">
+                <span>{{ currentFontFamily }}</span>
+                <span>{{ currentBlocks.length }} sections</span>
+              </div>
+            </div>
+
+            <div
+              class="template-canvas"
+              cdkDropList
+              [id]="canvasDropListId"
+              [cdkDropListData]="currentBlocks"
+              [cdkDropListConnectedTo]="[paletteDropListId]"
+              (cdkDropListDropped)="onCanvasDrop($event)"
+            >
+              <ng-container *ngIf="currentBlocks.length; else emptyCanvas">
+                <article
+                  class="template-block"
+                  *ngFor="let block of currentBlocks; trackBy: trackByBlockId"
+                  cdkDrag
+                  [cdkDragData]="block"
+                >
+                  <div class="template-block__bar">
+                    <div class="template-block__identity">
+                      <span class="template-block__grab" title="Drag to reorder">
+                        <i class="fi fi-rr-grip-dots-vertical"></i>
+                      </span>
+                      <div class="template-block__copy">
+                        <strong>{{ block.label }}</strong>
+                        <span>{{ block.type }}</span>
+                      </div>
+                    </div>
+
+                    <div class="template-block__actions">
+                      <button type="button" class="btn btn-sm btn-light" (click)="duplicateBlock(block.id)">Duplicate</button>
+                      <button type="button" class="btn btn-sm btn-light text-danger" (click)="removeBlock(block.id)">Remove</button>
+                    </div>
+                  </div>
+
+                  <div class="detail-grid">
+                    <div>
+                      <label class="form-label">Section Title</label>
+                      <input
+                        #headingInput
+                        class="form-control"
+                        type="text"
+                        [value]="block.heading || ''"
+                        (input)="updateBlockField(block.id, 'heading', headingInput.value)"
+                      >
+                    </div>
+
+                    <div>
+                      <label class="form-label">Layout</label>
+                      <select
+                        #layoutInput
+                        class="form-select"
+                        [value]="block.layout || 'full'"
+                        (change)="updateBlockField(block.id, 'layout', layoutInput.value)"
+                      >
+                        <option value="full">Full width</option>
+                        <option value="split">Split layout</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="template-block__body" *ngIf="block.type !== 'text'; else textBlockHint">
+                    <label class="form-label">Support Text</label>
+                    <textarea
+                      #descriptionInput
+                      class="form-control template-block__textarea"
+                      rows="2"
+                      [value]="block.description || ''"
+                      (input)="updateBlockField(block.id, 'description', descriptionInput.value)"
+                    ></textarea>
+                  </div>
+
+                  <ng-template #textBlockHint>
+                    <div class="template-block__hint">
+                      Click inside the green block below and type directly on the invoice canvas.
+                    </div>
+                  </ng-template>
+
+                  <div class="template-block__wireframe" [class.template-block__wireframe--split]="block.layout === 'split'">
+                    <ng-container [ngSwitch]="block.type">
+                      <div *ngSwitchCase="'text'" class="wireframe wireframe--text">
+                        <div
+                          class="template-inline-text-shell"
+                          [style.--inline-text-width.px]="block.autoWidth === false ? null : (block.width || 320)"
+                          [style.--inline-text-padding.px]="block.padding || 8"
+                          [style.--inline-text-font-size.px]="block.fontSize || 18"
+                          [style.--inline-text-background]="block.backgroundColor || 'rgba(236, 253, 245, 0.94)'"
+                          [style.--inline-text-color]="block.textColor || '#0f172a'"
+                          [style.--inline-text-border]="currentAccentColor"
+                        >
+                          <span class="template-inline-text-badge">{{ block.label }}</span>
+                          <textarea
+                            #contentInput
+                            class="template-inline-text-input"
+                            rows="3"
+                            [value]="block.content || ''"
+                            placeholder="Type directly here"
+                            (input)="updateTextBlockContent(block.id, contentInput.value)"
+                            (blur)="normalizeTextBlockContent(block.id, contentInput)"
+                          ></textarea>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'hero'" class="wireframe wireframe--hero">
+                        <div class="template-line template-line--xl"></div>
+                        <div class="template-line template-line--lg"></div>
+                        <div class="template-line template-line--sm"></div>
+                      </div>
+
+                      <div *ngSwitchCase="'itemsTable'" class="wireframe wireframe--table">
+                        <div class="template-table">
+                          <div class="template-table__row template-table__row--head">
+                            <span></span><span></span><span></span><span></span>
+                          </div>
+                          <div class="template-table__row" *ngFor="let row of [1, 2, 3]">
+                            <span></span><span></span><span></span><span></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'totals'" class="wireframe wireframe--totals">
+                        <div class="template-summary-card">
+                          <div class="template-line template-line--md"></div>
+                          <div class="template-line template-line--md"></div>
+                          <div class="template-line template-line--lg"></div>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchDefault class="wireframe wireframe--generic">
+                        <div class="template-line template-line--lg"></div>
+                        <div class="template-line template-line--md"></div>
+                        <div class="template-line template-line--sm"></div>
+                      </div>
+                    </ng-container>
+                  </div>
+                </article>
+              </ng-container>
+
+              <ng-template #emptyCanvas>
+                <div class="template-empty-state">
+                  <h6>Start building your invoice template</h6>
+                  <p>Drag blocks here from the library, or click a block on the left to add it to the paper.</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer entity-card__footer">
+      <div class="section-feedback" *ngIf="templateForm.invalid">
+        Add a template name before saving.
+      </div>
+      <div class="entity-actions ms-auto">
+        <button type="button" class="btn btn-outline-secondary" (click)="createNewTemplate()" [disabled]="saving || deleting">
+          New Template
+        </button>
+        <button type="button" class="btn btn-light text-danger" (click)="deleteSelectedTemplate()" [disabled]="!canDeleteSelectedTemplate || saving || deleting">
+          {{ deleting ? 'Deleting...' : 'Delete Template' }}
+        </button>
+        <button type="button" class="btn btn-success" (click)="saveTemplate()" [disabled]="saving || deleting || templateForm.invalid">
+          {{ saving ? 'Saving...' : 'Save Template' }}
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<ng-template #loadingCard>
+  <div class="card entity-loading-card">
+    <div class="card-body">
+      <div class="app-skeleton-form-state" aria-hidden="true">
+        <div class="app-skeleton-form-card__head">
+          <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+        </div>
+        <div class="app-skeleton-form-grid">
+          <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+            <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+            <span class="app-skeleton app-skeleton--input"></span>
+          </div>
+        </div>
+        <div class="app-skeleton-form-grid">
+          <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2]">
+            <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+            <span class="app-skeleton app-skeleton--block" style="min-height: 8rem;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

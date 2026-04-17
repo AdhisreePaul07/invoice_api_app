@@ -1,0 +1,428 @@
+:host {
+  display: block;
+}
+
+.page-note {
+  border: 0;
+  background: rgba(40, 167, 69, 0.08);
+  color: inherit;
+}
+
+.profile-photo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgba(12, 36, 60, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.profile-photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.profile-photo-modal__dialog {
+  width: min(100%, 760px);
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--app-success-border-subtle, #bfe6d9);
+  border-radius: 1rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(var(--app-success-rgb, 0, 153, 102), 0.09), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #fcfefc 58%, var(--app-success-bg-subtle, #f0f9f6) 100%);
+  color: var(--app-heading-color, #0c243c);
+  box-shadow: 0 28px 60px rgba(12, 36, 60, 0.2);
+}
+
+.profile-photo-modal__header,
+.profile-photo-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.profile-photo-modal__header {
+  border-bottom: 1px solid rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+}
+
+.profile-photo-modal__footer {
+  justify-content: flex-start;
+  border-top: 1px solid rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.profile-photo-modal__title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.profile-photo-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+  border-radius: 999px;
+  background: rgba(var(--app-success-rgb, 0, 153, 102), 0.06);
+  color: var(--app-heading-color, #0c243c);
+  font-size: 1.3rem;
+}
+
+.profile-photo-modal__body {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  padding: 2rem 1.25rem;
+}
+
+.profile-photo-modal__body--editing {
+  grid-template-columns: minmax(0, 1fr) 290px;
+  align-items: stretch;
+  justify-items: stretch;
+  gap: 0;
+  padding: 0;
+}
+
+.profile-photo-modal__preview-mode {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  width: 100%;
+  padding: 2rem 1.25rem;
+}
+
+.profile-photo-modal__editor-stage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1rem;
+  min-height: 480px;
+  padding: 1.75rem;
+  background:
+    linear-gradient(90deg, rgba(12, 36, 60, 0.22) 0, rgba(12, 36, 60, 0.22) 18%, transparent 18%, transparent 82%, rgba(12, 36, 60, 0.22) 82%, rgba(12, 36, 60, 0.22) 100%),
+    linear-gradient(180deg, rgba(12, 36, 60, 0.02), rgba(12, 36, 60, 0.06));
+}
+
+.profile-photo-modal__editor-panel {
+  display: grid;
+  align-content: start;
+  gap: 1.1rem;
+  padding: 1.5rem 1.25rem;
+  border-left: 1px solid rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.profile-photo-modal__preview-shell {
+  width: min(100%, 360px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-photo-modal__preview-shell--editing {
+  width: min(100%, 420px);
+}
+
+.profile-photo-modal__preview {
+  width: min(100%, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+  background:
+    radial-gradient(circle at top, rgba(var(--app-success-rgb, 0, 153, 102), 0.12), transparent 55%),
+    linear-gradient(145deg, #ffffff, #f6fbf8);
+  box-shadow: 0 16px 32px rgba(12, 36, 60, 0.12);
+}
+
+.profile-photo-modal__crop-stage {
+  position: relative;
+  width: min(100%, 440px);
+  height: min(64vw, 420px);
+  overflow: hidden;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.profile-photo-modal__crop-stage:active {
+  cursor: grabbing;
+}
+
+.profile-photo-modal__crop-image {
+  position: absolute;
+  will-change: transform, left, top;
+}
+
+.profile-photo-modal__crop-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.profile-photo-modal__crop-grid {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  background-image:
+    linear-gradient(to right, transparent 32.5%, rgba(255, 255, 255, 0.58) 32.5%, rgba(255, 255, 255, 0.58) 33.5%, transparent 33.5%),
+    linear-gradient(to right, transparent 65.5%, rgba(255, 255, 255, 0.58) 65.5%, rgba(255, 255, 255, 0.58) 66.5%, transparent 66.5%),
+    linear-gradient(to bottom, transparent 32.5%, rgba(255, 255, 255, 0.58) 32.5%, rgba(255, 255, 255, 0.58) 33.5%, transparent 33.5%),
+    linear-gradient(to bottom, transparent 65.5%, rgba(255, 255, 255, 0.58) 65.5%, rgba(255, 255, 255, 0.58) 66.5%, transparent 66.5%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.profile-photo-modal__crop-ring {
+  position: absolute;
+  inset: 50%;
+  width: min(100%, 320px);
+  height: min(100%, 320px);
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  box-shadow: 0 0 0 999px rgba(12, 36, 60, 0.38);
+  pointer-events: none;
+}
+
+.profile-photo-modal__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-photo-modal__empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top, rgba(var(--app-success-rgb, 0, 153, 102), 0.9), var(--app-success, #009966));
+  color: #fff;
+  font-size: 7rem;
+  font-weight: 500;
+}
+
+.profile-photo-modal__meta {
+  display: grid;
+  gap: 0.3rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.profile-photo-modal__name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.profile-photo-modal__copy {
+  color: var(--app-secondary-color, #696981);
+  font-size: 0.92rem;
+}
+
+.profile-photo-modal__tool-copy {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--app-secondary-color, #696981);
+}
+
+.profile-photo-modal__control-group {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.profile-photo-modal__panel-head {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.profile-photo-modal__panel-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--app-heading-color, #0c243c);
+}
+
+.profile-photo-modal__control-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.profile-photo-modal__control-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--app-heading-color, #0c243c);
+}
+
+.profile-photo-modal__control-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--app-success-text-emphasis, #003d29);
+}
+
+.profile-photo-modal__slider--standard {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(12, 36, 60, 0.82), rgba(12, 36, 60, 0.18));
+  outline: none;
+}
+
+.profile-photo-modal__slider--standard::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--app-heading-color, #0c243c);
+  box-shadow: 0 0 0 4px rgba(var(--app-success-rgb, 0, 153, 102), 0.16);
+  cursor: pointer;
+}
+
+.profile-photo-modal__slider--standard::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--app-heading-color, #0c243c);
+  box-shadow: 0 0 0 4px rgba(var(--app-success-rgb, 0, 153, 102), 0.16);
+  cursor: pointer;
+}
+
+.profile-photo-modal__editor-content {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.profile-photo-modal__tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.9rem;
+  background: rgba(var(--app-success-rgb, 0, 153, 102), 0.06);
+  color: var(--app-secondary-color, #696981);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.profile-photo-modal__tip i {
+  margin-top: 0.1rem;
+  color: var(--app-success, #009966);
+}
+
+.profile-photo-modal__action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--app-border-color, #eeeef3);
+  border-radius: 0.85rem;
+  background: #fff;
+  color: var(--app-heading-color, #0c243c);
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(12, 36, 60, 0.08);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-photo-modal__action:hover:not(:disabled),
+.profile-photo-modal__action:not(.disabled):hover {
+  background: var(--app-success-bg-subtle, #f0f9f6);
+  border-color: rgba(var(--app-success-rgb, 0, 153, 102), 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(12, 36, 60, 0.12);
+}
+
+.profile-photo-modal__action--danger {
+  color: var(--app-danger, #f83636);
+  border-color: rgba(var(--app-danger-rgb, 248, 54, 54), 0.22);
+  background: rgba(var(--app-danger-rgb, 248, 54, 54), 0.03);
+}
+
+.profile-photo-modal__action:disabled,
+.profile-photo-modal__action.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.profile-photo-modal__action--primary {
+  border-color: rgba(var(--app-success-rgb, 0, 153, 102), 0.9);
+  background: var(--app-success, #009966);
+  color: #fff;
+}
+
+.profile-photo-modal__action--primary:hover:not(:disabled) {
+  background: #007d53;
+  border-color: #007d53;
+}
+
+.profile-photo-modal__action--secondary {
+  border-color: rgba(var(--app-success-rgb, 0, 153, 102), 0.22);
+  background: rgba(var(--app-success-rgb, 0, 153, 102), 0.03);
+  color: var(--app-success-text-emphasis, #003d29);
+}
+
+.profile-photo-modal__action--selected {
+  border-color: rgba(var(--app-success-rgb, 0, 153, 102), 0.45);
+  background: rgba(var(--app-success-rgb, 0, 153, 102), 0.1);
+  box-shadow: 0 12px 26px rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+}
+
+@media (max-width: 575.98px) {
+  .profile-photo-modal {
+    padding: 1rem;
+  }
+
+  .profile-photo-modal__preview,
+  .profile-photo-modal__crop-stage {
+    width: min(100%, 240px);
+  }
+
+  .profile-photo-modal__empty {
+    font-size: 5rem;
+  }
+
+  .profile-photo-modal__body--editing {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-photo-modal__editor-stage {
+    min-height: 340px;
+    padding: 1rem;
+  }
+
+  .profile-photo-modal__editor-panel {
+    border-left: 0;
+    border-top: 1px solid rgba(var(--app-success-rgb, 0, 153, 102), 0.12);
+  }
+}

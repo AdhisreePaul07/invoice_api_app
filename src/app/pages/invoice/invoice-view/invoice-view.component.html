@@ -1,0 +1,297 @@
+<div class="app-page-head no-print d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/invoices']">Invoices</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">{{ invoice?.invoice_no || 'Invoice View' }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="invoice-view-shell">
+  <aside class="invoice-rail no-print">
+    <div class="card invoice-rail-card">
+      <div class="invoice-rail-head">
+        <div>
+          <h3 class="invoice-rail-title">All Invoices</h3>
+          <p class="invoice-rail-count">{{ invoices.length }} invoice{{ invoices.length === 1 ? '' : 's' }}</p>
+        </div>
+        <a class="btn btn-primary btn-sm" [routerLink]="['/invoices/add']">
+          <i class="ph-bold ph-plus"></i>
+          Add
+        </a>
+      </div>
+
+      <label class="invoice-rail-search">
+        <i class="ph ph-magnifying-glass"></i>
+        <input
+          type="text"
+          class="form-control"
+          [value]="invoiceSearch"
+          (input)="onInvoiceSearch($event)"
+          placeholder="Search invoices..."
+        >
+      </label>
+      <div class="invoice-rail-body">
+        <div class="app-skeleton-document-rail" *ngIf="listLoading" aria-hidden="true">
+          <div class="app-skeleton-document-rail__item" *ngFor="let _ of [1, 2, 3, 4]">
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+            <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+          </div>
+        </div>
+        <div class="invoice-rail-empty error" *ngIf="!listLoading && listError">{{ listError }}</div>
+
+        <a
+          *ngFor="let listInvoice of filteredInvoices"
+          class="invoice-rail-item"
+          [class.is-active]="isSelectedInvoice(listInvoice)"
+          [routerLink]="['/invoices/view', listInvoice.id]"
+        >
+          <div class="invoice-rail-item__row">
+            <div class="invoice-rail-item__main">
+              <div class="invoice-rail-item__no">{{ listInvoice.invoice_no }}</div>
+              <div class="invoice-rail-item__account">{{ accountName(listInvoice) }}</div>
+              <div class="invoice-rail-item__amount">
+                {{ invoiceCurrency(listInvoice) }} {{ (listInvoice.total ?? 0) | number:'1.2-2' }}
+              </div>
+            </div>
+
+            <div class="invoice-rail-item__side">
+              <span class="invoice-pill" [ngClass]="invoiceStatusClass(listInvoice.invoice_status)">
+                {{ invoiceStatusLabel(listInvoice.invoice_status) }}
+              </span>
+              <div class="invoice-rail-item__date">{{ listInvoice.invoice_date | date:'d MMM y' }}</div>
+            </div>
+          </div>
+        </a>
+
+        <div class="invoice-rail-empty" *ngIf="!listLoading && !listError && filteredInvoices.length === 0">
+          No invoices found.
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="invoice-main">
+    <div class="invoice-toolbar no-print" *ngIf="invoice as inv">
+      <div class="invoice-toolbar__meta">
+        <h2 class="invoice-toolbar-title">{{ inv.invoice_no }}</h2>
+        <div class="invoice-toolbar-subtitle">
+          <span>{{ invoiceTypeLabel(inv.invoice_type) }}</span>
+          <span class="invoice-pill" [ngClass]="invoiceStatusClass(inv.invoice_status)">{{ invoiceStatusLabel(inv.invoice_status) }}</span>
+        </div>
+      </div>
+
+      <div class="invoice-toolbar__actions">
+        <a class="btn btn-outline-secondary" [routerLink]="['/invoices/edit', inv.id]">Edit Invoice</a>
+        <button type="button" class="btn btn-outline-secondary" (click)="downloadPdf()">Download PDF</button>
+        <button type="button" class="btn btn-outline-secondary" *ngIf="canMarkSent" (click)="markSent()">Mark Sent</button>
+        <button type="button" class="btn btn-outline-secondary" *ngIf="canMarkPaid" (click)="markPaid()">Mark Paid</button>
+        <button type="button" class="btn btn-outline-secondary" *ngIf="canMarkVoid" (click)="markVoid()">Mark Void</button>
+        <button type="button" class="btn btn-primary" (click)="togglePublicShare()">
+          {{ inv.public_share_enabled ? 'Disable Share' : 'Enable Share' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="alert alert-danger" *ngIf="error && invoice" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="card invoice-state-card" *ngIf="loading && !invoice">
+      <div class="card-body">
+        <div class="app-skeleton-document-state" aria-hidden="true">
+          <div class="app-skeleton-document-card">
+            <div class="app-skeleton-document-card__head">
+              <div class="app-skeleton-profile-row">
+                <span class="app-skeleton app-skeleton--title app-skeleton--w-md"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              </div>
+              <div class="app-skeleton-profile-row">
+                <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+                <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+              </div>
+            </div>
+
+            <div class="app-skeleton-document-card__meta">
+              <div class="app-skeleton-profile-row">
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              </div>
+              <div class="app-skeleton-profile-row">
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              </div>
+            </div>
+
+            <div class="app-skeleton-document-table">
+              <div class="app-skeleton-document-table__row">
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              </div>
+              <div class="app-skeleton-document-table__row" *ngFor="let _ of [1, 2, 3]">
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              </div>
+            </div>
+
+            <div class="app-skeleton-document-summary">
+              <div class="app-skeleton-document-summary__box">
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+                <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card invoice-state-card" *ngIf="!loading && error && !invoice">
+      <div class="card-body">{{ error }}</div>
+    </div>
+
+    <div class="inv-page" *ngIf="!loading">
+      <article class="inv-paper">
+        <div class="inv-paper__surface">
+          <header class="inv-doc-head">
+            <div class="inv-doc-head__title">
+              <h1 class="inv-doc-title">{{ previewInvoice.title }}</h1>
+              <div class="inv-doc-subtitle">
+                <div class="inv-doc-subtitle-line" *ngFor="let line of previewInvoice.subtitle">{{ line }}</div>
+              </div>
+            </div>
+
+            <div class="inv-doc-brand">
+              <img class="inv-doc-logo-image" src="/assets/images/techgenyz-logo.svg" alt="Techgenyz logo">
+              <div class="inv-doc-brand__company">{{ previewInvoice.brand.company }}</div>
+              <div class="inv-doc-brand__line" *ngFor="let line of previewInvoice.brand.addressLines">{{ line }}</div>
+              <div class="inv-doc-brand__line"><strong>GSTIN:</strong> {{ previewInvoice.brand.gstin }}</div>
+              <div class="inv-doc-brand__line"><strong>PAN:</strong> {{ previewInvoice.brand.pan }}</div>
+            </div>
+          </header>
+
+          <div class="inv-doc-rule"></div>
+
+          <section class="inv-doc-meta">
+            <div class="inv-doc-bill">
+              <div class="inv-doc-bill__label">{{ previewInvoice.billTo.label }}</div>
+              <div class="inv-doc-bill__name">{{ previewInvoice.billTo.name }}</div>
+              <div class="inv-doc-bill__line" *ngFor="let line of previewInvoice.billTo.lines">{{ line }}</div>
+            </div>
+
+            <div class="inv-doc-facts">
+              <div class="inv-doc-fact" *ngFor="let fact of previewInvoice.facts">
+                <span class="inv-doc-fact__label">{{ fact.label }}</span>
+                <span class="inv-doc-fact__value">{{ fact.value }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="inv-doc-items">
+            <table class="inv-doc-table">
+              <thead>
+                <tr>
+                  <th class="inv-doc-table__index">#</th>
+                  <th>Item &amp; Description</th>
+                  <th class="inv-doc-table__qty">QTY</th>
+                  <th class="inv-doc-table__money">Rate</th>
+                  <th class="inv-doc-table__money">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of previewInvoice.items; index as index">
+                  <td class="inv-doc-table__index">{{ index + 1 }}</td>
+                  <td>
+                    <div class="inv-doc-item__title">{{ item.title }}</div>
+                    <div class="inv-doc-item__desc">{{ item.description }}</div>
+                    <div class="inv-doc-item__code"><strong>{{ item.codeLabel }}:</strong> {{ item.codeValue }}</div>
+                  </td>
+                  <td class="inv-doc-table__qty">{{ item.qty }}</td>
+                  <td class="inv-doc-table__money">{{ item.rate }}</td>
+                  <td class="inv-doc-table__money">{{ item.amount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="inv-doc-summary">
+            <div class="inv-doc-summary__count">Items in total: {{ previewInvoice.totals.itemsCount }}</div>
+
+            <div class="inv-doc-total-box">
+              <div class="inv-doc-total-row">
+                <span>Sub Total</span>
+                <strong>{{ previewInvoice.totals.subTotal }}</strong>
+              </div>
+              <div class="inv-doc-total-row inv-doc-total-row--grand">
+                <span>Total</span>
+                <strong>{{ previewInvoice.totals.total }}</strong>
+              </div>
+              <div class="inv-doc-words">
+                <span>Total In Words:</span>
+                <strong>
+                  <span *ngFor="let line of previewInvoice.totals.amountWords">{{ line }}</span>
+                </strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="inv-doc-payment">
+            <div class="inv-doc-bank">
+              <div class="inv-doc-bank__title">Bank Details:</div>
+              <div class="inv-doc-bank__line" *ngFor="let detail of previewInvoice.bankDetails">
+                <strong>{{ detail.label }}:</strong> {{ detail.value }}
+              </div>
+            </div>
+            <div class="inv-doc-payment__spacer" aria-hidden="true"></div>
+          </section>
+
+          <div class="inv-doc-references">
+            <div class="inv-doc-reference" *ngFor="let reference of previewInvoice.references">
+              <strong>{{ reference.label }}:</strong>
+              <span>{{ reference.value }}</span>
+              <span class="inv-doc-reference__date" *ngIf="reference.dateLabel && reference.dateValue">
+                <strong>{{ reference.dateLabel }}:</strong>
+                <span>{{ reference.dateValue }}</span>
+              </span>
+            </div>
+          </div>
+
+          <section class="inv-doc-terms">
+            <div class="inv-doc-terms__title">Terms &amp; Conditions:</div>
+            <ol class="inv-doc-terms__list">
+              <li *ngFor="let term of previewInvoice.terms">{{ term }}</li>
+            </ol>
+          </section>
+
+          <div class="inv-doc-rule inv-doc-rule--footer"></div>
+
+          <footer class="inv-doc-footer">
+            <div class="inv-doc-footer__row">
+              <div class="inv-doc-footer__link"><strong>Email:</strong> {{ previewInvoice.footer.email }}</div>
+              <div class="inv-doc-footer__link"><strong>Website:</strong> {{ previewInvoice.footer.website }}</div>
+            </div>
+            <div class="inv-doc-footer__brandline">A brand by <span>{{ previewInvoice.footer.brandBy }}</span></div>
+          </footer>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,71 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.account-create-grid--compliance-top {
+  align-items: start;
+}
+
+.detail-grid {
+  column-gap: calc(1rem + 0.75%);
+}
+
+.stack-list__row {
+  column-gap: calc(0.75rem + 0.75%);
+}
+
+.account-create-subtitle-soft {
+  font-weight: 500;
+}
+
+.account-create-column {
+  display: grid;
+  gap: 1.5rem;
+  align-content: start;
+}
+
+.account-create-image-field {
+  margin-top: 0.25rem;
+}
+
+.account-address-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.account-address-row {
+  display: grid;
+  gap: calc(1rem + 0.75%);
+  align-items: start;
+}
+
+.account-address-row--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-address-row--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.entity-subsection--flush {
+  margin-top: 0;
+}
+
+.account-create-notes {
+  min-height: 104px !important;
+}
+
+.err-msg {
+  margin-top: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 767.98px) {
+  .account-address-row--two,
+  .account-address-row--four {
+    grid-template-columns: 1fr;
+  }
+}

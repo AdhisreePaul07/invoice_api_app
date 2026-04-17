@@ -1,0 +1,9 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.entity-summary__avatar--organization {
+  background: linear-gradient(145deg, rgba(20, 184, 166, 0.14), rgba(59, 130, 246, 0.16));
+}

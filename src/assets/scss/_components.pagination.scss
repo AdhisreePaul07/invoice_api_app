@@ -1,0 +1,178 @@
+.pagination {
+  .page-link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-block-size: 35px;
+    min-inline-size: 35px;
+    line-height: 1.2;
+    font-weight: 500;
+
+    i {
+      font-size: 12px;
+    }
+  }
+}
+
+.pagination-lg {
+  .page-link {
+    min-block-size: 42px;
+    min-inline-size: 42px;
+    font-size: 15px;
+
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+.pagination-sm {
+  .page-link {
+    min-block-size: 28px;
+    min-inline-size: 28px;
+    font-size: 12px;
+
+    i {
+      font-size: 10px;
+    }
+  }
+}
+
+.pagination-rounded {
+  .page-link {
+    border-radius: 50%;
+  }
+}
+
+.pagination-primary {
+  --app-pagination-active-bg: var(--app-primary);
+  --app-pagination-color: var(--app-primary);
+  --app-pagination-active-border-color: var(--app-primary);
+  --app-pagination-hover-bg: var(--app-primary);
+  --app-pagination-border-color: var(--app-primary-bg-subtle);
+  --app-pagination-bg: var(--app-primary-bg-subtle);
+  --app-pagination-focus-bg: var(--app-primary);
+}
+
+.pagination-secondary {
+  --app-pagination-active-bg: var(--app-secondary);
+  --app-pagination-color: var(--app-secondary);
+  --app-pagination-active-border-color: var(--app-secondary);
+  --app-pagination-hover-bg: var(--app-secondary);
+  --app-pagination-border-color: var(--app-secondary-bg-subtle);
+  --app-pagination-bg: var(--app-secondary-bg-subtle);
+  --app-pagination-focus-bg: var(--app-secondary);
+}
+
+.pagination-danger {
+  --app-pagination-active-bg: var(--app-danger);
+  --app-pagination-color: var(--app-danger);
+  --app-pagination-active-border-color: var(--app-danger);
+  --app-pagination-hover-bg: var(--app-danger);
+  --app-pagination-border-color: var(--app-danger-bg-subtle);
+  --app-pagination-bg: var(--app-danger-bg-subtle);
+  --app-pagination-focus-bg: var(--app-danger);
+}
+
+.pagination-success {
+  --app-pagination-active-bg: var(--app-success);
+  --app-pagination-color: var(--app-success);
+  --app-pagination-active-border-color: var(--app-success);
+  --app-pagination-hover-bg: var(--app-success);
+  --app-pagination-border-color: var(--app-success-bg-subtle);
+  --app-pagination-bg: var(--app-success-bg-subtle);
+  --app-pagination-focus-bg: var(--app-success);
+}
+
+.pagination-accent {
+  --app-pagination-active-bg: var(--app-accent);
+  --app-pagination-color: var(--app-accent);
+  --app-pagination-active-border-color: var(--app-accent);
+  --app-pagination-hover-bg: var(--app-accent);
+  --app-pagination-border-color: var(--app-accent-bg-subtle);
+  --app-pagination-bg: var(--app-accent-bg-subtle);
+  --app-pagination-focus-bg: var(--app-accent);
+}
+
+.pagination-warning {
+  --app-pagination-active-bg: var(--app-warning);
+  --app-pagination-color: var(--app-warning);
+  --app-pagination-active-border-color: var(--app-warning);
+  --app-pagination-hover-bg: var(--app-warning);
+  --app-pagination-border-color: var(--app-warning-bg-subtle);
+  --app-pagination-bg: var(--app-warning-bg-subtle);
+  --app-pagination-focus-bg: var(--app-warning);
+}
+
+.pagination-dark {
+  --app-pagination-active-bg: var(--app-dark);
+  --app-pagination-color: var(--app-dark);
+  --app-pagination-active-border-color: var(--app-dark);
+  --app-pagination-hover-bg: var(--app-dark);
+  --app-pagination-border-color: var(--app-dark-bg-subtle);
+  --app-pagination-bg: var(--app-dark-bg-subtle);
+  --app-pagination-focus-bg: var(--app-dark);
+}
+
+.pagination-outline-primary {
+  --app-pagination-active-bg: var(--app-primary);
+  --app-pagination-color: var(--app-primary);
+  --app-pagination-active-border-color: var(--app-primary);
+  --app-pagination-hover-bg: var(--app-primary);
+  --app-pagination-border-color: rgba(var(--app-primary-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-primary);
+}
+
+.pagination-outline-secondary {
+  --app-pagination-active-bg: var(--app-secondary);
+  --app-pagination-color: var(--app-secondary);
+  --app-pagination-active-border-color: var(--app-secondary);
+  --app-pagination-hover-bg: var(--app-secondary);
+  --app-pagination-border-color: rgba(var(--app-secondary-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-secondary);
+}
+
+.pagination-outline-danger {
+  --app-pagination-active-bg: var(--app-danger);
+  --app-pagination-color: var(--app-danger);
+  --app-pagination-active-border-color: var(--app-danger);
+  --app-pagination-hover-bg: var(--app-danger);
+  --app-pagination-border-color: rgba(var(--app-danger-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-danger);
+}
+
+.pagination-outline-success {
+  --app-pagination-active-bg: var(--app-success);
+  --app-pagination-color: var(--app-success);
+  --app-pagination-active-border-color: var(--app-success);
+  --app-pagination-hover-bg: var(--app-success);
+  --app-pagination-border-color: rgba(var(--app-success-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-success);
+}
+
+.pagination-outline-accent {
+  --app-pagination-active-bg: var(--app-accent);
+  --app-pagination-color: var(--app-accent);
+  --app-pagination-active-border-color: var(--app-accent);
+  --app-pagination-hover-bg: var(--app-accent);
+  --app-pagination-border-color: rgba(var(--app-accent-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-accent);
+}
+
+.pagination-outline-warning {
+  --app-pagination-active-bg: var(--app-warning);
+  --app-pagination-color: var(--app-warning);
+  --app-pagination-active-border-color: var(--app-warning);
+  --app-pagination-hover-bg: var(--app-warning);
+  --app-pagination-border-color: rgba(var(--app-warning-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-warning);
+}
+
+.pagination-outline-dark {
+  --app-pagination-active-bg: var(--app-dark);
+  --app-pagination-color: var(--app-dark);
+  --app-pagination-active-border-color: var(--app-dark);
+  --app-pagination-hover-bg: var(--app-dark);
+  --app-pagination-border-color: rgba(var(--app-dark-rgb), 0.2);
+  --app-pagination-focus-bg: var(--app-dark);
+}

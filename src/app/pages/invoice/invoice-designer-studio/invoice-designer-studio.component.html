@@ -1,0 +1,669 @@
+<div class="designer-shell" [style.--designer-accent]="currentAccentColor" [style.--designer-font]="currentFontFamily">
+  <div class="alert alert-danger mb-3" *ngIf="error" role="alert">
+    {{ error }}
+  </div>
+
+  <div class="alert alert-success mb-3" *ngIf="success" role="alert">
+    {{ success }}
+  </div>
+
+  <div class="designer-header" *ngIf="!loading; else designerLoading">
+    <div class="designer-header__copy">
+      <span class="designer-header__eyebrow">Invoice Designer Studio</span>
+      <h5 class="designer-header__title">{{ templateDisplayName }}</h5>
+      <p class="designer-header__meta">
+        Build reusable invoice layouts with Elementor-style widgets on the left and a Figma-style inspector on the right.
+      </p>
+    </div>
+
+    <div class="designer-header__actions">
+      <label class="designer-picker">
+        <span>Saved Template</span>
+        <select #templatePicker class="form-select" [value]="selectedTemplateId || '__new__'" (change)="onTemplateSelectionChange(templatePicker.value)">
+          <option value="__new__">Create new template</option>
+          <option *ngFor="let template of templates; trackBy: trackByTemplateId" [value]="template.id || ''">
+            {{ template.temp_name || 'Untitled Template' }}<ng-container *ngIf="template.is_default"> (Default)</ng-container>
+          </option>
+        </select>
+      </label>
+
+      <div class="designer-header__buttons">
+        <button type="button" class="btn btn-outline-secondary" (click)="createNewTemplate()" [disabled]="saving || deleting">
+          New
+        </button>
+        <button
+          type="button"
+          class="btn btn-light text-danger"
+          (click)="deleteSelectedTemplate()"
+          [disabled]="!canDeleteSelectedTemplate || saving || deleting"
+        >
+          {{ deleting ? 'Deleting...' : 'Delete' }}
+        </button>
+        <button type="button" class="btn btn-success" (click)="saveTemplate()" [disabled]="saving || deleting || templateForm.invalid">
+          {{ saving ? 'Saving...' : 'Save Template' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="designer-workspace" *ngIf="!loading">
+    <aside class="designer-panel designer-panel--widgets">
+      <div class="designer-panel__head">
+        <div>
+          <h6>Widgets</h6>
+          <p>Drag blocks into the invoice or click to insert them.</p>
+        </div>
+      </div>
+
+      <label class="designer-search">
+        <span class="visually-hidden">Search widgets</span>
+        <input #searchInput class="form-control" type="search" placeholder="Search widgets..." (input)="updateWidgetSearch(searchInput.value)">
+      </label>
+
+      <div
+        class="designer-widget-library"
+        cdkDropList
+        [id]="paletteDropListId"
+        [cdkDropListData]="widgetLibrary"
+        [cdkDropListConnectedTo]="[canvasDropListId]"
+        [cdkDropListSortingDisabled]="true"
+        (cdkDropListDropped)="onPaletteDrop($event)"
+      >
+        <section class="designer-widget-group" *ngFor="let group of filteredWidgetGroups">
+          <div class="designer-widget-group__head">
+            <span>{{ group.category }}</span>
+          </div>
+
+          <button
+            type="button"
+            class="designer-widget"
+            *ngFor="let widget of group.items; trackBy: trackByWidgetType"
+            cdkDrag
+            [cdkDragData]="widget"
+            (click)="addBlock(widget.type)"
+          >
+            <span class="designer-widget__icon">{{ widget.icon }}</span>
+            <span class="designer-widget__copy">
+              <strong>{{ widget.label }}</strong>
+              <span>{{ widget.description }}</span>
+            </span>
+          </button>
+        </section>
+
+        <div class="designer-empty-copy" *ngIf="!filteredWidgetGroups.length">
+          No widgets match your search yet.
+        </div>
+      </div>
+    </aside>
+
+    <section class="designer-canvas-panel">
+      <div class="designer-toolbar">
+        <div class="designer-toolbar__meta">
+          <span class="designer-pill designer-pill--accent">{{ currentFontFamily }}</span>
+          <span class="designer-pill">{{ currentBlocks.length }} blocks</span>
+          <span class="designer-pill" *ngIf="templateForm.getRawValue().is_default">Default template</span>
+        </div>
+
+        <div class="designer-toolbar__actions">
+          <div class="designer-zoom">
+            <button type="button" class="btn btn-light btn-sm" (click)="zoomOut()">-</button>
+            <button type="button" class="btn btn-light btn-sm designer-zoom__value" (click)="resetZoom()">{{ zoomLevel }}%</button>
+            <button type="button" class="btn btn-light btn-sm" (click)="zoomIn()">+</button>
+          </div>
+
+          <div class="designer-toolbar__quick-actions">
+            <button type="button" class="btn btn-light btn-sm" (click)="moveSelectedBlock(-1)" [disabled]="selectedBlockIndex <= 0">
+              Up
+            </button>
+            <button
+              type="button"
+              class="btn btn-light btn-sm"
+              (click)="moveSelectedBlock(1)"
+              [disabled]="selectedBlockIndex < 0 || selectedBlockIndex >= currentBlocks.length - 1"
+            >
+              Down
+            </button>
+            <button type="button" class="btn btn-light btn-sm" (click)="duplicateSelectedBlock()" [disabled]="!selectedBlock">
+              Duplicate
+            </button>
+            <button type="button" class="btn btn-light btn-sm text-danger" (click)="removeSelectedBlock()" [disabled]="!selectedBlock">
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="designer-canvas-frame" [style.--paper-scale]="paperScale">
+        <div class="designer-canvas-shell">
+          <div class="designer-paper">
+            <div class="designer-paper__masthead">
+              <div>
+                <span class="designer-paper__eyebrow">Live Preview</span>
+                <h3>{{ preview.invoiceNo || 'Draft Invoice' }}</h3>
+                <p>{{ templateDescription }}</p>
+              </div>
+
+              <div class="designer-paper__summary">
+                <span>{{ preview.invoiceTypeLabel }}</span>
+                <span>{{ preview.statusLabel }}</span>
+              </div>
+            </div>
+
+            <div
+              class="designer-dropzone"
+              cdkDropList
+              [id]="canvasDropListId"
+              [cdkDropListData]="currentBlocks"
+              [cdkDropListConnectedTo]="[paletteDropListId]"
+              (cdkDropListDropped)="onCanvasDrop($event)"
+            >
+              <ng-container *ngIf="currentBlocks.length; else emptyCanvas">
+                <article
+                  class="designer-block"
+                  *ngFor="let block of currentBlocks; trackBy: trackByBlockId"
+                  cdkDrag
+                  [cdkDragData]="block"
+                  [class.is-selected]="isSelectedBlock(block.id)"
+                  [class.is-disabled]="block.enabled === false"
+                  (click)="selectBlock(block.id)"
+                  (dblclick)="onBlockDoubleClick($event, block)"
+                >
+                  <div class="designer-block__bar">
+                    <div class="designer-block__identity">
+                      <button type="button" class="designer-block__grab" cdkDragHandle aria-label="Drag block">
+                        <i class="fi fi-rr-grip-dots-vertical"></i>
+                      </button>
+                      <div class="designer-block__copy">
+                        <strong>{{ block.heading || block.label }}</strong>
+                        <span>{{ block.label }} • {{ block.layout === 'split' ? 'Split' : 'Full width' }}</span>
+                      </div>
+                    </div>
+
+                    <div class="designer-block__actions">
+                      <span class="designer-tag" *ngIf="block.enabled !== false">Visible</span>
+                      <span class="designer-tag designer-tag--muted" *ngIf="block.enabled === false">Hidden</span>
+                    </div>
+                  </div>
+
+                  <div
+                    class="designer-block__preview"
+                    [ngClass]="[
+                      readBlockSurfaceClass(block),
+                      block.layout === 'split' ? 'designer-block__preview--split' : '',
+                      block.enabled === false ? 'designer-block__preview--muted' : ''
+                    ]"
+                    [ngStyle]="getBlockPreviewStyle(block)"
+                  >
+                    <ng-container [ngSwitch]="block.type">
+                      <div
+                        *ngSwitchCase="'text'"
+                        class="designer-text-widget"
+                        (dragover)="allowTokenDrop($event)"
+                        (drop)="onTextPreviewDrop($event, block.id)"
+                      >
+                        <div class="designer-text-widget__shell">
+                          <span class="designer-text-widget__badge">{{ block.label }}</span>
+                          <textarea
+                            #textEditor
+                            class="designer-text-widget__editor"
+                            rows="2"
+                            wrap="soft"
+                            [value]="readCanvasTextValue(block)"
+                            placeholder="Type directly inside this block"
+                            (click)="$event.stopPropagation()"
+                            (focus)="activateTextEditor(block.id, textEditor)"
+                            (input)="onTextEditorInput(block.id, textEditor.value, textEditor)"
+                            (keyup)="cacheTextEditorSelection(textEditor)"
+                            (select)="cacheTextEditorSelection(textEditor)"
+                            (blur)="commitTextEditing(block.id, textEditor.value)"
+                            (keydown)="onTextEditorKeydown($event, block.id, textEditor)"
+                            (dragover)="allowTokenDrop($event)"
+                            (drop)="onTextEditorDrop($event, block.id, textEditor)"
+                          ></textarea>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'hero'" class="preview-grid">
+                        <div>
+                          <div class="preview-eyebrow">{{ preview.invoiceTypeLabel }}</div>
+                          <h4>{{ preview.invoiceNo || 'Draft Invoice' }}</h4>
+                          <p>{{ preview.headerText || block.description }}</p>
+                        </div>
+                        <div class="preview-stat-grid">
+                          <div>
+                            <span>Status</span>
+                            <strong>{{ preview.statusLabel }}</strong>
+                          </div>
+                          <div>
+                            <span>Invoice Date</span>
+                            <strong>{{ readDateLabel(preview.invoiceDate) }}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'seller'" class="preview-grid">
+                        <div>
+                          <span class="preview-label">From</span>
+                          <strong>{{ preview.organizationName }}</strong>
+                          <p>{{ preview.footerText || 'Organization branding, logo zone, and contact details.' }}</p>
+                        </div>
+                        <div>
+                          <span class="preview-label">Studio Note</span>
+                          <p>{{ block.description || 'Use this section for company address, GSTIN, and support info.' }}</p>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'billTo'" class="preview-grid">
+                        <div>
+                          <span class="preview-label">Bill To</span>
+                          <strong>{{ preview.accountName }}</strong>
+                          <p>{{ preview.contactName }}</p>
+                          <p>{{ preview.contactEmail }}</p>
+                        </div>
+                        <div>
+                          <span class="preview-label">Description</span>
+                          <p>{{ preview.descriptionText }}</p>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'invoiceMeta'" class="preview-meta-grid">
+                        <div>
+                          <span>Invoice No</span>
+                          <strong>{{ preview.invoiceNo || 'Draft Invoice' }}</strong>
+                        </div>
+                        <div>
+                          <span>Invoice Date</span>
+                          <strong>{{ readDateLabel(preview.invoiceDate) }}</strong>
+                        </div>
+                        <div>
+                          <span>Due Date</span>
+                          <strong>{{ readDateLabel(preview.dueDate) }}</strong>
+                        </div>
+                        <div>
+                          <span>Status</span>
+                          <strong>{{ preview.statusLabel }}</strong>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'itemsTable'" class="preview-table">
+                        <div class="preview-table__head">
+                          <span>Item</span>
+                          <span>Qty</span>
+                          <span>Rate</span>
+                          <span>Total</span>
+                        </div>
+                        <div class="preview-table__row" *ngFor="let item of previewItems">
+                          <div>
+                            <strong>{{ item.itemName }}</strong>
+                            <span>{{ item.itemCode || item.itemDetails }}</span>
+                          </div>
+                          <span>{{ item.quantity }}</span>
+                          <span>{{ item.unitPrice | number:'1.2-2' }}</span>
+                          <span>{{ item.lineTotal | number:'1.2-2' }}</span>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'totals'" class="preview-totals">
+                        <div class="preview-total-row">
+                          <span>Subtotal</span>
+                          <strong>{{ preview.subtotal | number:'1.2-2' }}</strong>
+                        </div>
+                        <div class="preview-total-row">
+                          <span>Total Tax</span>
+                          <strong>{{ preview.totalTax | number:'1.2-2' }}</strong>
+                        </div>
+                        <div class="preview-total-row preview-total-row--grand">
+                          <span>Grand Total</span>
+                          <strong>{{ preview.grandTotal | number:'1.2-2' }}</strong>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'notes'" class="preview-copy">
+                        <div>
+                          <span class="preview-label">Header</span>
+                          <p>{{ preview.headerText || 'Add billing context or a personal intro here.' }}</p>
+                        </div>
+                        <div>
+                          <span class="preview-label">Description</span>
+                          <p>{{ preview.descriptionText || block.description }}</p>
+                        </div>
+                      </div>
+
+                      <div *ngSwitchCase="'terms'" class="preview-copy">
+                        <span class="preview-label">Terms</span>
+                        <ul class="preview-list">
+                          <li *ngFor="let term of previewTerms">{{ term }}</li>
+                        </ul>
+                      </div>
+
+                      <div *ngSwitchCase="'footer'" class="preview-copy">
+                        <span class="preview-label">Footer</span>
+                        <p>{{ preview.footerText || 'Support information, bank details, or sign-off content goes here.' }}</p>
+                      </div>
+
+                      <div *ngSwitchDefault class="preview-copy">
+                        <span class="preview-label">{{ block.label }}</span>
+                        <p>{{ block.description }}</p>
+                      </div>
+                    </ng-container>
+                  </div>
+                </article>
+              </ng-container>
+
+              <ng-template #emptyCanvas>
+                <div class="designer-empty-state">
+                  <h6>Start your invoice layout</h6>
+                  <p>Drag widgets from the left panel onto the paper, then tune them from the inspector on the right.</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="designer-panel designer-panel--inspector" [formGroup]="templateForm">
+      <div class="designer-panel__head">
+        <div>
+          <h6>Inspector</h6>
+          <p>Template controls plus block-level design settings.</p>
+        </div>
+      </div>
+
+      <section class="designer-section">
+        <div class="designer-section__head">
+          <h6>Canvas Settings</h6>
+          <span>Template</span>
+        </div>
+
+        <div>
+          <label class="form-label">Template Name</label>
+          <input class="form-control" type="text" formControlName="temp_name" placeholder="Modern Invoice">
+        </div>
+
+        <div>
+          <label class="form-label">Description</label>
+          <textarea class="form-control designer-textarea" rows="3" formControlName="description" placeholder="Tell your team when to use this template"></textarea>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <label class="form-label">Font Family</label>
+            <select class="form-select" formControlName="fontFamily">
+              <option *ngFor="let font of fontOptions" [value]="font">{{ font }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label">Accent Color</label>
+            <input class="form-control form-control-color" type="color" formControlName="accentColor" aria-label="Accent color">
+          </div>
+        </div>
+
+        <div class="form-check designer-toggle">
+          <input class="form-check-input" type="checkbox" id="invoiceDesignerDefaultToggle" formControlName="is_default">
+          <label class="form-check-label" for="invoiceDesignerDefaultToggle">
+            Save as default template
+          </label>
+        </div>
+      </section>
+
+      <section class="designer-section" *ngIf="selectedBlock as block; else emptyInspector">
+        <div class="designer-section__head">
+          <h6>{{ block.label }} Settings</h6>
+          <span>Block {{ selectedBlockIndex + 1 }}</span>
+        </div>
+
+        <div>
+          <label class="form-label">{{ block.type === 'text' ? 'Widget Label' : 'Section Title' }}</label>
+          <input
+            #headingInput
+            class="form-control"
+            type="text"
+            [value]="block.heading || ''"
+            (input)="updateBlockTextField(block.id, 'heading', headingInput.value)"
+          >
+        </div>
+
+        <div *ngIf="block.type !== 'text'">
+          <label class="form-label">Support Copy</label>
+          <textarea
+            #descriptionInput
+            class="form-control designer-textarea"
+            rows="3"
+            [value]="block.description || ''"
+            (input)="updateBlockTextField(block.id, 'description', descriptionInput.value)"
+          ></textarea>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <label class="form-label">Layout</label>
+            <select
+              #layoutInput
+              class="form-select"
+              [value]="block.layout || 'full'"
+              (change)="updateBlockSelectField(block.id, 'layout', layoutInput.value)"
+            >
+              <option value="full">Full width</option>
+              <option value="split">Split layout</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label">Alignment</label>
+            <select
+              #alignmentInput
+              class="form-select"
+              [value]="block.alignment || 'start'"
+              (change)="updateBlockSelectField(block.id, 'alignment', alignmentInput.value)"
+            >
+              <option value="start">Left</option>
+              <option value="center">Center</option>
+              <option value="end">Right</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <label class="form-label">Surface</label>
+            <select
+              #surfaceInput
+              class="form-select"
+              [value]="block.surfaceStyle || 'plain'"
+              (change)="updateBlockSelectField(block.id, 'surfaceStyle', surfaceInput.value)"
+            >
+              <option value="plain">Plain</option>
+              <option value="card">Card</option>
+              <option value="outline">Outline</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label">Padding</label>
+            <input
+              #paddingInput
+              class="form-control"
+              type="number"
+              min="12"
+              max="40"
+              [value]="block.padding || 20"
+              (input)="updateBlockPadding(block.id, paddingInput.value)"
+            >
+          </div>
+        </div>
+
+        <label class="designer-visibility">
+          <input
+            #enabledInput
+            type="checkbox"
+            [checked]="block.enabled !== false"
+            (change)="updateBlockEnabled(block.id, enabledInput.checked)"
+          >
+          <span>Show this block on the invoice canvas</span>
+        </label>
+
+        <div class="designer-section__actions">
+          <button type="button" class="btn btn-light btn-sm" (click)="duplicateSelectedBlock()">Duplicate</button>
+          <button type="button" class="btn btn-light btn-sm" (click)="moveSelectedBlock(-1)" [disabled]="selectedBlockIndex <= 0">Move Up</button>
+          <button
+            type="button"
+            class="btn btn-light btn-sm"
+            (click)="moveSelectedBlock(1)"
+            [disabled]="selectedBlockIndex < 0 || selectedBlockIndex >= currentBlocks.length - 1"
+          >
+            Move Down
+          </button>
+        </div>
+      </section>
+
+      <section class="designer-section" *ngIf="selectedBlock as block">
+        <div class="designer-section__head">
+          <h6>{{ block.type === 'text' ? 'Typography' : 'Appearance' }}</h6>
+          <span>{{ block.type === 'text' ? 'Word-style controls' : 'Block styling' }}</span>
+        </div>
+
+        <div class="detail-grid" *ngIf="block.type === 'text'">
+          <div>
+            <label class="form-label">Font Size</label>
+            <div class="designer-font-size-control">
+              <button type="button" class="btn btn-light btn-sm" (click)="adjustSelectedFontSize(-1)">-</button>
+              <input
+                #fontSizeInput
+                class="form-control"
+                type="number"
+                min="8"
+                max="96"
+                [value]="selectedTextFontSize"
+                (input)="updateBlockFontSize(block.id, fontSizeInput.value)"
+              >
+              <button type="button" class="btn btn-light btn-sm" (click)="adjustSelectedFontSize(1)">+</button>
+              <select
+                #fontSizePreset
+                class="form-select"
+                [value]="selectedTextFontSize"
+                (change)="updateBlockFontSize(block.id, fontSizePreset.value)"
+              >
+                <option *ngFor="let size of fontSizeOptions" [value]="size">{{ size }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">Width</label>
+            <input
+              #widthInput
+              class="form-control"
+              type="number"
+              min="80"
+              max="760"
+              [disabled]="selectedTextAutoWidth"
+              [value]="selectedTextWidth"
+              (input)="updateBlockWidth(block.id, widthInput.value)"
+            >
+          </div>
+        </div>
+
+        <label class="designer-visibility designer-visibility--subtle" *ngIf="block.type === 'text'">
+          <input
+            #autoWidthToggle
+            type="checkbox"
+            [checked]="selectedTextAutoWidth"
+            (change)="updateBlockAutoWidth(block.id, autoWidthToggle.checked)"
+          >
+          <span>Fit width to text content</span>
+        </label>
+
+        <div class="detail-grid">
+          <div>
+            <label class="form-label">Background</label>
+            <input
+              #backgroundInput
+              class="form-control form-control-color"
+              type="color"
+              [value]="block.backgroundColor || '#ffffff'"
+              (input)="updateBlockTextField(block.id, 'backgroundColor', backgroundInput.value)"
+              aria-label="Block background color"
+            >
+          </div>
+
+          <div>
+            <label class="form-label">Text Color</label>
+            <input
+              #textColorInput
+              class="form-control form-control-color"
+              type="color"
+              [value]="block.textColor || '#0f172a'"
+              (input)="updateBlockTextField(block.id, 'textColor', textColorInput.value)"
+              aria-label="Block text color"
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="designer-section" *ngIf="selectedBlock?.type === 'text'">
+        <div class="designer-section__head">
+          <h6>Tokens</h6>
+          <span>Drag into the text block</span>
+        </div>
+
+        <div class="designer-token-list">
+          <button
+            type="button"
+            class="designer-token"
+            *ngFor="let token of tokenLibrary; trackBy: trackByTokenValue"
+            draggable="true"
+            (dragstart)="onTokenDragStart($event, token.value)"
+            (dragend)="onTokenDragEnd()"
+            (click)="insertTokenIntoSelectedText(token.value)"
+          >
+            <strong>{{ token.label }}</strong>
+            <span>{{ token.value }}</span>
+            <small>{{ token.description }}</small>
+          </button>
+        </div>
+      </section>
+
+      <ng-template #emptyInspector>
+        <section class="designer-section designer-section--empty">
+          <h6>Select a block</h6>
+          <p>Click any section in the canvas to edit its layout, styling, and visibility here.</p>
+        </section>
+      </ng-template>
+
+      <section class="designer-section">
+        <div class="designer-section__head">
+          <h6>Layers</h6>
+          <span>{{ currentBlocks.length }} total</span>
+        </div>
+
+        <button
+          type="button"
+          class="designer-layer"
+          *ngFor="let block of currentBlocks; let i = index; trackBy: trackByBlockId"
+          [class.active]="isSelectedBlock(block.id)"
+          (click)="selectBlock(block.id)"
+        >
+          <span class="designer-layer__index">{{ i + 1 }}</span>
+          <span class="designer-layer__copy">
+            <strong>{{ block.heading || block.label }}</strong>
+            <span>{{ block.label }} • {{ block.enabled === false ? 'Hidden' : 'Visible' }}</span>
+          </span>
+        </button>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<ng-template #designerLoading>
+  <div class="designer-loading">
+    <div class="app-skeleton app-skeleton--title app-skeleton--w-md"></div>
+    <div class="app-skeleton app-skeleton--text app-skeleton--w-lg"></div>
+    <div class="designer-loading__grid">
+      <div class="app-skeleton app-skeleton--block"></div>
+      <div class="app-skeleton app-skeleton--block"></div>
+      <div class="app-skeleton app-skeleton--block"></div>
+    </div>
+  </div>
+</ng-template>

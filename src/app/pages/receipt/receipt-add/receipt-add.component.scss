@@ -1,0 +1,23 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.detail-grid {
+  column-gap: calc(1rem + 0.75%);
+}
+
+.receipt-add-grid-block {
+  margin-top: 1.5rem;
+}
+
+.receipt-add-notes {
+  min-height: 96px !important;
+}
+
+.err-msg {
+  margin-top: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}

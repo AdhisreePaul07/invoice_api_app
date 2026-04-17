@@ -1,0 +1,159 @@
+<header class="app-header">
+  <div class="app-header-inner">
+    <button
+      class="app-toggler"
+      type="button"
+      aria-label="app toggler"
+      [class.active]="sidebarOpen$ | async"
+      (click)="toggleShellNav()"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.66699 12.6668L3.66699 8.00016L7.66699 3.3335" stroke="#1C274C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path opacity="0.5" d="M12.667 12.6668L8.66699 8.00016L12.667 3.3335" stroke="#1C274C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+
+    <div class="app-header-start d-none d-md-flex">
+      <form class="d-flex align-items-center h-100 w-lg-250px w-xxl-300px position-relative" action="#" (submit)="preventDefault($event)">
+        <button type="button" class="btn btn-sm border-0 position-absolute start-0 ms-3 p-0" (click)="openSearch($event)">
+          <i class="fi fi-rr-search"></i>
+        </button>
+        <input
+          type="text"
+          class="form-control form-control-fill ps-5"
+          placeholder="Search anything's"
+          readonly
+          (click)="openSearch($event)"
+        >
+      </form>
+    </div>
+
+    <div class="app-header-end">
+      <div class="dropdown text-end ms-sm-3 ms-2 ms-lg-4 profile-dropdown" (click)="$event.stopPropagation()">
+        <a href="" class="d-flex align-items-center py-2 profile-trigger" data-app-toggle="dropdown" data-app-auto-close="outside" [attr.aria-expanded]="isProfileOpen" (click)="toggleProfile($event)">
+          <div class="text-end me-2 d-none d-lg-inline-block">
+            <div class="fw-bold text-dark">{{ userName }}</div>
+            <small class="text-body d-block lh-sm">
+              <i class="fi fi-rr-angle-down text-3xs me-1"></i> {{ userRoleLabel }}
+            </small>
+          </div>
+          <div class="avatar avatar-sm rounded-circle avatar-status-success">
+            <img [src]="userAvatarUrl" alt="">
+          </div>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end w-225px mt-1" [class.show]="isProfileOpen">
+          <li class="d-flex align-items-center p-2">
+            <div class="avatar avatar-sm rounded-circle">
+              <img [src]="userAvatarUrl" alt="">
+            </div>
+            <div class="ms-2">
+              <div class="fw-bold text-dark">{{ userName }}</div>
+              <small class="text-body d-block lh-sm">{{ userEmail }}</small>
+            </div>
+          </li>
+          <li>
+            <div class="dropdown-divider my-1"></div>
+          </li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="" (click)="navigateTo('/profile', $event)">
+              <i class="fi fi-rr-user scale-1x"></i> View Profile
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="" (click)="navigateTo('/items', $event)">
+              <i class="fi fi-rr-note scale-1x"></i> My Task
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="" (click)="navigateTo('/profile', $event)">
+              <i class="fi fi-rr-settings scale-1x"></i> Account Settings
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2" href="" (click)="preventDefault($event)">
+              <i class="fi fi-rr-usd-circle scale-1x"></i> Upgrade Plan
+            </a>
+          </li>
+          <li>
+            <div class="dropdown-divider my-1"></div>
+          </li>
+          <li>
+            <button type="button" class="dropdown-item d-flex align-items-center gap-2 text-danger" (click)="logout()">
+              <i class="fi fi-sr-exit scale-1x"></i> Log Out
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div
+  class="modal fade"
+  id="searchResultsModal"
+  tabindex="-1"
+  aria-hidden="true"
+  [class.show]="isSearchOpen"
+  [class.d-block]="isSearchOpen"
+  [style.display]="isSearchOpen ? 'block' : 'none'"
+  (click)="closeSearch()"
+>
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header py-1 px-3">
+        <form class="d-flex align-items-center position-relative w-100" action="#" (submit)="preventDefault($event)">
+          <button type="button" class="btn btn-sm border-0 position-absolute start-0 p-0 text-sm">
+            <i class="fi fi-rr-search"></i>
+          </button>
+          <input
+            type="text"
+            class="form-control form-control-lg ps-4 border-0 shadow-none"
+            id="searchInput"
+            name="searchInput"
+            placeholder="Search anything's"
+            [(ngModel)]="searchQuery"
+            autocomplete="off"
+          >
+        </form>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeSearch()"></button>
+      </div>
+
+      <div class="modal-body pb-2" style="height: 300px;" data-simplebar="">
+        <div id="recentlyResults" *ngIf="!searchQuery.trim()">
+          <span class="text-uppercase text-2xs fw-semibold text-muted d-block mb-2">Recently Searched:</span>
+          <ul class="list-inline search-list">
+            <li *ngFor="let item of searchItems">
+              <a class="search-item" href="" (click)="navigateTo(item.route, $event, true)">
+                <i [class]="item.iconClass"></i> <span>{{ item.label }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div id="searchContainer" *ngIf="searchQuery.trim()">
+          <ng-container *ngIf="filteredSearchItems.length; else noSearchResults">
+            <span class="text-uppercase text-2xs fw-semibold text-muted d-block mb-2">Matches:</span>
+            <ul class="list-inline search-list">
+              <li *ngFor="let item of filteredSearchItems">
+                <a class="search-item" href="" (click)="navigateTo(item.route, $event, true)">
+                  <i [class]="item.iconClass"></i> <span>{{ item.label }}</span>
+                </a>
+              </li>
+            </ul>
+          </ng-container>
+
+          <ng-template #noSearchResults>
+            <div class="text-center pb-5 pt-4">
+              <div class="avatar avatar-lg bg-danger-subtle shadow-secondary rounded-circle text-danger mb-3 m-auto">
+                <i class="fi fi-rr-assessment"></i>
+              </div>
+              <h5 class="mb-1">No result found</h5>
+              <div class="text-muted">Please try again with a different query</div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

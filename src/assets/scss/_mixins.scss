@@ -1,0 +1,71 @@
+@use 'sass:map';
+@use 'sass:string';
+@use './variables' as *;
+
+@function escape-leading-digit($ident) {
+  $first: string.slice($ident + '', 1, 1);
+
+  @if $first == '0' or $first == '1' or $first == '2' or $first == '3' or $first == '4' or $first == '5' or $first == '6' or $first == '7' or $first == '8' or $first == '9' {
+    @return "\\3#{$first} #{string.slice($ident + '', 2)}";
+  }
+
+  @return $ident;
+}
+
+@function bp-min($bp) {
+  @if map.has-key($breakpoints, $bp) {
+    @return map.get($breakpoints, $bp);
+  }
+
+  @return null;
+}
+
+@mixin mq-up($bp) {
+  $min: bp-min($bp);
+
+  @if $min {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin responsive($bp-or-class, $class: null) {
+  $has-class: $class != null;
+  $bp: null;
+  $final-class: $bp-or-class;
+  $min: null;
+  $prefix: '.';
+
+  @if $has-class {
+    $bp: $bp-or-class;
+    $final-class: $class;
+  }
+
+  @if $bp != null {
+    $min: bp-min($bp);
+    $prefix: '.#{escape-leading-digit(#{$bp})}-';
+  }
+
+  $selector: '#{$prefix}#{$final-class}';
+
+  @if $min {
+    @media (min-width: $min) {
+      #{$selector} {
+        @content;
+      }
+    }
+  } @else {
+    #{$selector} {
+      @content;
+    }
+  }
+}
+
+@mixin respond($bp) {
+  @include mq-up($bp) {
+    @content;
+  }
+}

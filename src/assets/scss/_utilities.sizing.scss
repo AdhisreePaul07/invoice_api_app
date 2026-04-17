@@ -1,0 +1,29 @@
+.w-auto {
+  width: auto !important;
+}
+
+.h-auto {
+  height: auto !important;
+}
+
+.h-full {
+  height: 100% !important;
+}
+
+.min-h-screen {
+  min-height: 100vh !important;
+}
+
+@for $i from 0 through 100 {
+  .w-#{$i} {
+    width: $i * 1% !important;
+  }
+}
+
+.w-full {
+  width: 100% !important;
+}
+
+.max-w-none {
+  max-width: none !important;
+}

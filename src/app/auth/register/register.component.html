@@ -1,0 +1,262 @@
+<div class="page-layout">
+  <div class="auth-cover-wrapper">
+    <div class="row g-0 min-vh-100">
+      <div class="col-md-6">
+        <div class="auth-cover register-cover-pane">
+          <div class="clearfix">
+            <img src="/assets/images/auth/vector1.svg" alt="" class="img-fluid cover-img cover-img--mirrored">
+            <div class="auth-content">
+              <h1 class="display-6 fw-bold">Welcome Back!</h1>
+              <p>Manage clients, invoices, and team activity from one secure workspace.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 align-self-center">
+        <div class="px-3 py-5 p-sm-5 maxw-450px m-auto register-stage">
+          <div class="mb-4 text-center">
+            <a routerLink="/login" aria-label="Clienet Logo">
+              <img src="/assets/images/clienet-logo.png" alt="Clienet Logo">
+            </a>
+          </div>
+
+          <div class="text-center mb-5" *ngIf="currentStep === 'details'">
+            <h5 class="mb-1">Access your workspace</h5>
+            <p>Sign up to create your secure admin.</p>
+          </div>
+
+          <div class="text-center mb-5 register-step-copy" *ngIf="currentStep === 'verify'">
+            <h5 class="mb-1">Verify your email</h5>
+            <p>Enter the 6-digit OTP sent to your email address.</p>
+          </div>
+
+          <div class="register-step" *ngIf="currentStep === 'details'">
+            <form [formGroup]="form" (ngSubmit)="sendOtp()" novalidate>
+              <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                  <label class="form-label" for="registerFirstName">First Name</label>
+                  <input
+                    id="registerFirstName"
+                    type="text"
+                    class="form-control auth-input"
+                    autocomplete="given-name"
+                    formControlName="first_name"
+                    placeholder="John"
+                    [class.is-invalid]="isInvalid('first_name')"
+                  >
+                  <div class="invalid-feedback d-block" *ngIf="isInvalid('first_name')">
+                    First name is required.
+                  </div>
+                </div>
+
+                <div class="col-sm-6">
+                  <label class="form-label" for="registerLastName">Last Name</label>
+                  <input
+                    id="registerLastName"
+                    type="text"
+                    class="form-control auth-input"
+                    autocomplete="family-name"
+                    formControlName="last_name"
+                    placeholder="Doe"
+                    [class.is-invalid]="isInvalid('last_name')"
+                  >
+                  <div class="invalid-feedback d-block" *ngIf="isInvalid('last_name')">
+                    Last name is required.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label" for="registerEmail">Email Address</label>
+                <input
+                  id="registerEmail"
+                  type="email"
+                  class="form-control auth-input"
+                  autocomplete="email"
+                  formControlName="email"
+                  placeholder="info@example.com"
+                  [class.is-invalid]="isInvalid('email')"
+                >
+                <div class="invalid-feedback d-block" *ngIf="isInvalid('email')">
+                  <span *ngIf="form.get('email')?.errors?.['required']">Email is required.</span>
+                  <span *ngIf="form.get('email')?.errors?.['email']">Enter a valid email address.</span>
+                </div>
+              </div>
+
+              <div class="mb-4 register-field register-field--business">
+                <label class="form-label" for="registerBusinessName">Business Name</label>
+                <input
+                  id="registerBusinessName"
+                  type="text"
+                  class="form-control auth-input"
+                  autocomplete="organization"
+                  formControlName="business_name"
+                  placeholder="Clienet LLC"
+                  [class.is-invalid]="isInvalid('business_name')"
+                >
+                <div class="register-field-note">
+                  <div
+                    class="form-text register-hint"
+                    [class.register-field-note-hidden]="isInvalid('business_name')"
+                    [attr.aria-hidden]="isInvalid('business_name') ? 'true' : null"
+                  >
+                    This will be used as your workspace name.
+                  </div>
+                  <div
+                    class="invalid-feedback d-block"
+                    [class.register-field-note-hidden]="!isInvalid('business_name')"
+                    [attr.aria-hidden]="isInvalid('business_name') ? null : 'true'"
+                  >
+                    Business name is required.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4 register-field register-field--password">
+                <label class="form-label" for="registerPassword">Password</label>
+                <div class="password-wrapper">
+                  <input
+                    id="registerPassword"
+                    [type]="showPassword ? 'text' : 'password'"
+                    class="form-control password-input auth-input"
+                    autocomplete="new-password"
+                    formControlName="password"
+                    placeholder="Enter password"
+                    [class.is-invalid]="isInvalid('password')"
+                  >
+                  <button
+                    type="button"
+                    class="toggle-password"
+                    [class.active]="showPassword"
+                    [attr.aria-pressed]="showPassword"
+                    [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                    [attr.title]="showPassword ? 'Hide password' : 'Show password'"
+                    (click)="togglePassword()"
+                  >
+                    <i class="close fi fi-rr-eye-crossed" aria-hidden="true"></i>
+                    <i class="open fi fi-rr-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="isInvalid('password')">
+                  Minimum 8 characters.
+                </div>
+
+                <div
+                  class="password-strength"
+                  [class.password-strength--visible]="passwordValue"
+                  [attr.aria-hidden]="passwordValue ? null : 'true'"
+                >
+                  <div class="d-flex align-items-center justify-content-between gap-3 password-strength-head">
+                    <span class="password-strength-label">Password strength: {{ passwordStrengthLabel }}</span>
+                    <small class="password-strength-score">{{ passwordCriteriaMatched }}/4</small>
+                  </div>
+
+                  <div class="progress password-strength-progress" role="progressbar" aria-label="Password strength progress" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="passwordStrengthPercent">
+                    <div
+                      class="progress-bar progress-bar-striped progress-bar-animated"
+                      [ngClass]="passwordStrengthBarClass"
+                      [style.width.%]="passwordStrengthPercent"
+                    ></div>
+                  </div>
+
+                  <div class="password-strength-copy">
+                    <div class="password-strength-rules">
+                      <span class="password-rule" *ngFor="let rule of passwordRules" [class.is-met]="rule.met">
+                        <span class="rule-indicator"></span>
+                        <span>{{ rule.label }}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="success" class="alert alert-success py-2 px-3 mb-3" role="alert">
+                {{ success }}
+              </div>
+
+              <div *ngIf="error" class="alert alert-danger py-2 px-3 mb-3" role="alert">
+                {{ error }}
+              </div>
+
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary waves-effect waves-light w-100" [disabled]="otpLoading || loading">
+                  {{ otpLoading ? 'Sending OTP...' : 'Request OTP' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="register-step" *ngIf="currentStep === 'verify'">
+            <div class="reset-email-pill mb-4">
+              {{ emailAddress }}
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="verifyOtp()" novalidate>
+              <div class="mb-4">
+                <label class="form-label" for="registerOtp">OTP code</label>
+                <div class="otp-digit-grid">
+                  <input
+                    *ngFor="let slot of otpSlots; let index = index"
+                    #otpDigitInput
+                    [id]="index === 0 ? 'registerOtp' : null"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    [attr.maxlength]="otpSlots.length"
+                    class="form-control otp-digit"
+                    [class.is-invalid]="isInvalid('otp_code')"
+                    [attr.aria-label]="'OTP digit ' + (index + 1)"
+                    [autocomplete]="index === 0 ? 'one-time-code' : 'off'"
+                    [value]="otpDigits[index]"
+                    (input)="onOtpInput(index, $event)"
+                    (keydown)="onOtpKeydown(index, $event)"
+                    (paste)="onOtpPaste($event)"
+                  >
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="isInvalid('otp_code')">
+                  Enter the 6-digit OTP.
+                </div>
+              </div>
+
+              <div *ngIf="success" class="alert alert-success py-2 px-3 mb-3" role="alert">
+                {{ success }}
+              </div>
+
+              <div *ngIf="error" class="alert alert-danger py-2 px-3 mb-3" role="alert">
+                {{ error }}
+              </div>
+
+              <div class="d-grid gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-primary waves-effect waves-light w-100"
+                  [disabled]="verifyLoading || loading"
+                >
+                  {{ otpSubmitLabel }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-light waves-effect waves-light w-100"
+                  (click)="sendOtp()"
+                  [disabled]="otpLoading || verifyLoading || loading || resendCountdown > 0"
+                >
+                  {{ resendOtpLabel }}
+                </button>
+              </div>
+
+              <div class="text-center mt-4">
+                <button type="button" class="link-button" (click)="useDifferentEmail()">Use a different email</button>
+              </div>
+            </form>
+          </div>
+
+          <p class="mb-0 mt-4 text-center register-footer">
+            Already have an account?
+            <a routerLink="/login">Sign In here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

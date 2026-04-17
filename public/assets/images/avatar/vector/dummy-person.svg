@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Dummy vector person portrait">
+  <defs>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF0E4" />
+      <stop offset="100%" stop-color="#FFE2CF" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#card)" />
+  <circle cx="60" cy="60" r="38" fill="#FFD9BF" />
+  <path d="M31 94c6-14 18-22 29-22s23 8 29 22v6H31z" fill="#16A085" />
+  <ellipse cx="60" cy="50" rx="20" ry="24" fill="#F0BC97" />
+  <path d="M40 49c0-14 8-25 21-25 12 0 21 9 21 24 0 4-1 8-3 11-3-8-10-14-18-14-8 0-14 3-20 10-1-2-1-4-1-6z" fill="#1F355A" />
+  <circle cx="52" cy="52" r="3.2" fill="#1D2630" />
+  <circle cx="68" cy="52" r="3.2" fill="#1D2630" />
+  <path d="M53 65c2 2 4 3 7 3 2 0 5-1 7-3" fill="none" stroke="#B36A5E" stroke-linecap="round" stroke-width="2.5" />
+</svg>

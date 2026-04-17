@@ -1,0 +1,133 @@
+<div class="auth-page">
+  <div class="auth-shell">
+    <section class="auth-visual">
+      <div class="auth-brand">
+        <img src="/assets/images/clienet-logo.png" alt="Clienet logo" />
+        <div class="auth-kicker">Invitation-based access</div>
+      </div>
+
+      <div class="auth-visual-copy">
+        <h1>Join an organization with the new invitation and tenant-role workflow.</h1>
+        <p>
+          Invitations now create access inside the correct tenant and let teammates set their password while preserving
+          organization-level permissions from the start.
+        </p>
+      </div>
+
+      <div class="auth-visual-graphic">
+        <img src="/assets/images/auth/vector2.svg" alt="Invitation illustration" />
+        <div class="auth-float-card top">
+          <div class="label">Invite flow</div>
+          <div class="value">Token + profile + password</div>
+        </div>
+        <div class="auth-float-card bottom">
+          <div class="label">Role-ready access</div>
+          <div class="value">Join the correct tenant instantly</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="auth-card-head">
+          <h2>Accept invitation</h2>
+          <p>Confirm your details and set a password to join the invited organization.</p>
+        </div>
+
+        <form class="auth-form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+          <div class="field mb-0">
+            <label class="form-label" for="inviteToken">Invitation token</label>
+            <input
+              id="inviteToken"
+              class="form-control"
+              type="text"
+              formControlName="token"
+              placeholder="Invitation token"
+              [class.is-invalid]="isInvalid('token')"
+            />
+            <div class="err-msg" *ngIf="isInvalid('token')">Invitation token is required.</div>
+          </div>
+
+          <div class="auth-grid">
+            <div class="field mb-0">
+              <label class="form-label" for="inviteFirstName">First name</label>
+              <input
+                id="inviteFirstName"
+                class="form-control"
+                type="text"
+                formControlName="first_name"
+                placeholder="First name"
+                [class.is-invalid]="isInvalid('first_name')"
+              />
+              <div class="err-msg" *ngIf="isInvalid('first_name')">First name is required.</div>
+            </div>
+
+            <div class="field mb-0">
+              <label class="form-label" for="inviteLastName">Last name</label>
+              <input id="inviteLastName" class="form-control" type="text" formControlName="last_name" placeholder="Last name" />
+            </div>
+          </div>
+
+          <div class="auth-grid">
+            <div class="field mb-0">
+              <label class="form-label" for="invitePassword">Password</label>
+              <div class="float-field has-end-icon">
+                <input
+                  id="invitePassword"
+                  class="form-control"
+                  [type]="showPassword ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Create password"
+                  [class.is-invalid]="isInvalid('password')"
+                />
+                <button class="pw-toggle" type="button" (click)="togglePassword()">
+                  <i class="ph ph-eye" *ngIf="!showPassword"></i>
+                  <i class="ph ph-eye-slash" *ngIf="showPassword"></i>
+                </button>
+              </div>
+              <div class="err-msg" *ngIf="isInvalid('password')">Minimum 8 characters.</div>
+            </div>
+
+            <div class="field mb-0">
+              <label class="form-label" for="inviteConfirmPassword">Confirm password</label>
+              <div class="float-field has-end-icon">
+                <input
+                  id="inviteConfirmPassword"
+                  class="form-control"
+                  [type]="showConfirmPassword ? 'text' : 'password'"
+                  formControlName="confirm_password"
+                  placeholder="Repeat password"
+                  [class.is-invalid]="isInvalid('confirm_password') || (submitted && !passwordsMatch)"
+                />
+                <button class="pw-toggle" type="button" (click)="toggleConfirmPassword()">
+                  <i class="ph ph-eye" *ngIf="!showConfirmPassword"></i>
+                  <i class="ph ph-eye-slash" *ngIf="showConfirmPassword"></i>
+                </button>
+              </div>
+              <div class="err-msg" *ngIf="isInvalid('confirm_password') || (submitted && !passwordsMatch)">
+                <span *ngIf="isInvalid('confirm_password')">Confirmation is required.</span>
+                <span *ngIf="submitted && !passwordsMatch">Passwords do not match.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-note">
+            This flow will create your account inside the invited organization and redirect you back to sign in when the
+            invitation is accepted.
+          </div>
+
+          <div *ngIf="error" class="form-alert">{{ error }}</div>
+
+          <button class="btn primary lg block" type="submit" [disabled]="loading">
+            {{ loading ? 'Accepting invitation...' : 'Accept invitation' }}
+          </button>
+
+          <div class="auth-link-row">
+            Already have access?
+            <a routerLink="/login">Back to login</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>

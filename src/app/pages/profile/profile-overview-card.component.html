@@ -1,0 +1,75 @@
+<div class="card overview-card">
+  <div class="card-header pb-0 border-0">
+    <div class="mb-4 border-bottom pb-4 d-flex border-0 justify-content-between align-items-start">
+      <div class="d-flex align-items-center">
+        <div class="avatar avatar-xl rounded-circle position-relative me-3 overview-avatar">
+          <img [src]="avatarUrl" alt="User avatar">
+          <button
+            *ngIf="editableAvatar"
+            type="button"
+            class="overview-avatar__action"
+            [disabled]="avatarActionBusy"
+            aria-label="Change profile image"
+            (click)="onAvatarAction()"
+          >
+            <span class="overview-avatar__action-inner">
+              <i class="fi fi-rr-camera"></i>
+            </span>
+          </button>
+        </div>
+        <div class="clearfix">
+          <h4 class="fw-bold mb-0">{{ headerTitle }}</h4>
+          <small class="mb-0">{{ organization ? roleLabel : ownerName }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body pt-0">
+    <div class="mb-0">
+      <div class="mb-3">
+        <h4 class="card-title mb-0">Basic Information</h4>
+      </div>
+
+      <div class="app-skeleton-profile-state" *ngIf="loading" aria-hidden="true">
+        <div class="app-skeleton-profile-row" *ngFor="let _ of [1, 2, 3, 4]">
+          <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+        </div>
+      </div>
+
+      <div class="clearfix" *ngIf="!loading">
+        <div class="mb-3" *ngIf="organization">
+          <span class="mb-1">Owner</span>
+          <p class="text-dark fw-semibold mb-0">{{ ownerName }}</p>
+        </div>
+        <div class="mb-3" *ngIf="!organization">
+          <span class="mb-1">Full Name</span>
+          <p class="text-dark fw-semibold mb-0">{{ displayName }}</p>
+        </div>
+        <div class="mb-3">
+          <span class="mb-1">Email</span>
+          <p class="text-dark fw-semibold mb-0">{{ account?.email || 'Not available' }}</p>
+        </div>
+        <div class="mb-3" *ngIf="organization">
+          <span class="mb-1">Workspace</span>
+          <p class="text-dark fw-semibold mb-0">{{ workspaceLabel }}</p>
+        </div>
+        <div class="mb-3">
+          <span class="mb-1">Role</span>
+          <p class="text-dark fw-semibold mb-0">{{ roleLabel }}</p>
+        </div>
+        <div class="mb-3">
+          <span class="mb-1">Email Status</span>
+          <p class="text-dark fw-semibold mb-0">{{ emailVerificationLabel }}</p>
+        </div>
+        <div class="mb-0">
+          <span class="mb-1">Joined Date</span>
+          <p class="text-dark fw-semibold mb-0">
+            {{ account?.date_joined ? (account?.date_joined | date: 'longDate') : 'Not available' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

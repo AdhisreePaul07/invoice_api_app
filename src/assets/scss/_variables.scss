@@ -1,0 +1,217 @@
+$primary: #0d9b6c;
+$primary-600: #0b855d;
+$primary-700: #097250;
+$secondary: #31473d;
+$secondary-600: #293c34;
+$secondary-700: #22322b;
+$success: #00c851;
+$success-600: #00ae46;
+$success-700: #00963d;
+$accent: #138a84;
+$accent-600: #107671;
+$accent-700: #0d6560;
+$warning: #ffbb33;
+$warning-600: #e6a82e;
+$warning-700: #cc9629;
+$danger: #ff4444;
+$danger-600: #e63d3d;
+$danger-700: #cc3636;
+$light: #f2f2f6;
+$light-600: #e1e5ee;
+$light-700: #cfd6e2;
+$dark: #0c243c;
+$dark-600: #24384d;
+$dark-700: #1d2f42;
+$white: #ffffff;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+$gray: #97a1c0;
+$muted: $gray-600;
+$border: #eeeef3;
+$bg: #ffffff;
+$fg: #0c243c;
+$body-shell: #fdfdff;
+$sidebar-shell: #fafdfc;
+$body-surface: #ffffff;
+$body-tertiary-bg: #f9f9f9;
+$body-color: #696981;
+$body-secondary-color: rgba(#696981, 0.78);
+$body-tertiary-color: rgba(#97a1c0, 0.88);
+$heading-color: #0c243c;
+$custom-modal-backdrop: #a6adbf;
+$border-soft: rgba(12, 36, 60, 0.08);
+$body-shell-dark: #0f1713;
+$body-surface-dark: #15201b;
+$body-tertiary-bg-dark: #16211c;
+$body-color-dark: #93ab9c;
+$heading-color-dark: #e5f2eb;
+$border-dark: rgba(209, 227, 216, 0.08);
+$secondary-dark: #d1e4d8;
+$light-dark: #16211c;
+$dark-dark: #d1e4d8;
+
+$social-colors: (
+  facebook: #1877f2,
+  github: #24292f,
+  instagram: #e4405f,
+  linkedin: #0a66c2,
+  pinterest: #bd081c,
+  reddit: #ff4500,
+  snapchat: #fffc00,
+  telegram: #26a5e4,
+  tiktok: #111111,
+  twitter: #1d9bf0,
+  whatsapp: #25d366,
+  youtube: #ff0000,
+);
+
+$font-heading:
+  "Urbanist",
+  ui-sans-serif,
+  system-ui,
+  "Segoe UI",
+  Roboto,
+  Ubuntu,
+  Cantarell,
+  "Helvetica Neue",
+  Arial,
+  "Noto Sans",
+  sans-serif;
+
+$font-body:
+  "Inter",
+  ui-sans-serif,
+  system-ui,
+  "Segoe UI",
+  Roboto,
+  Ubuntu,
+  Cantarell,
+  "Helvetica Neue",
+  Arial,
+  "Noto Sans",
+  sans-serif;
+
+$font-mono:
+  "JetBrains Mono",
+  ui-monospace,
+  SFMono-Regular,
+  Menlo,
+  Consolas,
+  "Liberation Mono",
+  monospace;
+
+$space-scale: (
+  0: 0,
+  0_5: 0.125rem,
+  1: 0.25rem,
+  1_5: 0.375rem,
+  2: 0.5rem,
+  2_5: 0.625rem,
+  3: 0.75rem,
+  3_5: 0.875rem,
+  4: 1rem,
+  5: 1.25rem,
+  6: 1.5rem,
+  8: 2rem,
+  10: 2.5rem,
+  12: 3rem,
+  16: 4rem,
+  auto: auto,
+);
+
+$breakpoints: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1280px,
+  2xl: 1536px,
+);
+
+$radius: 0.375rem;
+$radius-sm: 0.25rem;
+$radius-lg: 0.625rem;
+$radius-pill: 50rem;
+$shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+$shadow-md: 0 0.26rem 1.126rem 0 rgba(45, 42, 60, 0.15);
+$transition-fast: 0.15s;
+
+$fs-10: 0.625rem;
+$fs-11: 0.6875rem;
+$fs-12: 0.75rem;
+$fs-13: 0.8125rem;
+$fs-14: 0.875rem;
+$fs-15: 0.9375rem;
+$fs-16: 1rem;
+$fs-18: 1.125rem;
+$fs-20: 1.25rem;
+$fs-22: 1.375rem;
+$fs-24: 1.5rem;
+$fs-28: 1.75rem;
+$fs-32: 2rem;
+$fs-36: 2.25rem;
+$fs-40: 2.5rem;
+$fs-48: 3rem;
+
+$fw-100: 100;
+$fw-200: 200;
+$fw-300: 300;
+$fw-400: 400;
+$fw-500: 500;
+$fw-600: 600;
+$fw-700: 700;
+$fw-800: 800;
+$fw-900: 900;
+
+$line-height-body: 1.6;
+$line-height-heading: 1.2;
+
+// App compatibility tokens used by existing Angular screens.
+$info: #33b5e5;
+$info-600: #239fcd;
+$info-700: #1f87ae;
+
+$neutral-50: #f8fbf9;
+$neutral-100: #edf3ef;
+$neutral-200: #dfe8e3;
+$neutral-300: #ccd8d1;
+$neutral-400: #adbcb4;
+$neutral-500: #87988f;
+$neutral-600: #64736d;
+$neutral-700: #46534f;
+$neutral-800: #2b3934;
+$neutral-900: #17231f;
+
+$blue-neutral-50: #f2f6f4;
+$blue-neutral-100: #e5ece8;
+$blue-neutral-200: #d3ddd7;
+$blue-neutral-300: #bcc9c1;
+$blue-neutral-400: #9caea4;
+$blue-neutral-500: #7d8e86;
+$blue-neutral-600: #61726b;
+$blue-neutral-700: #47564f;
+$blue-neutral-800: #2e3a35;
+$blue-neutral-900: #1a2420;
+
+$font-ui: $font-heading;
+$radius-md: $radius;
+
+$bg-gradient:
+  radial-gradient(circle at top left, rgba($primary, 0.12), transparent 32%),
+  radial-gradient(circle at top right, rgba($accent, 0.10), transparent 24%),
+  linear-gradient(180deg, #fcfefd 0%, #f3f8f5 48%, #eff6f2 100%);
+$bg-color: $body-shell;
+
+$lh-1: 1;
+$lh-1_1: 1.1;
+$lh-1_2: 1.2;
+$lh-1_25: 1.25;
+$lh-1_3: 1.3;
+$lh-1_4: 1.4;
+$lh-1_5: 1.5;

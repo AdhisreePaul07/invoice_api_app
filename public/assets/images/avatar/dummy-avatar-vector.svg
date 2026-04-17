@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Dummy vector avatar">
+  <defs>
+    <linearGradient id="vectorGradient" x1="20%" y1="10%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE48A" />
+      <stop offset="100%" stop-color="#FF8C6B" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="32" fill="#FFF7E8" />
+  <circle cx="60" cy="60" r="42" fill="url(#vectorGradient)" opacity="0.95" />
+  <circle cx="60" cy="48" r="16" fill="#FFFFFF" opacity="0.92" />
+  <path
+    d="M34 88c6-11 15-17 26-17s20 6 26 17"
+    fill="#FFFFFF"
+    opacity="0.92"
+  />
+</svg>

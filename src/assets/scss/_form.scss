@@ -1,0 +1,72 @@
+@use './variables' as *;
+
+.form-control:not(textarea):not([type="file"]),
+.form-select:not([multiple]):not([size]),
+.form-select[size="1"] {
+  height: 42px;
+  min-height: 42px;
+}
+
+.auth-input {
+  height: 42px;
+  min-height: 42px;
+  line-height: 1.6;
+  padding-top: 0.532rem;
+  padding-bottom: 0.532rem;
+}
+
+.password-wrapper .password-input {
+  padding-right: 2.75rem;
+}
+
+.password-wrapper .password-input.is-invalid,
+.was-validated .password-wrapper .password-input:invalid {
+  padding-right: 2.75rem !important;
+}
+
+.password-wrapper .password-input::placeholder {
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.password-wrapper .toggle-password {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+}
+
+.form-control,
+.form-select {
+  transition:
+    border-color $transition-fast ease,
+    box-shadow $transition-fast ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: $primary;
+  box-shadow: 0 0 0 0.2rem rgba($primary, 0.14);
+}
+
+.form-control.is-invalid:focus,
+.was-validated .form-control:invalid:focus,
+.form-select.is-invalid:focus,
+.was-validated .form-select:invalid:focus {
+  border-color: $danger;
+  box-shadow: 0 0 0 0.2rem rgba($danger, 0.14);
+}
+
+.form-control.is-invalid,
+.was-validated .form-control:invalid,
+.form-select.is-invalid,
+.was-validated .form-select:invalid {
+  border-color: $danger;
+  box-shadow: 0 0 0 0.2rem rgba($danger, 0.14);
+  background-image: none !important;
+  padding-right: 1.2rem !important;
+}
+
+.password-wrapper .password-input.is-invalid,
+.was-validated .password-wrapper .password-input:invalid {
+  padding-right: 2.75rem !important;
+}

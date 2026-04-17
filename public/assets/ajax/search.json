@@ -1,0 +1,268 @@
+{
+  "listItems": [
+    {
+      "name": "Dashboard",
+      "url": "/",
+      "icon": "fi fi-rr-apps",
+      "category": "Dashboard"
+    },
+    {
+      "name": "Task Management",
+      "url": "/task-management",
+      "icon": "fi fi-rr-apps",
+      "category": "Dashboard"
+    },
+    {
+      "name": "Finance",
+      "url": "/finance",
+      "icon": "fi fi-rr-apps",
+      "category": "Dashboard"
+    },
+    {
+      "name": "Sales",
+      "url": "/sales",
+      "icon": "fi fi-rr-apps",
+      "category": "Dashboard"
+    },
+    {
+      "name": "Analytics",
+      "url": "/analytics",
+      "icon": "fi fi-rr-apps",
+      "category": "Dashboard"
+    },
+    {
+      "name": "Employee",
+      "url": "/employee",
+      "icon": "fi fi-rr-apps",
+      "category": "Dashboard"
+    },
+    {
+      "name": "Chat",
+      "url": "/chat",
+      "icon": "fi fi-rr-comment",
+      "category": "Apps"
+    },
+    {
+      "name": "Calendar",
+      "url": "/calendar",
+      "icon": "fi fi-rr-calendar",
+      "category": "Apps"
+    },
+    {
+      "name": "Inbox",
+      "url": "/email/inbox",
+      "icon": "fi fi-rr-envelope",
+      "category": "Email"
+    },
+    {
+      "name": "Compose",
+      "url": "/email/compose",
+      "icon": "fi fi-rr-envelope",
+      "category": "Email"
+    },
+    {
+      "name": "Read Email",
+      "url": "/email/read-email",
+      "icon": "fi fi-rr-envelope",
+      "category": "Email"
+    },
+    {
+      "name": "Pricing",
+      "url": "/pages/pricing",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Blog",
+      "url": "/pages/blog",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Blog List",
+      "url": "/pages/blog-list",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Blog Details",
+      "url": "/pages/blog-details",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Error Basic",
+      "url": "/pages/error-404",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Error Cover",
+      "url": "/pages/error-404-cover",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Error Full",
+      "url": "/pages/error-404-full",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Under Construction",
+      "url": "/pages/under-construction",
+      "icon": "fi fi-rr-file",
+      "category": "Pages"
+    },
+    {
+      "name": "Login",
+      "url": "/authentication/login-basic",
+      "icon": "fi fi-rr-user-key",
+      "category": "Authentication"
+    },
+    {
+      "name": "Register",
+      "url": "/authentication/register-basic",
+      "icon": "fi fi-rr-user-key",
+      "category": "Authentication"
+    },
+    {
+      "name": "Forgot Password",
+      "url": "/authentication/forgot-password-basic",
+      "icon": "fi fi-rr-user-key",
+      "category": "Authentication"
+    },
+    {
+      "name": "New Password",
+      "url": "/authentication/new-password-basic",
+      "icon": "fi fi-rr-user-key",
+      "category": "Authentication"
+    },
+    {
+      "name": "Accordion",
+      "url": "/components/accordion",
+      "icon": "fi fi-rr-flux-capacitor",
+      "category": "UI Components"
+    },
+    {
+      "name": "Badge",
+      "url": "/components/badge",
+      "icon": "fi fi-rr-flux-capacitor",
+      "category": "UI Components"
+    },
+    {
+      "name": "Buttons",
+      "url": "/components/buttons",
+      "icon": "fi fi-rr-flux-capacitor",
+      "category": "UI Components"
+    },
+    {
+      "name": "Tabs",
+      "url": "/components/tabs",
+      "icon": "fi fi-rr-flux-capacitor",
+      "category": "UI Components"
+    },
+    {
+      "name": "Tooltips",
+      "url": "/components/tooltips",
+      "icon": "fi fi-rr-flux-capacitor",
+      "category": "UI Components"
+    },
+    {
+      "name": "Avatar",
+      "url": "/extended-ui/avatar",
+      "icon": "fi fi-rr-apps-add",
+      "category": "Extended UI"
+    },
+    {
+      "name": "Card action",
+      "url": "/extended-ui/card-action",
+      "icon": "fi fi-rr-apps-add",
+      "category": "Extended UI"
+    },
+    {
+      "name": "Drag and Drop",
+      "url": "/extended-ui/drag-and-drop",
+      "icon": "fi fi-rr-apps-add",
+      "category": "Extended UI"
+    },
+    {
+      "name": "Swiper",
+      "url": "/extended-ui/swiper",
+      "icon": "fi fi-rr-apps-add",
+      "category": "Extended UI"
+    },
+    {
+      "name": "Flaticon",
+      "url": "/icons/flaticon",
+      "icon": "fi fi-rr-bolt",
+      "category": "Icons"
+    },
+    {
+      "name": "Lucide",
+      "url": "/icons/lucide",
+      "icon": "fi fi-rr-bolt",
+      "category": "Icons"
+    },
+    {
+      "name": "Fontawesome",
+      "url": "/icons/fontawesome",
+      "icon": "fi fi-rr-bolt",
+      "category": "Icons"
+    },
+    {
+      "name": "Form Elements",
+      "url": "/forms/form-elements",
+      "icon": "fi fi-rr-form",
+      "category": "Form Elements"
+    },
+    {
+      "name": "Flatpickr",
+      "url": "/forms/flatpickr",
+      "icon": "fi fi-rr-form",
+      "category": "Form Elements"
+    },
+    {
+      "name": "Tagify",
+      "url": "/forms/tagify",
+      "icon": "fi fi-rr-form",
+      "category": "Form Elements"
+    },
+    {
+      "name": "Tables Basic",
+      "url": "/table/tables-basic",
+      "icon": "fi fi-rr-table-layout",
+      "category": "Table"
+    },
+    {
+      "name": "Tables Datatable",
+      "url": "/table/tables-datatable",
+      "icon": "fi fi-rr-table-layout",
+      "category": "Table"
+    },
+    {
+      "name": "Apexchart",
+      "url": "/chart/apexchart",
+      "icon": "fi fi-rr-chart-pie-alt",
+      "category": "Charts"
+    },
+    {
+      "name": "Chartjs",
+      "url": "/chart/chartjs",
+      "icon": "fi fi-rr-chart-pie-alt",
+      "category": "Charts"
+    },
+    {
+      "name": "JS Vector map",
+      "url": "/maps/jsvectormap",
+      "icon": "fi fi-rr-marker",
+      "category": "Maps"
+    },
+    {
+      "name": "Leaflet",
+      "url": "/maps/leaflet",
+      "icon": "fi fi-rr-marker",
+      "category": "Maps"
+    }
+  ]
+}

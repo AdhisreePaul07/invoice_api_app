@@ -1,0 +1,399 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Deals</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="deal-page-toolbar">
+  <div class="clearfix">
+    <ul class="nav nav-pills nav-pills-custom nav-fill p-1 bg-light rounded-5 deal-view-switcher">
+      <li class="nav-item">
+        <button type="button" class="nav-link rounded-5" [class.active]="viewMode === 'board'" (click)="setViewMode('board')">
+          Board
+        </button>
+      </li>
+      <li class="nav-item">
+        <button type="button" class="nav-link rounded-5" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+          List
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="deal-toolbar-actions">
+    <div class="crm-toolbar crm-toolbar-inline deal-filter-toolbar">
+      <select class="form-select crm-filter" [formControl]="statusCtrl">
+        <option [ngValue]="-1">All Statuses</option>
+        <option *ngFor="let status of statusOptions" [ngValue]="status.value">{{ status.label }}</option>
+      </select>
+
+      <div class="crm-search">
+        <i class="fi fi-rr-search"></i>
+        <input type="text" class="form-control" [formControl]="searchCtrl" placeholder="Search deals..." />
+      </div>
+    </div>
+
+    <a [routerLink]="['/deals/add']" class="btn btn-primary waves-effect waves-light deal-add-btn">
+      <i class="fi fi-rr-plus me-1"></i> Add Deal
+    </a>
+  </div>
+</div>
+
+<div *ngIf="loading" class="app-skeleton-list-state px-0" aria-hidden="true">
+  <div class="app-skeleton-list-table">
+    <div class="app-skeleton-list-head">
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-xs"></span>
+    </div>
+
+    <div class="app-skeleton-list-row" *ngFor="let _ of [1, 2, 3, 4]">
+      <div class="app-skeleton-list-cell">
+        <div class="app-skeleton-list-cell--stack">
+          <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+          <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-sm"></span>
+        </div>
+      </div>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+      <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+      <span class="app-skeleton app-skeleton--pill app-skeleton--w-sm"></span>
+    </div>
+  </div>
+</div>
+<div *ngIf="error" class="alert alert-danger mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+  <div>
+    <div class="fw-semibold mb-1">Unable to load deals</div>
+    <div>{{ error }}</div>
+  </div>
+
+  <button type="button" class="btn btn-outline-danger btn-sm" (click)="loadDeals()">
+    Try Again
+  </button>
+</div>
+
+<ng-container *ngIf="!loading && !error">
+  <div *ngIf="viewMode === 'board'" class="row g-4 deal-board-row">
+    <div class="col-xxl-3 col-md-6" *ngFor="let column of boardColumns; trackBy: trackByStatus">
+      <div class="card shadow-none h-auto deal-status-column" [ngClass]="getColumnCardClass(column.value)">
+        <div class="card-header p-3 d-flex align-items-center justify-content-between border-0 pb-0">
+          <div>
+            <h6 class="card-title mb-0">{{ column.label }}</h6>
+            <span class="deal-column-count">{{ column.deals.length }} deals</span>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a [routerLink]="['/deals/add']" class="btn btn-sm btn-icon waves-effect" [ngClass]="getActionButtonClass(column.value)">
+              <i class="fi fi-rr-plus text-2xs"></i>
+            </a>
+          </div>
+        </div>
+
+        <div
+          class="card-body p-3 d-grid gap-3 deal-drop-list"
+          cdkDropList
+          [id]="column.dropListId"
+          [cdkDropListData]="column.deals"
+          [cdkDropListConnectedTo]="connectedBoardIds"
+          (cdkDropListDropped)="onBoardDrop($event, column.value)"
+        >
+          <div *ngIf="!column.deals.length" class="deal-column-empty">
+            No deals in {{ column.label.toLowerCase() }}.
+          </div>
+
+          <div
+            *ngFor="let d of column.deals; trackBy: trackById"
+            class="card card-action h-auto mb-0 deal-board-card"
+            [ngClass]="getBoardCardBorderClass(column.value)"
+            cdkDrag
+            [cdkDragData]="d"
+            [cdkDragDisabled]="changingStatusDealId === d.id"
+          >
+            <div class="card-header p-3 d-flex align-items-center justify-content-between border-0 pb-0">
+              <div class="me-2">
+                <h6 class="card-title mb-0">{{ d.deal_name || '-' }}</h6>
+                <span class="deal-card-subtitle">{{ d.created_at ? (d.created_at | date: 'dd MMM yyyy') : 'Deal pipeline' }}</span>
+              </div>
+
+              <div class="d-flex">
+                <a [routerLink]="['/deals/edit', d.id]" class="btn btn-sm btn-icon waves-effect" [ngClass]="getActionButtonClass(column.value)">
+                  <i class="fi fi-rr-pencil"></i>
+                </a>
+
+                <div class="action-menu-wrap ms-1">
+                  <button type="button" class="btn btn-sm btn-icon btn-action-gray waves-effect" (click)="toggleCardMenu(d)">
+                    <i class="fi fi-br-menu-dots-vertical"></i>
+                  </button>
+
+                  <div *ngIf="d.showMenu" class="action-dropdown">
+                    <a class="dropdown-item" [routerLink]="['/deals/edit', d.id]" (click)="d.showMenu = false">
+                      <i class="fi fi-rr-pencil"></i>
+                      Edit
+                    </a>
+
+                    <button type="button" class="dropdown-item danger" (click)="removeDeal(d); d.showMenu = false">
+                      <i class="fi fi-rr-trash"></i>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-body pt-2 p-3 text-1xs">
+              <p class="deal-board-copy">{{ getDealSummary(d) }}</p>
+
+              <div class="d-flex gap-2 mb-3">
+                <div class="text-start w-50">
+                  <span>Start Date</span>
+                  <span class="text-dark d-block fw-semibold">{{ d.start_date ? (d.start_date | date: 'dd MMM yyyy') : '-' }}</span>
+                </div>
+                <div class="text-start w-50">
+                  <span>Close Date</span>
+                  <span class="text-dark d-block fw-semibold">{{ d.expected_close_date ? (d.expected_close_date | date: 'dd MMM yyyy') : '-' }}</span>
+                </div>
+              </div>
+
+              <div class="deal-entity-row">
+                <div class="deal-entity">
+                  <span>Account</span>
+                  <strong>{{ getAccountName(d) }}</strong>
+                </div>
+                <div class="deal-entity">
+                  <span>Contact</span>
+                  <strong>{{ getContactLabel(d) }}</strong>
+                </div>
+              </div>
+
+              <div class="progress progress-sm mb-3 deal-progress-track" [ngClass]="getProgressTrackClass(d.deal_status)">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" [ngClass]="getProgressBarClass(d.deal_status)" [style.width.%]="getDealProgress(d.deal_status)"></div>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-between align-items-center">
+                <div class="avatar-group deal-avatar-group">
+                  <span *ngIf="accountInitial(d)" class="avatar avatar-xs rounded-circle border border-2 border-white deal-mini-avatar">
+                    {{ accountInitial(d) }}
+                  </span>
+                  <span *ngIf="contactInitial(d)" class="avatar avatar-xs rounded-circle border border-2 border-white deal-mini-avatar">
+                    {{ contactInitial(d) }}
+                  </span>
+                  <span *ngIf="!accountInitial(d) && !contactInitial(d)" class="avatar avatar-xs rounded-circle border border-2 border-white deal-mini-avatar">
+                    {{ dealInitials(d) }}
+                  </span>
+                  <span class="deal-value-pill">{{ d.deal_value | number: '1.2-2' }}</span>
+                </div>
+
+                <div class="status-menu-wrap">
+                  <button
+                    type="button"
+                    class="btn btn-sm dropdown-toggle waves-effect waves-light"
+                    [ngClass]="getStatusButtonClass(d.deal_status)"
+                    [disabled]="changingStatusDealId === d.id"
+                    (click)="toggleStatusMenu(d)"
+                  >
+                    {{ getDealStatusLabel(d.deal_status) }}
+                  </button>
+
+                  <div *ngIf="d.showStatusMenu" class="deal-status-menu">
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      *ngFor="let status of statusOptions"
+                      [class.active]="status.value === d.deal_status"
+                      (click)="updateDealStatus(d, status.value)"
+                    >
+                      {{ status.label }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="viewMode === 'list'" class="row">
+    <div class="col-12">
+      <div class="card overflow-hidden crm-card">
+        <div class="card-header d-flex flex-wrap gap-3 align-items-center justify-content-between border-0 pb-0">
+          <h6 class="card-title mb-0">Deal List</h6>
+        </div>
+
+        <div class="card-body px-1 pt-2 pb-2">
+          <div class="table-responsive">
+            <table class="table table-sm table-row-rounded data-row-checkbox crm-table">
+              <thead class="table-light">
+                <tr>
+                  <th>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)" />
+                    </div>
+                  </th>
+                  <th class="minw-200px">Deal</th>
+                  <th class="minw-180px">Account</th>
+                  <th class="minw-180px">Contact</th>
+                  <th class="minw-150px">Close Date</th>
+                  <th class="minw-150px">Value</th>
+                  <th class="minw-150px">Status</th>
+                  <th class="minw-100px">Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let d of filtered; trackBy: trackById">
+                  <td>
+                    <div class="form-check p-0 w-auto d-inline-block">
+                      <input class="form-check-input m-0" type="checkbox" [checked]="selected.has(d)" (change)="toggleOne(d, $event)" />
+                    </div>
+                  </td>
+                  <td>
+                    <div class="crm-name-cell">
+                      <span class="crm-avatar">{{ dealInitials(d) }}</span>
+                      <div>
+                        <a class="crm-link crm-name-title" [routerLink]="['/deals/edit', d.id]">{{ d.deal_name || '-' }}</a>
+                        <span class="crm-name-subtitle">{{ d.created_at ? (d.created_at | date: 'dd MMM yyyy') : 'Deal pipeline' }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ getAccountName(d) }}</td>
+                  <td>{{ getContactLabel(d) }}</td>
+                  <td>{{ d.expected_close_date ? (d.expected_close_date | date: 'dd-MM-yyyy') : '-' }}</td>
+                  <td>{{ d.deal_value | number: '1.2-2' }}</td>
+                  <td>
+                    <span class="badge badge-lg crm-status" [ngClass]="getDealStatusBadgeClass(d.deal_status)">
+                      {{ getDealStatusLabel(d.deal_status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-menu-wrap gap-2">
+                      <a class="btn btn-subtle-secondary btn-sm btn-shadow btn-icon waves-effect me-1" [routerLink]="['/deals/edit', d.id]">
+                        <i class="fi fi-rr-eye"></i>
+                      </a>
+
+                      <button type="button" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect" (click)="toggleCardMenu(d)">
+                        <i class="fi fi-rr-menu-dots"></i>
+                      </button>
+
+                      <div *ngIf="d.showMenu" class="action-dropdown">
+                        <a class="dropdown-item" [routerLink]="['/deals/edit', d.id]" (click)="d.showMenu = false">
+                          <i class="fi fi-rr-pencil"></i>
+                          Edit
+                        </a>
+
+                        <button type="button" class="dropdown-item danger" (click)="removeDeal(d); d.showMenu = false">
+                          <i class="fi fi-rr-trash"></i>
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr *ngIf="!filtered.length">
+                  <td colspan="8" class="crm-table-empty">No deals found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card-footer" *ngIf="totalCount > 0">
+          <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap w-100">
+            <div class="crm-meta">
+              Showing
+              <span class="fw-semibold">{{ showingFrom }}</span>
+              to
+              <span class="fw-semibold">{{ showingTo }}</span>
+              of
+              <span class="fw-semibold">{{ totalCount }}</span>
+              deals
+            </div>
+
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+              <select class="form-select form-select-sm" style="width: 84px;" [value]="listLimit" (change)="changeLimit($any($event.target).value)">
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+
+              <ul class="pagination pagination-sm pagination-boxed mb-0" *ngIf="totalPages > 1">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <a class="page-link" (click)="goToPage(currentPage - 1)">
+                    <i class="ph ph-caret-left"></i>
+                  </a>
+                </li>
+
+                <li class="page-item" *ngFor="let p of pages" [class.active]="p === currentPage">
+                  <a class="page-link" (click)="goToPage(p)">{{ p }}</a>
+                </li>
+
+                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                  <a class="page-link" (click)="goToPage(currentPage + 1)">
+                    <i class="ph ph-caret-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="viewMode === 'board' && totalCount > 0" class="card crm-card deal-pagination-card">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap w-100">
+        <div class="crm-meta">
+          Showing
+          <span class="fw-semibold">{{ showingFrom }}</span>
+          to
+          <span class="fw-semibold">{{ showingTo }}</span>
+          of
+          <span class="fw-semibold">{{ totalCount }}</span>
+          deals
+        </div>
+
+        <div class="d-flex align-items-center gap-4 flex-wrap">
+          <select class="form-select form-select-sm" style="width: 84px;" [value]="listLimit" (change)="changeLimit($any($event.target).value)">
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+
+          <ul class="pagination pagination-sm pagination-boxed mb-0" *ngIf="totalPages > 1">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="goToPage(currentPage - 1)">
+                <i class="ph ph-caret-left"></i>
+              </a>
+            </li>
+
+            <li class="page-item" *ngFor="let p of pages" [class.active]="p === currentPage">
+              <a class="page-link" (click)="goToPage(p)">{{ p }}</a>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="goToPage(currentPage + 1)">
+                <i class="ph ph-caret-right"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

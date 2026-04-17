@@ -1,0 +1,119 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/receipts']">Receipts</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Settings</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-danger" *ngIf="error" role="alert">
+        {{ error }}
+      </div>
+
+      <div class="alert alert-success" *ngIf="success" role="alert">
+        {{ success }}
+      </div>
+
+      <div class="entity-section-stack" *ngIf="!loading; else loadingCard">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Document Numbering</h5>
+              <span class="entity-card__meta">Set the prefix and sequence used while generating receipt numbers</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid detail-grid--three">
+              <div>
+                <label class="form-label">Receipt Prefix</label>
+                <input class="form-control" type="text" formControlName="receipt_prefix" placeholder="RCPT">
+              </div>
+
+              <div>
+                <label class="form-label">Receipt Suffix</label>
+                <input class="form-control" type="text" formControlName="receipt_suffix" placeholder="0001">
+              </div>
+
+              <div>
+                <label class="form-label">Next Number</label>
+                <input class="form-control" type="text" formControlName="next_number" placeholder="RCPT-0001">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Notes</h5>
+              <span class="entity-card__meta">Default notes that your team can keep ready for receipt documents</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid detail-grid--full">
+              <div>
+                <label class="form-label">Notes</label>
+                <app-rich-text-editor
+                  class="receipt-settings-editor"
+                  formControlName="notes"
+                  placeholder="Receipt notes"
+                  [minHeight]="172"
+                ></app-rich-text-editor>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="saving">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-light" [routerLink]="['/receipts']" [disabled]="saving">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="saving || form.invalid">
+            {{ saving ? 'Saving...' : 'Save Settings' }}
+          </button>
+        </div>
+      </div>
+
+      <ng-template #loadingCard>
+        <div class="card entity-loading-card">
+          <div class="card-body">
+            <div class="app-skeleton-form-state" aria-hidden="true">
+              <div class="app-skeleton-form-card__head">
+                <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+                <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+              </div>
+              <div class="app-skeleton-form-grid">
+                <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3]">
+                  <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+                  <span class="app-skeleton app-skeleton--input"></span>
+                </div>
+              </div>
+              <div class="app-skeleton-form-grid app-skeleton-form-grid--single">
+                <div class="app-skeleton-form-field">
+                  <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+                  <span class="app-skeleton app-skeleton--block"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</form>

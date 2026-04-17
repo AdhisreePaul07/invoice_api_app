@@ -1,0 +1,63 @@
+@use '../../../../assets/scss/_variables' as *;
+@use '../../../../assets/scss/_mixins' as *;
+
+.list-shell { display: grid; gap: 1rem; }
+
+.list-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filters {
+  display: grid;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+
+  @include respond(md) {
+    grid-template-columns: 1.4fr 280px 1fr;
+  }
+}
+
+.field label { font-weight: 700; display: inline-block; margin-bottom: .35rem; }
+
+.meta { display: flex; justify-content: flex-end; }
+
+.row-actions {
+  display: inline-flex;
+  gap: .5rem;
+  justify-content: flex-end;
+}
+
+.btn-primary-sm {
+  border: none;
+  border-radius: $radius-sm;
+  padding: 0.35rem 0.7rem;
+  background: $primary;
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid $border;
+  background: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: $fg;
+}
+
+.badge-danger {
+  border-color: rgba($danger, 0.25);
+  background: rgba($danger, 0.05);
+  color: $danger;
+}
+
+.error { color: $danger; }

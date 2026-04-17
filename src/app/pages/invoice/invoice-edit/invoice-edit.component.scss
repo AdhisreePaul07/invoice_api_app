@@ -1,0 +1,91 @@
+@use '../../shared/crm-edit-theme';
+
+.entity-summary__avatar--invoice {
+  background: linear-gradient(145deg, rgba(56, 189, 248, 0.16), rgba(16, 185, 129, 0.12));
+}
+
+.invoice-item-card {
+  gap: 1rem;
+}
+
+.invoice-line-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px dashed rgba(15, 23, 42, 0.12);
+  color: var(--app-secondary-color, #64748b);
+  font-size: 0.92rem;
+}
+
+.invoice-line-summary strong {
+  color: #0f172a;
+  margin-left: 0.35rem;
+}
+
+.invoice-total-panel {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1rem;
+  background: rgba(248, 250, 252, 0.55);
+}
+
+.invoice-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--app-secondary-color, #64748b);
+}
+
+.invoice-total-row strong {
+  color: #0f172a;
+  font-size: 0.98rem;
+}
+
+.invoice-total-row--grand {
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.invoice-total-row--grand span,
+.invoice-total-row--grand strong {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.invoice-adjustment-note {
+  margin-top: 0.85rem;
+  color: var(--app-secondary-color, #64748b);
+  font-size: 0.9rem;
+}
+
+.invoice-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.invoice-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+@media (max-width: 767.98px) {
+  .invoice-line-summary,
+  .invoice-total-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

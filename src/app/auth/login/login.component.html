@@ -1,0 +1,108 @@
+<div class="page-layout">
+  <div class="auth-wrapper min-vh-100 px-2">
+    <div class="row g-0 min-vh-100 justify-content-center">
+      <div class="col-xl-5 col-lg-6 col-md-8 px-sm-4 align-self-center py-4">
+        <div class="card card-body p-4 p-sm-5 maxw-450px m-auto rounded-4">
+          <div class="mb-4 text-center">
+            <a routerLink="/login" aria-label="Clienet Logo">
+              <img src="/assets/images/clienet-logo.png" alt="Clienet logo">
+            </a>
+          </div>
+
+          <div class="text-center mb-4">
+            <h5 class="mb-1">Access your workspace</h5>
+            <p>Sign in to access your secure admin dashboard.</p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <div class="mb-4">
+              <label class="form-label" for="loginEmail">Email Address</label>
+              <input
+                id="loginEmail"
+                type="email"
+                class="form-control auth-input"
+                autocomplete="username"
+                formControlName="email"
+                placeholder="info@example.com"
+                [class.is-invalid]="isInvalid('email')"
+              >
+              <div class="invalid-feedback d-block" *ngIf="isInvalid('email')">
+                <span *ngIf="form.get('email')?.errors?.['required']">Email is required.</span>
+                <span *ngIf="form.get('email')?.errors?.['email'] || form.get('email')?.errors?.['pattern']">
+                  Enter a valid email address.
+                </span>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label" for="loginPassword">Password</label>
+              <div class="password-wrapper">
+                <input
+                  id="loginPassword"
+                  [type]="showPassword ? 'text' : 'password'"
+                  class="form-control password-input auth-input"
+                  autocomplete="current-password"
+                  formControlName="password"
+                  placeholder="••••••••"
+                  [class.is-invalid]="isInvalid('password')"
+                >
+                <button
+                  type="button"
+                  class="toggle-password"
+                  [class.active]="showPassword"
+                  [attr.aria-pressed]="showPassword"
+                  [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                  [attr.title]="showPassword ? 'Hide password' : 'Show password'"
+                  (click)="togglePassword()"
+                >
+                  <i class="close fi fi-rr-eye-crossed" aria-hidden="true"></i>
+                  <i class="open fi fi-rr-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="isInvalid('password')">Password is required.</div>
+            </div>
+
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                <div class="form-check mb-0">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="rememberMe"
+                    formControlName="remember_me"
+                  >
+                  <label class="form-check-label" for="rememberMe">Remember Me</label>
+                </div>
+                <a routerLink="/reset-password">Forgot Password?</a>
+              </div>
+            </div>
+
+            <div *ngIf="error" class="alert alert-danger py-2 px-3 mb-3" role="alert">
+              {{ error }}
+            </div>
+
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary waves-effect waves-light w-100" [disabled]="loading">
+                Login
+              </button>
+            </div>
+
+            <p class="text-center">
+              Don't have an account?
+              <a routerLink="/register">Sign Up here</a>
+            </p>
+
+            <!-- <div class="border-bottom position-relative my-4 text-center">
+              <span class="px-3 position-absolute translate-middle top-50 start-50 bg-body">Or Continue With</span>
+            </div>
+
+            <button type="button" class="btn btn-light waves-effect waves-light w-100">
+              <img src="/assets/images/icons/google.svg" alt="" class="me-1">
+              Login with Google
+            </button> -->
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

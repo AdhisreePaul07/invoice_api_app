@@ -1,0 +1,77 @@
+<div
+  class="page-layout"
+  [attr.data-app-sidebar]="(sidebarMini$ | async) ? 'mini' : null"
+>
+  <app-header></app-header>
+  <app-sidebar></app-sidebar>
+
+  <main class="app-wrapper">
+    <div class="app-route-skeleton" *ngIf="routeLoading" aria-hidden="true">
+      <div class="app-route-skeleton__hero">
+        <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+        <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+      </div>
+
+      <div class="app-route-skeleton__grid">
+        <section class="app-skeleton-form-card">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+            <div class="app-skeleton-form-field">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+            <div class="app-skeleton-form-field">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+            <div class="app-skeleton-form-field">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="app-skeleton-form-card">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+          </div>
+          <div class="app-skeleton-document-table">
+            <div class="app-skeleton-document-table__row">
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+            </div>
+            <div class="app-skeleton-document-table__row">
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+            </div>
+            <div class="app-skeleton-document-table__row">
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-full"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-sm"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-footer></app-footer>
+  <app-gst-calculator></app-gst-calculator>
+</div>

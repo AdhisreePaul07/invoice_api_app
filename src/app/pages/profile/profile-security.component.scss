@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.session-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.875rem;
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.session-meta {
+  min-width: 0;
+}
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.security-session-state,
+.security-2fa-note {
+  border-radius: 0.875rem;
+}
+
+@media (max-width: 767.98px) {
+  .session-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .session-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

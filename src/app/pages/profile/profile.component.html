@@ -1,0 +1,286 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a href="/">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Personal Info</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12">
+    <app-profile-overview-card
+      [account]="account"
+      [loading]="loading"
+      [editableAvatar]="true"
+      [avatarActionBusy]="profileImageActionBusy"
+      (avatarActionRequested)="openProfileImageModal()"
+    ></app-profile-overview-card>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="card">
+      <div class="card-header d-flex flex-wrap gap-3 justify-content-between align-items-center">
+        <h4 class="card-title mb-0">Personal Info</h4>
+        <button
+          type="button"
+          class="btn btn-success waves-effect waves-light"
+          (click)="loadProfile()"
+          [disabled]="loading"
+        >
+          {{ loading ? 'Refreshing...' : 'Refresh Details' }}
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info page-note" role="alert">
+          This page is live from <code>invoice_api</code> via <code>GET /api/auth/me</code>. Your current
+          backend keeps the profile details read-only right now, but profile image upload is supported separately.
+        </div>
+
+        <div class="alert alert-danger" *ngIf="error" role="alert">
+          {{ error }}
+        </div>
+
+        <ng-container *ngIf="!loading; else profileDetailsSkeleton">
+          <form>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" [value]="account?.first_name || '-'" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control" [value]="account?.last_name || '-'" readonly>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" [value]="account?.email || '-'" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Role</label>
+                <input type="text" class="form-control" [value]="roleLabel" readonly>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Workspace</label>
+                <input type="text" class="form-control" [value]="workspaceName" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Joined Date</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="account?.date_joined ? (account?.date_joined | date: 'longDate') : '-'"
+                  readonly
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email Status</label>
+                <input type="text" class="form-control" [value]="emailStatusLabel" readonly>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Account Status</label>
+                <input type="text" class="form-control" [value]="accountStatusLabel" readonly>
+              </div>
+            </div>
+          </form>
+        </ng-container>
+
+        <ng-template #profileDetailsSkeleton>
+          <div class="app-skeleton-form-state" aria-hidden="true">
+            <div class="app-skeleton-form-grid">
+              <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4, 5, 6]">
+                <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+                <span class="app-skeleton app-skeleton--input"></span>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="profile-photo-modal-backdrop"
+  *ngIf="profileImageModalOpen"
+  (click)="closeProfileImageModal()"
+></div>
+
+<div
+  class="profile-photo-modal"
+  *ngIf="profileImageModalOpen"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="profilePhotoModalTitle"
+  (click)="closeProfileImageModal()"
+>
+  <div class="profile-photo-modal__dialog" (click)="$event.stopPropagation()">
+    <div class="profile-photo-modal__header">
+      <h4 id="profilePhotoModalTitle" class="profile-photo-modal__title">{{ profileModalTitle }}</h4>
+      <button
+        type="button"
+        class="profile-photo-modal__close"
+        aria-label="Close profile image dialog"
+        (click)="closeProfileImageModal()"
+      >
+        <i class="fi fi-rr-cross-small"></i>
+      </button>
+    </div>
+
+    <div class="profile-photo-modal__body" [class.profile-photo-modal__body--editing]="isCropDraftActive">
+      <ng-container *ngIf="isCropDraftActive; else currentProfilePreviewMode">
+        <div class="profile-photo-modal__editor-stage">
+          <div
+            class="profile-photo-modal__crop-stage"
+            (mousedown)="startCropDrag($event)"
+            (touchstart)="startCropDrag($event)"
+            (wheel)="onCropWheel($event)"
+          >
+            <div class="profile-photo-modal__crop-image" [ngStyle]="cropImageStyle">
+              <img [src]="profileImageDraftUrl" alt="Profile image crop preview">
+            </div>
+            <div class="profile-photo-modal__crop-grid"></div>
+            <div class="profile-photo-modal__crop-ring"></div>
+          </div>
+
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeProfileImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeProfileImageMeta }}</span>
+          </div>
+        </div>
+
+        <aside class="profile-photo-modal__editor-panel">
+          <div class="profile-photo-modal__panel-head">
+            <h5 class="profile-photo-modal__panel-title">Crop</h5>
+            <p class="profile-photo-modal__tool-copy mb-0">
+              Drag the photo inside the frame and fine tune the crop before saving.
+            </p>
+          </div>
+
+          <div class="profile-photo-modal__editor-content">
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="profileCropZoom" class="profile-photo-modal__control-label">Zoom</label>
+                <span class="profile-photo-modal__control-value">{{ cropZoom | number: '1.0-2' }}x</span>
+              </div>
+              <input
+                #cropZoomInput
+                id="profileCropZoom"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="1"
+                max="3"
+                step="0.01"
+                [value]="cropZoom"
+                (input)="onCropZoomChange(cropZoomInput.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="profileCropStraighten" class="profile-photo-modal__control-label">Straighten</label>
+                <span class="profile-photo-modal__control-value">{{ straighten | number: '1.0-1' }}&deg;</span>
+              </div>
+              <input
+                #straightenInput
+                id="profileCropStraighten"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="-15"
+                max="15"
+                step="0.5"
+                [value]="straighten"
+                (input)="onStraightenChange(straightenInput.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__tip">
+              <i class="fi fi-rr-arrows-repeat"></i>
+              <span>Use drag or mouse wheel to position the image naturally.</span>
+            </div>
+          </div>
+        </aside>
+      </ng-container>
+
+      <ng-template #currentProfilePreviewMode>
+        <div class="profile-photo-modal__preview-mode">
+          <div class="profile-photo-modal__preview-shell">
+            <div class="profile-photo-modal__preview">
+              <img *ngIf="activeProfileImageUrl; else emptyProfilePhoto" [src]="activeProfileImageUrl" alt="Profile image preview">
+              <ng-template #emptyProfilePhoto>
+                <div class="profile-photo-modal__empty">
+                  {{ (account?.first_name || account?.email || 'U').slice(0, 1) | uppercase }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeProfileImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeProfileImageMeta }}</span>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="alert alert-danger py-2 mb-0" *ngIf="profileImageError" role="alert">
+        {{ profileImageError }}
+      </div>
+      <div class="alert alert-success py-2 mb-0" *ngIf="profileImageSuccess" role="alert">
+        {{ profileImageSuccess }}
+      </div>
+    </div>
+
+    <div class="profile-photo-modal__footer">
+      <input
+        #profileImageInput
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml"
+        [disabled]="profileImageActionBusy"
+        (change)="handleProfileImageFileChange($event)"
+        hidden
+      >
+
+      <button
+        type="button"
+        class="profile-photo-modal__action"
+        [disabled]="profileImageActionBusy"
+        (click)="handleUpdateAction(profileImageInput)"
+      >
+        <i class="fi fi-rr-camera"></i>
+        <span>{{ updateButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--secondary"
+        [class.profile-photo-modal__action--selected]="isCropDraftActive"
+        [disabled]="profileImageActionBusy || (!profileImageUrl && !isCropDraftActive)"
+        (click)="handleCropAction()"
+      >
+        <i class="fi fi-rr-edit"></i>
+        <span>{{ cropButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--danger"
+        [disabled]="profileImageActionBusy || (!profileImageUrl && !isCropDraftActive)"
+        (click)="removeProfileImage()"
+      >
+        <i class="fi fi-rr-trash"></i>
+        <span>{{ isCropDraftActive ? 'Discard' : (profileImageRemoving ? 'Removing...' : 'Delete') }}</span>
+      </button>
+    </div>
+  </div>
+</div>

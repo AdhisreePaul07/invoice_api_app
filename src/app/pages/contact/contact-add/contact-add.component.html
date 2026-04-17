@@ -1,0 +1,247 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/contacts']">Contacts</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add Contact</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="create()" novalidate>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-danger" *ngIf="error" role="alert">
+        {{ error }}
+      </div>
+
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Core contact identity and primary communication details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">First Name <em>*</em></label>
+                <input class="form-control" type="text" formControlName="first_name" placeholder="Rahul">
+                <div class="err-msg" *ngIf="form.get('first_name')?.touched && form.get('first_name')?.invalid">
+                  <span *ngIf="form.get('first_name')?.errors?.['required']">First name is required.</span>
+                  <span *ngIf="form.get('first_name')?.errors?.['minlength']">Minimum 2 characters.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Last Name</label>
+                <input class="form-control" type="text" formControlName="last_name" placeholder="Bhagat">
+              </div>
+
+              <div>
+                <label class="form-label">Primary Email <em>*</em></label>
+                <input class="form-control" type="email" formControlName="primary_email" placeholder="rahul@example.com">
+                <div class="err-msg" *ngIf="form.get('primary_email')?.touched && form.get('primary_email')?.invalid">
+                  <span *ngIf="form.get('primary_email')?.errors?.['required']">Primary email is required.</span>
+                  <span *ngIf="form.get('primary_email')?.errors?.['email']">Enter a valid email.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Primary Phone</label>
+                <input class="form-control" type="text" formControlName="primary_phone" placeholder="+91 9876543210">
+              </div>
+            </div>
+
+            <div class="detail-grid detail-grid--full contact-create-image-field">
+              <app-image-upload-field
+                label="Contact Profile Image"
+                hint="Upload a contact photo now. It will be saved right after the contact is created."
+                [previewUrl]="profileImagePreviewUrl"
+                [fileName]="profileImageFileName"
+                [meta]="profileImageMeta"
+                [initialsSource]="displayName"
+                [compactLayout]="true"
+                emptyLabel="No contact image selected yet."
+                emptyHint="PNG, JPG, WEBP, or SVG up to 5MB."
+                previewAlt="Contact image preview"
+                [disabled]="saving"
+                [allowRemove]="!!profileImagePreviewUrl"
+                [error]="profileImageError"
+                [accept]="'.png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml'"
+                replaceLabel="Replace Image"
+                uploadLabel="Select Image"
+                removeLabel="Remove"
+                (fileSelected)="onProfileImageSelected($event)"
+                (removeRequested)="removeProfileImageSelection()"
+              ></app-image-upload-field>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Linked Accounts & Designation</h5>
+              <span class="entity-card__meta">Associate this contact with accounts and add their role</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Linked Accounts</label>
+                <input type="hidden" formControlName="account_ids">
+
+                <div class="search-select">
+                  <input
+                    class="form-control"
+                    type="text"
+                    [formControl]="accountSearchCtrl"
+                    placeholder="Type to search account..."
+                    autocomplete="off"
+                    (focus)="openAccountDropdown()"
+                    (blur)="closeAccountDropdownSoon()"
+                  >
+
+                  <div class="dropdown" *ngIf="accountDropdownOpen">
+                    <button type="button" class="dropdown-item" *ngFor="let account of accountResults" (mousedown)="selectAccount(account)">
+                      <span class="clamp-1">{{ account.name }}</span>
+                    </button>
+
+                    <div class="dropdown-empty" *ngIf="accountResults.length === 0">
+                      No account found.
+                    </div>
+
+                    <button type="button" class="dropdown-item addnew" (mousedown)="goToAddAccount()">
+                      <i class="ph-bold ph-plus"></i>
+                      <span>Add new account</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="selection-list mt-3" *ngIf="selectedAccounts.length > 0">
+                  <div class="selection-item" *ngFor="let account of selectedAccounts; let i = index; trackBy: trackByIndex">
+                    <div class="selection-item__copy">
+                      <strong>{{ account.name }}</strong>
+                      <span>Linked account</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-cross-button"
+                      (click)="removeAccount(i)"
+                      [disabled]="saving"
+                      aria-label="Remove account"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="empty-copy mt-3" *ngIf="selectedAccounts.length === 0">No linked accounts yet.</div>
+              </div>
+
+              <div>
+                <label class="form-label">Designation</label>
+                <input class="form-control" type="text" formControlName="designation" placeholder="Finance Manager">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Secondary Emails, Secondary Phones & Description</h5>
+              <span class="entity-card__meta">Add alternate contact details and internal notes</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="contact-create-column">
+              <div class="detail-grid contact-create-grid">
+                <div class="entity-subsection entity-subsection--flush">
+                  <div class="entity-subsection__head">
+                    <h6 class="entity-subsection__title contact-create-subtitle-soft">Secondary Emails</h6>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSecondaryEmail()" [disabled]="saving">
+                      Add Row
+                    </button>
+                  </div>
+
+                  <div class="stack-list" formArrayName="secondary_emails" *ngIf="secondaryEmailArr.length > 0">
+                    <div class="stack-list__row stack-list__row--single" *ngFor="let control of secondaryEmailArr.controls; let i = index; trackBy: trackByIndex">
+                      <input class="form-control" type="email" [formControlName]="i" placeholder="secondary@example.com">
+                      <button
+                        type="button"
+                        class="remove-cross-button"
+                        (click)="removeSecondaryEmail(i)"
+                        [disabled]="saving"
+                        aria-label="Remove secondary email"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="empty-copy" *ngIf="secondaryEmailArr.length === 0">No secondary emails added.</div>
+                </div>
+
+                <div class="entity-subsection entity-subsection--flush">
+                  <div class="entity-subsection__head">
+                    <h6 class="entity-subsection__title contact-create-subtitle-soft">Secondary Phones</h6>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSecondaryPhone()" [disabled]="saving">
+                      Add Row
+                    </button>
+                  </div>
+
+                  <div class="stack-list" formArrayName="secondary_phones" *ngIf="secondaryPhoneArr.length > 0">
+                    <div class="stack-list__row stack-list__row--single" *ngFor="let control of secondaryPhoneArr.controls; let i = index; trackBy: trackByIndex">
+                      <input class="form-control" type="text" [formControlName]="i" placeholder="+91 9000000000">
+                      <button
+                        type="button"
+                        class="remove-cross-button"
+                        (click)="removeSecondaryPhone(i)"
+                        [disabled]="saving"
+                        aria-label="Remove secondary phone"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="empty-copy" *ngIf="secondaryPhoneArr.length === 0">No secondary phones added.</div>
+                </div>
+              </div>
+
+              <div class="detail-grid detail-grid--full">
+                <div>
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control contact-create-notes" rows="6" formControlName="notes" placeholder="Internal contact notes"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="saving">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-light" [routerLink]="['/contacts']" [disabled]="saving">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="form.invalid || saving">
+            {{ saving ? 'Creating...' : 'Create Contact' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

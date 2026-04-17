@@ -1,0 +1,32 @@
+@use '../../shared/crm-list-theme' as crm;
+
+@include crm.crm-list-theme();
+
+.crm-toolbar-inline {
+  flex-wrap: nowrap;
+  width: min(100%, 700px);
+}
+
+.crm-toolbar-inline .crm-filter {
+  flex: 0 0 220px;
+  min-width: 220px;
+}
+
+.crm-toolbar-inline .crm-search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+  .crm-toolbar-inline {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .crm-toolbar-inline .crm-filter,
+  .crm-toolbar-inline .crm-search {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 100%;
+  }
+}

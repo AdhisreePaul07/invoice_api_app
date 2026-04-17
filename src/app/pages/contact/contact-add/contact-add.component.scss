@@ -1,0 +1,50 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.detail-grid {
+  column-gap: calc(1rem + 0.75%);
+}
+
+.stack-list__row {
+  column-gap: calc(0.75rem + 0.75%);
+}
+
+.contact-create-grid {
+  align-items: start;
+}
+
+.contact-create-grid > .entity-subsection,
+.contact-create-grid > .entity-subsection + .entity-subsection {
+  margin-top: 0;
+}
+
+.contact-create-column {
+  display: grid;
+  gap: 1.5rem;
+  align-content: start;
+}
+
+.contact-create-image-field {
+  margin-top: 0.25rem;
+}
+
+.contact-create-subtitle-soft {
+  font-weight: 500;
+}
+
+.entity-subsection--flush {
+  margin-top: 0;
+}
+
+.contact-create-notes {
+  min-height: 96px !important;
+}
+
+.err-msg {
+  margin-top: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}

@@ -1,0 +1,13 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.detail-grid {
+  column-gap: calc(1rem + 0.75%);
+}
+
+.receipt-settings-editor {
+  display: block;
+}

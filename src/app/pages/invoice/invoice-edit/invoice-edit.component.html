@@ -1,0 +1,422 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/invoices']">Invoices</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Invoice</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12 entity-overview-column">
+    <div class="card entity-overview-card">
+      <div class="entity-summary">
+        <div class="entity-summary__avatar entity-summary__avatar--invoice">
+          <i class="ph-bold ph-receipt"></i>
+        </div>
+        <div class="entity-summary__content">
+          <p class="entity-summary__eyebrow">Invoice</p>
+          <h3 class="entity-summary__title">{{ pageTitle }}</h3>
+          <div class="entity-summary__meta">
+            <span>{{ invoiceTypeLabel }}</span>
+            <span class="entity-summary__pill">{{ invoiceStatusLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entity-summary__divider"></div>
+
+      <div class="entity-basic-info">
+        <h4 class="entity-basic-info__title">Basic Information</h4>
+        <div class="detail-list">
+          <div class="detail-item">
+            <span>Invoice Date</span>
+            <strong>{{ invoiceDateLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Due Date</span>
+            <strong>{{ dueDateLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Organization</span>
+            <strong>{{ organizationLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Account</span>
+            <strong>{{ accountLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Contact</span>
+            <strong>{{ contactLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Deal</span>
+            <strong>{{ dealLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Grand Total</span>
+            <strong>{{ grandTotal | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="card entity-loading-card" *ngIf="loading">
+      <div class="card-body">
+        <div class="app-skeleton-form-state" aria-hidden="true">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-grid app-skeleton-form-grid--single">
+            <div class="app-skeleton-form-field">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--block" style="min-height: 8rem;"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-footer">
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading" [formGroup]="form">
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Invoice number, type, dates, and status</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Invoice No <em>*</em></label>
+                <input class="form-control" type="text" formControlName="invoice_no" placeholder="INV-2026-001">
+              </div>
+              <div>
+                <label class="form-label">Invoice Type</label>
+                <select class="form-select" formControlName="invoice_type">
+                  <option *ngFor="let type of invoiceTypeOptions" [ngValue]="type.value">{{ type.label }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Invoice Date <em>*</em></label>
+                <input class="form-control" type="date" formControlName="invoice_date">
+              </div>
+              <div>
+                <label class="form-label">Due Date</label>
+                <input class="form-control" type="date" formControlName="due_date">
+              </div>
+              <div>
+                <label class="form-label">Status</label>
+                <select class="form-select" formControlName="invoice_status">
+                  <option *ngFor="let status of invoiceStatusOptions" [ngValue]="status.value">{{ status.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('overview')"
+              [class.section-feedback--error]="feedbackFor('overview')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('overview')?.type === 'success'"
+            >
+              {{ feedbackFor('overview')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveOverviewSection()" [disabled]="sectionSaving.overview">
+              {{ sectionSaving.overview ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Relationships</h5>
+              <span class="entity-card__meta">Primary organization, account, contact, and deal linkage</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Organization</label>
+                <select class="form-select" formControlName="organization">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let org of organizations" [ngValue]="org.id">{{ org.org_name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Account</label>
+                <select class="form-select" formControlName="account">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let account of accounts" [ngValue]="account.id">{{ account.account_name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Contact</label>
+                <select class="form-select" formControlName="contact">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let contact of filteredContacts" [ngValue]="contact.id">
+                    {{ contact.first_name }} {{ contact.last_name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Deal</label>
+                <select class="form-select" formControlName="deal">
+                  <option [ngValue]="null">None</option>
+                  <option *ngFor="let deal of filteredDeals" [ngValue]="deal.id">{{ deal.deal_name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('relationships')"
+              [class.section-feedback--error]="feedbackFor('relationships')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('relationships')?.type === 'success'"
+            >
+              {{ feedbackFor('relationships')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveRelationshipsSection()" [disabled]="sectionSaving.relationships">
+              {{ sectionSaving.relationships ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Invoice Items</h5>
+              <span class="entity-card__meta">Line items, pricing, taxes, and item descriptions</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="entity-subsection__head">
+              <h6 class="entity-subsection__title">Invoice Line Items</h6>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="addItem()" [disabled]="sectionSaving.items">
+                Add Line
+              </button>
+            </div>
+
+            <div class="address-list" formArrayName="invoice_items">
+              <div
+                class="address-card invoice-item-card"
+                *ngFor="let item of itemArr.controls; let i = index; trackBy: trackByIndex"
+                [formGroupName]="i"
+              >
+                <div class="address-card__head">
+                  <span>Invoice Item {{ i + 1 }}</span>
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeItem(i)"
+                    [disabled]="itemArr.length <= 1 || sectionSaving.items"
+                    aria-label="Remove invoice item"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <div class="detail-grid">
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label">Catalog Item</label>
+                    <select class="form-select" formControlName="item_catalog_id" (change)="onCatalogChange(i)">
+                      <option [ngValue]="null">Custom line item</option>
+                      <option *ngFor="let catalog of items" [ngValue]="catalog.id">
+                        {{ catalog.item_name }} ({{ catalog.item_code }})
+                      </option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label">Item Name</label>
+                    <input class="form-control" type="text" formControlName="item_name" placeholder="Consulting services">
+                  </div>
+                  <div>
+                    <label class="form-label">Item Code</label>
+                    <input class="form-control" type="text" formControlName="item_code" placeholder="ITM-001">
+                  </div>
+                  <div>
+                    <label class="form-label">Currency</label>
+                    <input class="form-control" type="text" formControlName="currency_code" placeholder="INR">
+                  </div>
+                  <div>
+                    <label class="form-label">Unit Price</label>
+                    <input class="form-control" type="number" formControlName="unit_price" placeholder="0.00">
+                  </div>
+                  <div>
+                    <label class="form-label">Quantity</label>
+                    <input class="form-control" type="number" formControlName="quantity" placeholder="1">
+                  </div>
+                  <div>
+                    <label class="form-label">Tax Value</label>
+                    <input class="form-control" type="number" formControlName="tax_value" placeholder="0.00">
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label">Item Details</label>
+                    <textarea class="form-control" rows="3" formControlName="item_details" placeholder="Line item details"></textarea>
+                  </div>
+                </div>
+
+                <div class="invoice-line-summary">
+                  <span>Subtotal <strong>{{ lineSubtotal(i) | number:'1.2-2' }}</strong></span>
+                  <span>Total <strong>{{ lineTotal(i) | number:'1.2-2' }}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('items')"
+              [class.section-feedback--error]="feedbackFor('items')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('items')?.type === 'success'"
+            >
+              {{ feedbackFor('items')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveItemsSection()" [disabled]="sectionSaving.items">
+              {{ sectionSaving.items ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Discount & Adjustment</h5>
+              <span class="entity-card__meta">Financial adjustments and invoice total calculation</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Discount %</label>
+                <input class="form-control" type="number" formControlName="discount_percent" placeholder="0">
+              </div>
+              <div>
+                <label class="form-label">Adjustment</label>
+                <input class="form-control" type="number" formControlName="adjustment" placeholder="0.00">
+              </div>
+            </div>
+
+            <div class="invoice-adjustment-note">
+              Applied discount amount: {{ discountAmount | number:'1.2-2' }}
+            </div>
+
+            <div class="invoice-total-panel">
+              <div class="invoice-total-row">
+                <span>Subtotal</span>
+                <strong>{{ subtotal | number:'1.2-2' }}</strong>
+              </div>
+              <div class="invoice-total-row">
+                <span>Total Tax</span>
+                <strong>{{ totalTax | number:'1.2-2' }}</strong>
+              </div>
+              <div class="invoice-total-row invoice-total-row--grand">
+                <span>Grand Total</span>
+                <strong>{{ grandTotal | number:'1.2-2' }}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('financials')"
+              [class.section-feedback--error]="feedbackFor('financials')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('financials')?.type === 'success'"
+            >
+              {{ feedbackFor('financials')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveFinancialsSection()" [disabled]="sectionSaving.financials">
+              {{ sectionSaving.financials ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Notes, Terms & Sharing</h5>
+              <span class="entity-card__meta">Invoice-facing notes, description, terms, and public sharing</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Header Notes</label>
+                <textarea class="form-control" rows="3" formControlName="invoice_header_text" placeholder="Top note or greeting"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Footer Notes</label>
+                <textarea class="form-control" rows="3" formControlName="invoice_footer_text" placeholder="Footer notes"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="4" formControlName="invoice_desc_text" placeholder="Invoice description"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Terms</label>
+                <textarea class="form-control" rows="4" formControlName="invoice_terms_text" placeholder="One term per line"></textarea>
+              </div>
+              <div style="grid-column: 1 / -1;">
+                <label class="invoice-checkbox">
+                  <input type="checkbox" formControlName="public_share_enabled">
+                  <span>Public share enabled</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('notes')"
+              [class.section-feedback--error]="feedbackFor('notes')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('notes')?.type === 'success'"
+            >
+              {{ feedbackFor('notes')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveNotesSection()" [disabled]="sectionSaving.notes">
+              {{ sectionSaving.notes ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="loading || isAnySectionSaving">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-outline-secondary" [routerLink]="['/invoices']" [disabled]="isAnySectionSaving">
+            Back To Invoices
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

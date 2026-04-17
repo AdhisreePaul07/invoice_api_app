@@ -1,0 +1,38 @@
+@use '../../shared/crm-edit-theme';
+
+:host {
+  display: block;
+}
+
+.detail-grid {
+  column-gap: calc(1rem + 0.75%);
+}
+
+.invoice-settings-grid-block {
+  margin-top: 1.5rem;
+}
+
+.invoice-asset-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.invoice-asset-grid--double {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.invoice-settings-editor {
+  display: block;
+}
+
+.err-msg {
+  margin-top: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 767.98px) {
+  .invoice-asset-grid--double {
+    grid-template-columns: 1fr;
+  }
+}

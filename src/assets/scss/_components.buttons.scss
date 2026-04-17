@@ -1,0 +1,356 @@
+@use 'sass:color';
+@use './variables' as *;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "accent": $accent,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+
+@function app-shade($value, $weight) {
+  @return color.mix(#000, $value, $weight);
+}
+
+:root {
+  --app-btn-brand-gradient: linear-gradient(135deg, #{$primary} 0%, #{$accent} 100%);
+  --app-btn-brand-gradient-hover: linear-gradient(
+    135deg,
+    #{app-shade($primary, 8%)} 0%,
+    #{app-shade($accent, 8%)} 100%
+  );
+  --app-btn-brand-gradient-active: linear-gradient(
+    135deg,
+    #{app-shade($primary, 12%)} 0%,
+    #{app-shade($accent, 12%)} 100%
+  );
+  --app-btn-primary-hover: #{app-shade($primary, 10%)};
+  --app-btn-primary-border-hover: #{app-shade($primary, 12%)};
+  --app-btn-primary-active: #{app-shade($primary, 12%)};
+  --app-btn-secondary-hover: #{app-shade($secondary, 10%)};
+  --app-btn-secondary-border-hover: #{app-shade($secondary, 12%)};
+  --app-btn-secondary-active: #{app-shade($secondary, 12%)};
+}
+
+.btn-primary {
+  --app-btn-bg: var(--app-primary);
+  --app-btn-border-color: var(--app-primary);
+  --app-btn-hover-bg: var(--app-btn-primary-hover);
+  --app-btn-hover-border-color: var(--app-btn-primary-border-hover);
+  --app-btn-focus-shadow-rgb: var(--app-primary-rgb);
+  --app-btn-active-bg: var(--app-btn-primary-active);
+  --app-btn-active-border-color: var(--app-btn-primary-active);
+  --app-btn-disabled-bg: var(--app-primary);
+  --app-btn-disabled-border-color: var(--app-primary);
+  background-color: transparent;
+  background-image: var(--app-btn-brand-gradient);
+  border-color: transparent;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: transparent;
+  background-image: var(--app-btn-brand-gradient-hover);
+  border-color: transparent;
+}
+
+.btn-primary:active,
+.btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+  background-color: transparent;
+  background-image: var(--app-btn-brand-gradient-active);
+  border-color: transparent;
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+  background-color: transparent;
+  background-image: var(--app-btn-brand-gradient);
+  border-color: transparent;
+}
+
+.btn-outline-primary {
+  --app-btn-color: var(--app-primary);
+  --app-btn-border-color: var(--app-primary);
+  --app-btn-hover-bg: var(--app-primary);
+  --app-btn-hover-border-color: var(--app-primary);
+  --app-btn-focus-shadow-rgb: var(--app-primary-rgb);
+  --app-btn-active-bg: var(--app-primary);
+  --app-btn-active-border-color: var(--app-primary);
+  --app-btn-disabled-color: var(--app-primary);
+  --app-btn-disabled-border-color: var(--app-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.show > .btn-outline-primary.dropdown-toggle,
+.btn.btn-subtle-primary:hover,
+.btn.btn-subtle-primary:focus,
+.btn.btn-subtle-primary:active,
+.btn.btn-subtle-primary.active {
+  background-color: transparent;
+  background-image: var(--app-btn-brand-gradient);
+  border-color: transparent;
+}
+
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.show > .btn-outline-primary.dropdown-toggle,
+.btn.btn-subtle-primary:active,
+.btn.btn-subtle-primary.active {
+  background-image: var(--app-btn-brand-gradient-active);
+}
+
+.btn-secondary {
+  --app-btn-bg: var(--app-secondary);
+  --app-btn-border-color: var(--app-secondary);
+  --app-btn-hover-bg: var(--app-btn-secondary-hover);
+  --app-btn-hover-border-color: var(--app-btn-secondary-border-hover);
+  --app-btn-focus-shadow-rgb: var(--app-secondary-rgb);
+  --app-btn-active-bg: var(--app-btn-secondary-active);
+  --app-btn-active-border-color: var(--app-btn-secondary-active);
+  --app-btn-disabled-bg: var(--app-secondary);
+  --app-btn-disabled-border-color: var(--app-secondary);
+}
+
+.btn-outline-secondary {
+  --app-btn-color: var(--app-secondary);
+  --app-btn-border-color: var(--app-secondary);
+  --app-btn-hover-bg: var(--app-secondary);
+  --app-btn-hover-border-color: var(--app-secondary);
+  --app-btn-focus-shadow-rgb: var(--app-secondary-rgb);
+  --app-btn-active-bg: var(--app-secondary);
+  --app-btn-active-border-color: var(--app-secondary);
+  --app-btn-disabled-color: var(--app-secondary);
+  --app-btn-disabled-border-color: var(--app-secondary);
+}
+
+.btn-sm {
+  --app-btn-line-height: 1.448;
+}
+
+.btn-lg {
+  --app-btn-line-height: 1.467;
+}
+
+.btn-xl {
+  --app-btn-line-height: 1.8;
+  font-size: 18px;
+  padding: 12px 24px;
+}
+
+.btn {
+  img {
+    width: 15px;
+  }
+
+  &[class*="btn-subtle-"] {
+    &:hover,
+    &:active,
+    &:focus {
+      color: #fff;
+    }
+  }
+}
+
+.btn-light {
+  --app-btn-color: var(--app-heading-color);
+  --app-btn-bg: var(--app-light);
+  --app-btn-border-color: var(--app-border-color);
+  --app-btn-hover-color: var(--app-heading-color);
+  --app-btn-hover-bg: var(--app-light);
+  --app-btn-hover-border-color: var(--app-light);
+  --app-btn-focus-shadow-rgb: 236, 242, 253;
+  --app-btn-active-color: var(--app-heading-color);
+  --app-btn-active-bg: var(--app-light);
+  --app-btn-active-border-color: var(--app-border-color);
+  --app-btn-disabled-color: var(--app-light);
+  --app-btn-disabled-bg: transparent;
+  --app-btn-disabled-border-color: var(--app-border-color);
+}
+
+.btn-outline-light {
+  --app-btn-color: var(--app-heading-color);
+  --app-btn-border-color: var(--app-border-color);
+  --app-btn-hover-color: var(--app-heading-color);
+  --app-btn-hover-bg: var(--app-light);
+  --app-btn-hover-border-color: var(--app-light);
+  --app-btn-focus-shadow-rgb: 236, 242, 253;
+  --app-btn-active-color: var(--app-heading-color);
+  --app-btn-active-bg: var(--app-light);
+  --app-btn-active-border-color: var(--app-border-color);
+  --app-btn-disabled-color: var(--app-light);
+  --app-btn-disabled-bg: transparent;
+  --app-btn-disabled-border-color: var(--app-border-color);
+}
+
+.btn-shadow {
+  box-shadow: 0 2px 4px 0 rgba(225, 229, 237, 0.2);
+
+  [data-app-theme="dark"] & {
+    box-shadow: 0 2px 4px 0 rgba(36, 37, 60, 0.1);
+  }
+}
+
+.btn-white {
+  --app-btn-color: var(--app-heading-color);
+  --app-btn-bg: var(--app-body-bg);
+  --app-btn-border-color: var(--app-border-color);
+  --app-btn-hover-color: var(--app-heading-color);
+  --app-btn-hover-bg: var(--app-body-bg);
+  --app-btn-hover-border-color: var(--app-border-color);
+  --app-btn-active-color: var(--app-heading-color);
+  --app-btn-active-bg: var(--app-body-bg);
+  --app-btn-active-border-color: var(--app-border-color);
+  --app-btn-disabled-color: var(--app-heading-color);
+  --app-btn-disabled-bg: var(--app-body-bg);
+  --app-btn-disabled-border-color: var(--app-body-bg);
+}
+
+@each $color, $value in $theme-colors {
+  .btn.btn-subtle-#{$color} {
+    background-color: var(--app-#{$color}-bg-subtle);
+    border-color: var(--app-#{$color}-bg-subtle);
+    color: var(--app-#{$color});
+
+    &:hover,
+    &:active,
+    &:focus {
+      border-color: var(--app-#{$color});
+      background-color: var(--app-#{$color});
+    }
+  }
+
+  .btn.btn-action-#{$color} {
+    color: var(--app-#{$color});
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: var(--app-#{$color}-bg-subtle);
+      border-color: var(--app-#{$color}-bg-subtle);
+      color: var(--app-#{$color});
+    }
+  }
+}
+
+.btn.btn-subtle-light {
+  color: var(--app-dark);
+}
+
+.btn:not(.dropdown-toggle) {
+  transform: scale(1.002);
+  transition: all 0.125s ease-in-out;
+}
+
+.btn[class*="btn-"]:active:not(.dropdown-toggle),
+.btn[class*="btn-"].active:not(.dropdown-toggle) {
+  transform: scale(0.982);
+  transition: all 0.125s ease-in-out;
+}
+
+.btn-icon {
+  display: inline-flex;
+  font-size: 16px;
+  block-size: 40px;
+  inline-size: 40px;
+  min-inline-size: 40px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon.btn-sm {
+  font-size: 14px;
+  block-size: 32px;
+  inline-size: 32px;
+  min-inline-size: 32px;
+}
+
+.btn-icon.btn-lg {
+  font-size: 18px;
+  block-size: 45px;
+  inline-size: 45px;
+  min-inline-size: 45px;
+}
+
+.btn-icon.btn-xl {
+  font-size: 24px;
+  block-size: 60px;
+  inline-size: 60px;
+  min-inline-size: 60px;
+}
+
+.btn.border-dashed {
+  border-style: dashed !important;
+}
+
+@each $color, $value in $social-colors {
+  .btn.btn-#{$color} {
+    --#{$color}-btn-bg: #{$value};
+    --#{$color}-btn-bg-hover: #{app-shade($value, 10%)};
+    --#{$color}-btn-color: #fff;
+    --#{$color}-btn-color-hover: #fff;
+    background-color: var(--#{$color}-btn-bg);
+    color: var(--#{$color}-btn-color);
+
+    @if $color == snapchat {
+      --#{$color}-btn-color: #{$dark};
+      --#{$color}-btn-color-hover: #{$dark};
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: var(--#{$color}-btn-bg-hover);
+      color: var(--#{$color}-btn-color-hover);
+    }
+  }
+
+  .btn.btn-subtle-#{$color} {
+    --#{$color}-btn-bg: #{rgba($value, 0.1)};
+    --#{$color}-btn-bg-hover: #{$value};
+    --#{$color}-btn-color: #{$value};
+    --#{$color}-btn-color-hover: #fff;
+    --#{$color}-btn-border-color: #{rgba($value, 0.1)};
+    --#{$color}-btn-border-color-hover: #{$value};
+    background-color: var(--#{$color}-btn-bg);
+    color: var(--#{$color}-btn-color);
+    border-color: var(--#{$color}-btn-border-color);
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: var(--#{$color}-btn-bg-hover);
+      color: var(--#{$color}-btn-color-hover);
+      border-color: var(--#{$color}-btn-border-color-hover);
+    }
+  }
+
+  .btn.btn-outline-#{$color} {
+    --#{$color}-btn-color: #{$value};
+    --#{$color}-btn-color-hover: #fff;
+    --#{$color}-btn-border-color: #{$value};
+    --#{$color}-btn-border-color-hover: #{$value};
+    border: 1px solid var(--#{$color}-btn-border-color);
+    color: var(--#{$color}-btn-color);
+
+    @if $color == snapchat {
+      --#{$color}-btn-color-hover: #{$dark};
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: #{$value};
+      color: var(--#{$color}-btn-color-hover);
+      border-color: var(--#{$color}-btn-border-color-hover);
+    }
+  }
+}

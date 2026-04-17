@@ -1,0 +1,622 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/accounts']">Accounts</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Account</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<datalist id="account-legal-type-options">
+  <option *ngFor="let type of legalIdentifierTypes" [value]="type"></option>
+</datalist>
+
+<datalist id="account-tax-type-options">
+  <option *ngFor="let type of taxDetailTypes" [value]="type"></option>
+</datalist>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12 entity-overview-column">
+    <div class="card entity-overview-card">
+      <div class="entity-summary">
+        <div class="entity-summary__avatar entity-summary__avatar--account">
+          <img *ngIf="profileImageUrl; else accountAvatarFallback" [src]="profileImageUrl" alt="Account profile image">
+          <ng-template #accountAvatarFallback>{{ avatarInitials }}</ng-template>
+          <button
+            type="button"
+            class="entity-summary__avatar-action"
+            [disabled]="profileImageActionBusy"
+            aria-label="Change account image"
+            (click)="openProfileImageModal()"
+          >
+            <span class="entity-summary__avatar-action-inner">
+              <i class="fi fi-rr-camera"></i>
+            </span>
+          </button>
+        </div>
+        <div class="entity-summary__content">
+          <p class="entity-summary__eyebrow">Account</p>
+          <h3 class="entity-summary__title">{{ pageTitle }}</h3>
+          <div class="entity-summary__meta">
+            <span>{{ accountTypeLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entity-summary__divider"></div>
+
+      <div class="entity-basic-info">
+        <h4 class="entity-basic-info__title">Basic Information</h4>
+        <div class="detail-list">
+          <div class="detail-item">
+            <span>Linked Account</span>
+            <strong>{{ linkedAccountDisplay }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Address</span>
+            <p>{{ primaryAddressDisplay }}</p>
+          </div>
+          <div class="detail-item">
+            <span>Currency</span>
+            <strong>{{ primaryCurrencyLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Notes</span>
+            <p>{{ notesDisplay }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="alert alert-warning" *ngIf="uploadNotice" role="alert">
+      {{ uploadNotice }}
+    </div>
+
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="card entity-loading-card" *ngIf="loading">
+      <div class="card-body">
+        <div class="app-skeleton-form-state" aria-hidden="true">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--block"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-footer">
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading" [formGroup]="form">
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Core account identity and relationship details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Account Name</label>
+                <input class="form-control" type="text" formControlName="account_name" placeholder="Acme Business Solutions Pvt Ltd">
+              </div>
+              <div>
+                <label class="form-label">Account Type</label>
+                <select class="form-select" formControlName="account_type">
+                  <option [ngValue]="1">Business</option>
+                  <option [ngValue]="0">Individual</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Linked Account</label>
+                <input class="form-control" type="text" [value]="linkedAccountDisplay" readonly>
+              </div>
+              <div>
+                <label class="form-label">Choose Currency</label>
+                <div class="entity-inline-picker mb-0">
+                  <div class="search-select">
+                    <input
+                      type="text"
+                      class="form-control"
+                      [formControl]="currencySearchCtrl"
+                      placeholder="Type to search currency..."
+                      autocomplete="off"
+                      (focus)="openCurrencyDropdown()"
+                      (blur)="closeCurrencyDropdownSoon()"
+                    >
+
+                    <div class="dropdown" *ngIf="currencyDropdownOpen">
+                      <button
+                        type="button"
+                        class="dropdown-item"
+                        *ngFor="let currency of filteredCurrencies"
+                        (mousedown)="selectCurrencyFromDropdown(currency)"
+                      >
+                        <span class="entity-mono">{{ currency.shortname }}</span>
+                        <span class="entity-muted">{{ currency.symbol }}</span>
+                        <span class="ms-auto">{{ currency.name }}</span>
+                      </button>
+
+                      <div class="dropdown-empty" *ngIf="filteredCurrencies.length === 0">No currency found.</div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary entity-inline-picker__button"
+                    [disabled]="!selectedCurrency || sectionSaving.overview"
+                    (click)="addSelectedCurrency()"
+                  >
+                    Add Currency
+                  </button>
+                </div>
+
+                <div class="selection-list mt-3" *ngIf="currencyArr.length > 0" formArrayName="currencies">
+                  <div
+                    class="selection-item"
+                    *ngFor="let group of currencyArr.controls; let i = index; trackBy: trackByIndex"
+                    [formGroupName]="i"
+                  >
+                    <div class="selection-item__copy">
+                      <strong>{{ currencyArr.at(i).get('shortname')?.value }} {{ currencyArr.at(i).get('symbol')?.value }}</strong>
+                      <span>{{ currencyArr.at(i).get('name')?.value }}</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-cross-button"
+                      (click)="removeCurrency(i)"
+                      [disabled]="sectionSaving.overview"
+                      aria-label="Remove currency"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="empty-copy mt-3" *ngIf="currencyArr.length === 0">No currencies selected yet.</div>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('overview')"
+              [class.section-feedback--error]="feedbackFor('overview')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('overview')?.type === 'success'"
+            >
+              {{ feedbackFor('overview')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveOverviewSection()" [disabled]="sectionSaving.overview">
+              {{ sectionSaving.overview ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Tax Model, Legal Identifiers & Tax Details</h5>
+              <span class="entity-card__meta">Registration, tax model, and compliance information for the account</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Tax Model</label>
+                <select class="form-select" formControlName="tax_model">
+                  <option *ngFor="let option of taxModelOptions" [ngValue]="option">{{ option }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Legal Identifiers</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addLegalIdentifier()" [disabled]="sectionSaving.compliance">
+                  Add Row
+                </button>
+              </div>
+
+              <div class="stack-list" formArrayName="legal_identifiers" *ngIf="legalIdentifierArr.length > 0">
+                <div
+                  class="stack-list__row"
+                  *ngFor="let group of legalIdentifierArr.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <input class="form-control" type="text" formControlName="type" list="account-legal-type-options" placeholder="Identifier type">
+                  <input class="form-control" type="text" formControlName="value" placeholder="Identifier value">
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeLegalIdentifier(i)"
+                    [disabled]="legalIdentifierArr.length <= 1 || sectionSaving.compliance"
+                    aria-label="Remove legal identifier"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="legalIdentifierArr.length === 0">No legal identifiers added yet.</div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Tax Details</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addTax()" [disabled]="sectionSaving.compliance">
+                  Add Row
+                </button>
+              </div>
+
+              <div class="stack-list" formArrayName="tax_detail" *ngIf="taxArr.length > 0">
+                <div
+                  class="stack-list__row"
+                  *ngFor="let group of taxArr.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <input class="form-control" type="text" formControlName="type" list="account-tax-type-options" placeholder="Tax type">
+                  <input class="form-control" type="text" formControlName="value" placeholder="Tax value">
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeTax(i)"
+                    [disabled]="taxArr.length <= 1 || sectionSaving.compliance"
+                    aria-label="Remove tax detail"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="taxArr.length === 0">No tax details added yet.</div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('compliance')"
+              [class.section-feedback--error]="feedbackFor('compliance')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('compliance')?.type === 'success'"
+            >
+              {{ feedbackFor('compliance')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveComplianceSection()" [disabled]="sectionSaving.compliance">
+              {{ sectionSaving.compliance ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Addresses & Notes</h5>
+              <span class="entity-card__meta">Primary address, additional locations, and internal notes</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="address-card" *ngIf="addrArr.length > 0" formArrayName="all_address">
+              <div class="address-card__head">Primary Address</div>
+              <div class="detail-grid detail-grid--three" [formGroupName]="0">
+                <div style="grid-column: span 2;">
+                  <label class="form-label">Address Line 1</label>
+                  <input class="form-control" type="text" formControlName="address_line1" placeholder="Address line 1">
+                </div>
+                <div>
+                  <label class="form-label">Address Line 2</label>
+                  <input class="form-control" type="text" formControlName="address_line2" placeholder="Address line 2">
+                </div>
+                <div>
+                  <label class="form-label">City</label>
+                  <input class="form-control" type="text" formControlName="City" placeholder="City">
+                </div>
+                <div>
+                  <label class="form-label">State</label>
+                  <input class="form-control" type="text" formControlName="county" placeholder="State / County">
+                </div>
+                <div>
+                  <label class="form-label">PIN Code</label>
+                  <input class="form-control" type="text" formControlName="pin_code" placeholder="PIN code">
+                </div>
+                <div>
+                  <label class="form-label">Country</label>
+                  <input class="form-control" type="text" formControlName="Country" placeholder="Country">
+                </div>
+              </div>
+            </div>
+
+            <div class="entity-subsection entity-subsection--spaced">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Additional Addresses</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addAddress()" [disabled]="sectionSaving.addresses">
+                  Add Address
+                </button>
+              </div>
+
+              <div class="address-list" formArrayName="all_address">
+                <ng-container *ngFor="let group of addrArr.controls; let i = index; trackBy: trackByIndex">
+                  <div class="address-card" *ngIf="i > 0" [formGroupName]="i">
+                    <div class="address-card__head">
+                      <span>Address {{ i }}</span>
+                      <button
+                        type="button"
+                        class="remove-cross-button"
+                        (click)="removeAddress(i)"
+                        [disabled]="sectionSaving.addresses"
+                        aria-label="Remove address"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="detail-grid detail-grid--three">
+                      <div style="grid-column: span 2;">
+                        <label class="form-label">Address Line 1</label>
+                        <input class="form-control" type="text" formControlName="address_line1" placeholder="Address line 1">
+                      </div>
+                      <div>
+                        <label class="form-label">Address Line 2</label>
+                        <input class="form-control" type="text" formControlName="address_line2" placeholder="Address line 2">
+                      </div>
+                      <div>
+                        <label class="form-label">City</label>
+                        <input class="form-control" type="text" formControlName="City" placeholder="City">
+                      </div>
+                      <div>
+                        <label class="form-label">State</label>
+                        <input class="form-control" type="text" formControlName="county" placeholder="State / County">
+                      </div>
+                      <div>
+                        <label class="form-label">PIN Code</label>
+                        <input class="form-control" type="text" formControlName="pin_code" placeholder="PIN code">
+                      </div>
+                      <div>
+                        <label class="form-label">Country</label>
+                        <input class="form-control" type="text" formControlName="Country" placeholder="Country">
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <div class="empty-copy" *ngIf="addrArr.length <= 1">No additional addresses added yet.</div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="detail-grid detail-grid--full">
+              <div>
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" rows="4" formControlName="notes" placeholder="Internal notes for this account"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('addresses')"
+              [class.section-feedback--error]="feedbackFor('addresses')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('addresses')?.type === 'success'"
+            >
+              {{ feedbackFor('addresses')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveAddressesSection()" [disabled]="sectionSaving.addresses">
+              {{ sectionSaving.addresses ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="loading || isAnySectionSaving">
+            Reset All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="profile-photo-modal-backdrop"
+  *ngIf="profileImageModalOpen"
+  (click)="closeProfileImageModal()"
+></div>
+
+<div
+  class="profile-photo-modal"
+  *ngIf="profileImageModalOpen"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="accountImageModalTitle"
+  (click)="closeProfileImageModal()"
+>
+  <div class="profile-photo-modal__dialog" (click)="$event.stopPropagation()">
+    <div class="profile-photo-modal__header">
+      <h4 id="accountImageModalTitle" class="profile-photo-modal__title">{{ imageModalTitle }}</h4>
+      <button
+        type="button"
+        class="profile-photo-modal__close"
+        aria-label="Close account image dialog"
+        (click)="closeProfileImageModal()"
+      >
+        <i class="fi fi-rr-cross-small"></i>
+      </button>
+    </div>
+
+    <div class="profile-photo-modal__body" [class.profile-photo-modal__body--editing]="isCropDraftActive">
+      <ng-container *ngIf="isCropDraftActive; else currentAccountPreviewMode">
+        <div class="profile-photo-modal__editor-stage">
+          <div
+            class="profile-photo-modal__crop-stage"
+            (mousedown)="startCropDrag($event)"
+            (touchstart)="startCropDrag($event)"
+            (wheel)="onCropWheel($event)"
+          >
+            <div class="profile-photo-modal__crop-image" [ngStyle]="cropImageStyle">
+              <img [src]="profileImageDraftUrl" alt="Account image crop preview">
+            </div>
+            <div class="profile-photo-modal__crop-grid"></div>
+            <div class="profile-photo-modal__crop-ring"></div>
+          </div>
+
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeProfileImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeProfileImageMeta }}</span>
+          </div>
+        </div>
+
+        <aside class="profile-photo-modal__editor-panel">
+          <div class="profile-photo-modal__panel-head">
+            <h5 class="profile-photo-modal__panel-title">Crop</h5>
+            <p class="profile-photo-modal__tool-copy mb-0">
+              Drag the image inside the frame and fine tune the crop before saving.
+            </p>
+          </div>
+
+          <div class="profile-photo-modal__editor-content">
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="accountCropZoom" class="profile-photo-modal__control-label">Zoom</label>
+                <span class="profile-photo-modal__control-value">{{ cropZoom | number: '1.0-2' }}x</span>
+              </div>
+              <input
+                #accountCropZoom
+                id="accountCropZoom"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="1"
+                max="3"
+                step="0.01"
+                [value]="cropZoom"
+                (input)="onCropZoomChange(accountCropZoom.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__control-group">
+              <div class="profile-photo-modal__control-head">
+                <label for="accountCropStraighten" class="profile-photo-modal__control-label">Straighten</label>
+                <span class="profile-photo-modal__control-value">{{ straighten | number: '1.0-1' }}&deg;</span>
+              </div>
+              <input
+                #accountCropStraighten
+                id="accountCropStraighten"
+                class="profile-photo-modal__slider profile-photo-modal__slider--standard"
+                type="range"
+                min="-15"
+                max="15"
+                step="0.5"
+                [value]="straighten"
+                (input)="onStraightenChange(accountCropStraighten.value)"
+              >
+            </div>
+
+            <div class="profile-photo-modal__tip">
+              <i class="fi fi-rr-arrows-repeat"></i>
+              <span>Use drag or mouse wheel to position the image naturally.</span>
+            </div>
+          </div>
+        </aside>
+      </ng-container>
+
+      <ng-template #currentAccountPreviewMode>
+        <div class="profile-photo-modal__preview-mode">
+          <div class="profile-photo-modal__preview-shell">
+            <div class="profile-photo-modal__preview">
+              <img *ngIf="activeProfileImageUrl; else emptyAccountPhoto" [src]="activeProfileImageUrl" alt="Account image preview">
+              <ng-template #emptyAccountPhoto>
+                <div class="profile-photo-modal__empty">
+                  {{ avatarInitials.slice(0, 1) || 'A' }}
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="profile-photo-modal__meta">
+            <span class="profile-photo-modal__name">{{ activeProfileImageFileName }}</span>
+            <span class="profile-photo-modal__copy">{{ activeProfileImageMeta }}</span>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="alert alert-danger py-2 mb-0" *ngIf="profileImageError" role="alert">
+        {{ profileImageError }}
+      </div>
+      <div class="alert alert-success py-2 mb-0" *ngIf="profileImageSuccess" role="alert">
+        {{ profileImageSuccess }}
+      </div>
+    </div>
+
+    <div class="profile-photo-modal__footer">
+      <input
+        #accountImageInput
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml"
+        [disabled]="profileImageActionBusy"
+        (change)="handleProfileImageFileChange($event)"
+        hidden
+      >
+
+      <button
+        type="button"
+        class="profile-photo-modal__action"
+        [disabled]="profileImageActionBusy"
+        (click)="handleUpdateAction(accountImageInput)"
+      >
+        <i class="fi fi-rr-camera"></i>
+        <span>{{ updateButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--secondary"
+        [class.profile-photo-modal__action--selected]="isCropDraftActive"
+        [disabled]="profileImageActionBusy || (!profileImageUrl && !isCropDraftActive)"
+        (click)="handleCropAction()"
+      >
+        <i class="fi fi-rr-edit"></i>
+        <span>{{ cropButtonLabel }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="profile-photo-modal__action profile-photo-modal__action--danger"
+        [disabled]="profileImageActionBusy || (!profileImageUrl && !isCropDraftActive)"
+        (click)="deleteProfileImage()"
+      >
+        <i class="fi fi-rr-trash"></i>
+        <span>{{ isCropDraftActive ? 'Discard' : (profileImageRemoving ? 'Removing...' : 'Delete') }}</span>
+      </button>
+    </div>
+  </div>
+</div>

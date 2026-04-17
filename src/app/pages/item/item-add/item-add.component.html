@@ -1,0 +1,122 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/items']">Items</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add Item</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="create()" novalidate>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-danger" *ngIf="error" role="alert">
+        {{ error }}
+      </div>
+
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Core item identity, code, and unit pricing details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Item Name <em>*</em></label>
+                <input class="form-control" type="text" formControlName="item_name" placeholder="Website maintenance">
+                <div class="err-msg" *ngIf="form.get('item_name')?.touched && form.get('item_name')?.invalid">
+                  <span *ngIf="form.get('item_name')?.errors?.['required']">Item name is required.</span>
+                  <span *ngIf="form.get('item_name')?.errors?.['minlength']">Minimum 2 characters.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Item Code <em>*</em></label>
+                <input class="form-control" type="text" formControlName="item_code" placeholder="ITM-001">
+                <div class="err-msg" *ngIf="form.get('item_code')?.touched && form.get('item_code')?.invalid">
+                  <span *ngIf="form.get('item_code')?.errors?.['required']">Item code is required.</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">Unit Price <em>*</em></label>
+                <input class="form-control" type="number" formControlName="default_unit_price" placeholder="0.00">
+                <div class="err-msg" *ngIf="form.get('default_unit_price')?.touched && form.get('default_unit_price')?.invalid">
+                  <span *ngIf="form.get('default_unit_price')?.errors?.['required']">Unit price is required.</span>
+                  <span *ngIf="form.get('default_unit_price')?.errors?.['min']">Unit price cannot be negative.</span>
+                </div>
+              </div>
+
+              <div class="item-add-grid-spacer" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Currency, Tax & Details</h5>
+              <span class="entity-card__meta">Choose the billing currency, default tax, and item description</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Currency</label>
+                <select class="form-control" formControlName="currency_code">
+                  <option *ngFor="let currency of currencies" [value]="currency.shortname">
+                    {{ currency.shortname }} - {{ currency.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Default Tax Value</label>
+                <input class="form-control" type="number" formControlName="default_tax_value" placeholder="0.00">
+                <div class="err-msg" *ngIf="form.get('default_tax_value')?.touched && form.get('default_tax_value')?.invalid">
+                  <span *ngIf="form.get('default_tax_value')?.errors?.['min']">Tax value cannot be negative.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-grid detail-grid--full item-add-details-row">
+              <div>
+                <label class="form-label">Details</label>
+                <textarea
+                  class="form-control item-add-details"
+                  rows="6"
+                  formControlName="item_details"
+                  placeholder="Description shown in invoice line items"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="saving">
+            Reset All
+          </button>
+          <button type="button" class="btn btn-light" [routerLink]="['/items']" [disabled]="saving">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="form.invalid || saving">
+            {{ saving ? 'Creating...' : 'Create Item' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

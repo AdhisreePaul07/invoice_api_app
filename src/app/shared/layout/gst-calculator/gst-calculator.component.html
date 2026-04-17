@@ -1,0 +1,87 @@
+<section class="gst-calculator" *ngIf="open$ | async" role="dialog" aria-modal="false" aria-labelledby="gstCalculatorTitle">
+  <div class="gst-calculator__header">
+    <h5 id="gstCalculatorTitle" class="gst-calculator__title">GST Calculator</h5>
+    <button type="button" class="gst-calculator__close" aria-label="Close GST calculator" (click)="close()">
+      <i class="fi fi-rr-cross-small"></i>
+    </button>
+  </div>
+
+  <div class="gst-calculator__body">
+    <div class="gst-calculator__row gst-calculator__row--inputs">
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label" for="gstAmount">Amount</label>
+        <input
+          id="gstAmount"
+          class="form-control gst-calculator__input"
+          type="number"
+          min="0"
+          step="0.01"
+          [(ngModel)]="amount"
+          placeholder="0.00"
+        >
+      </div>
+
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label" for="gstSupplyType">Type</label>
+        <select id="gstSupplyType" class="form-select gst-calculator__input" [(ngModel)]="supplyType">
+          <option value="intra">Intra-state</option>
+          <option value="inter">Inter-state</option>
+        </select>
+      </div>
+
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label" for="gstRate">GST %</label>
+        <select id="gstRate" class="form-select gst-calculator__input" [(ngModel)]="gstRate">
+          <option *ngFor="let rate of commonRates" [ngValue]="rate">{{ rate }}%</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="gst-calculator__row gst-calculator__row--mode">
+      <div class="gst-calculator__field gst-calculator__field--mode" role="radiogroup" aria-label="GST amount mode">
+        <label class="gst-calculator__label">Mode</label>
+        <div class="gst-calculator__mode-row">
+          <label class="gst-calculator__mode-option">
+            <input type="radio" name="gstMode" value="inclusive" [(ngModel)]="mode">
+            <span class="gst-calculator__mode-dot"></span>
+            <span>Included</span>
+          </label>
+          <label class="gst-calculator__mode-option">
+            <input type="radio" name="gstMode" value="exclusive" [(ngModel)]="mode">
+            <span class="gst-calculator__mode-dot"></span>
+            <span>Excluded</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="gst-calculator__row gst-calculator__row--results gst-calculator__row--totals">
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label">Taxable value</label>
+        <div class="gst-calculator__result-box gst-calculator__result-box--hero">{{ taxableValue | number: '1.2-2' }}</div>
+      </div>
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label">Total</label>
+        <div class="gst-calculator__result-box gst-calculator__result-box--hero">{{ grossAmount | number: '1.2-2' }}</div>
+      </div>
+    </div>
+
+    <div class="gst-calculator__row gst-calculator__row--results gst-calculator__row--footer">
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label">{{ primaryTaxLabel }}</label>
+        <div class="gst-calculator__result-box">
+          {{ (supplyType === 'inter' ? igst : cgst) | number: '1.2-2' }}
+        </div>
+      </div>
+      <div class="gst-calculator__field">
+        <label class="gst-calculator__label">SGST</label>
+        <div class="gst-calculator__result-box">{{ sgst | number: '1.2-2' }}</div>
+      </div>
+    </div>
+
+    <div class="gst-calculator__helper-row">
+      <span>{{ typeLabel }}</span>
+      <button type="button" class="gst-calculator__reset" (click)="reset()">Reset</button>
+    </div>
+  </div>
+</section>

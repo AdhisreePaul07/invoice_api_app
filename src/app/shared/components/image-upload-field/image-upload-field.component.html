@@ -1,0 +1,78 @@
+<div class="image-upload-field">
+  <div class="image-upload-field__head">
+    <div>
+      <h6 class="image-upload-field__title">{{ label }}</h6>
+      <span class="image-upload-field__hint" *ngIf="hint">{{ hint }}</span>
+    </div>
+  </div>
+
+  <div class="image-upload-field__body" [class.image-upload-field__body--compact]="compactLayout">
+    <div
+      class="image-upload-field__preview"
+      [class.image-upload-field__preview--empty]="!previewUrl"
+      [class.image-upload-field__preview--compact]="compactLayout"
+    >
+      <ng-container *ngIf="previewUrl; else emptyPreview">
+        <img [src]="previewUrl" [alt]="previewAlt">
+      </ng-container>
+
+      <ng-template #emptyPreview>
+        <div class="image-upload-field__empty" [class.image-upload-field__empty--compact]="compactLayout">
+          <div class="image-upload-field__initials" aria-hidden="true">
+            {{ placeholderInitials }}
+          </div>
+          <ng-container *ngIf="!compactLayout">
+            <span class="image-upload-field__empty-label">{{ emptyLabel }}</span>
+            <span class="image-upload-field__empty-hint">{{ emptyHint }}</span>
+          </ng-container>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="image-upload-field__content">
+      <div class="image-upload-field__meta-copy">
+        <strong>{{ fileName || emptyLabel }}</strong>
+        <span>{{ meta || emptyHint }}</span>
+      </div>
+
+      <div class="image-upload-field__actions">
+        <label
+          class="btn btn-outline-primary image-upload-field__button"
+          [class.disabled]="disabled || uploading || removing"
+          [attr.data-loading]="uploading ? 'true' : null"
+          [attr.aria-disabled]="disabled || uploading || removing ? 'true' : null"
+        >
+          <input
+            type="file"
+            class="image-upload-field__input"
+            [accept]="accept"
+            [disabled]="disabled || uploading || removing"
+            (change)="onFileChange($event)"
+          >
+          {{ previewUrl ? replaceLabel : uploadLabel }}
+        </label>
+
+        <button
+          *ngIf="allowRemove && previewUrl"
+          type="button"
+          class="btn btn-outline-danger image-upload-field__button"
+          [disabled]="disabled || uploading || removing"
+          [attr.data-loading]="removing ? 'true' : null"
+          (click)="onRemove()"
+        >
+          {{ removing ? 'Removing...' : removeLabel }}
+        </button>
+      </div>
+
+      <div class="image-upload-field__status image-upload-field__status--muted" *ngIf="uploading">
+        Uploading image...
+      </div>
+      <div class="image-upload-field__status image-upload-field__status--error" *ngIf="error">
+        {{ error }}
+      </div>
+      <div class="image-upload-field__status image-upload-field__status--success" *ngIf="success">
+        {{ success }}
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,66 @@
+@use './assets/scss/index';
+@use './app/pages/shared/entity-image-editor-theme';
+@use './app/pages/shared/loading-skeletons';
+
+@keyframes app-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-auto-busy {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.app-auto-busy::before {
+  content: '';
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: app-button-spin 0.7s linear infinite;
+}
+
+.app-auto-busy > i {
+  display: none !important;
+}
+
+.app-auto-busy.btn,
+.app-auto-busy.btn-link,
+.app-auto-busy.profile-photo-modal__action {
+  text-decoration: none;
+}
+
+.alert-success {
+  --app-alert-color: var(--app-badge-success-text-emphasis);
+  --app-alert-bg: var(--app-badge-success-bg-subtle);
+  --app-alert-border-color: var(--app-badge-success-border-subtle);
+  --app-alert-link-color: var(--app-badge-success-text-emphasis);
+}
+
+.alert-danger {
+  --app-alert-color: var(--app-badge-danger-text-emphasis);
+  --app-alert-bg: var(--app-badge-danger-bg-subtle);
+  --app-alert-border-color: var(--app-badge-danger-border-subtle);
+  --app-alert-link-color: var(--app-badge-danger-text-emphasis);
+}
+
+.alert-warning {
+  --app-alert-color: var(--app-badge-warning-text-emphasis);
+  --app-alert-bg: var(--app-badge-warning-bg-subtle);
+  --app-alert-border-color: var(--app-badge-warning-border-subtle);
+  --app-alert-link-color: var(--app-badge-warning-text-emphasis);
+}
+
+.alert-info {
+  --app-alert-color: var(--app-badge-info-text-emphasis);
+  --app-alert-bg: var(--app-badge-info-bg-subtle);
+  --app-alert-border-color: var(--app-badge-info-border-subtle);
+  --app-alert-link-color: var(--app-badge-info-text-emphasis);
+}

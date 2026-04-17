@@ -1,0 +1,149 @@
+@use './variables' as *;
+
+.text-left {
+  text-align: left !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.bold {
+  font-weight: $fw-700 !important;
+}
+
+.semibold {
+  font-weight: $fw-600 !important;
+}
+
+.normal {
+  font-weight: $fw-400 !important;
+}
+
+.muted {
+  color: $muted !important;
+}
+
+.clamp-1,
+.clamp-2,
+.clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.clamp-1 {
+  -webkit-line-clamp: 1;
+}
+
+.clamp-2 {
+  -webkit-line-clamp: 2;
+}
+
+.clamp-3 {
+  -webkit-line-clamp: 3;
+}
+
+.fs-10 {
+  font-size: $fs-10 !important;
+}
+
+.fs-11 {
+  font-size: $fs-11 !important;
+}
+
+.fs-12 {
+  font-size: $fs-12 !important;
+}
+
+.fs-13 {
+  font-size: $fs-13 !important;
+}
+
+.fs-14 {
+  font-size: $fs-14 !important;
+}
+
+.fs-15 {
+  font-size: $fs-15 !important;
+}
+
+.fs-16 {
+  font-size: $fs-16 !important;
+}
+
+.fs-18 {
+  font-size: $fs-18 !important;
+}
+
+.fs-20 {
+  font-size: $fs-20 !important;
+}
+
+.fs-22 {
+  font-size: $fs-22 !important;
+}
+
+.fs-24 {
+  font-size: $fs-24 !important;
+}
+
+.fs-28 {
+  font-size: $fs-28 !important;
+}
+
+.fs-32 {
+  font-size: $fs-32 !important;
+}
+
+.fs-36 {
+  font-size: $fs-36 !important;
+}
+
+.fs-40 {
+  font-size: $fs-40 !important;
+}
+
+.fs-48 {
+  font-size: $fs-48 !important;
+}
+
+.fw-100 {
+  font-weight: $fw-100 !important;
+}
+
+.fw-200 {
+  font-weight: $fw-200 !important;
+}
+
+.fw-300 {
+  font-weight: $fw-300 !important;
+}
+
+.fw-400 {
+  font-weight: $fw-400 !important;
+}
+
+.fw-500 {
+  font-weight: $fw-500 !important;
+}
+
+.fw-600 {
+  font-weight: $fw-600 !important;
+}
+
+.fw-700 {
+  font-weight: $fw-700 !important;
+}
+
+.fw-800 {
+  font-weight: $fw-800 !important;
+}
+
+.fw-900 {
+  font-weight: $fw-900 !important;
+}

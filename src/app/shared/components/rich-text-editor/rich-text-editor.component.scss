@@ -1,0 +1,151 @@
+:host {
+  display: block;
+}
+
+.wysiwyg-editor {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(255, 255, 255, 1));
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wysiwyg-editor.is-focused {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 18px 36px rgba(16, 185, 129, 0.12);
+}
+
+.wysiwyg-editor.is-disabled {
+  opacity: 0.72;
+}
+
+.wysiwyg-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+  background: linear-gradient(180deg, rgba(240, 253, 250, 0.74), rgba(255, 255, 255, 0.96));
+}
+
+.wysiwyg-editor__tool {
+  min-width: 2.4rem;
+  height: 2.4rem;
+  padding: 0 0.78rem;
+  border: 1px solid rgba(203, 213, 225, 0.92);
+  border-radius: 12px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wysiwyg-editor__tool:hover:not(:disabled),
+.wysiwyg-editor__tool.is-active {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(236, 253, 245, 0.9);
+  color: #047857;
+  box-shadow: 0 10px 22px rgba(16, 185, 129, 0.12);
+}
+
+.wysiwyg-editor__tool:disabled {
+  cursor: not-allowed;
+}
+
+.wysiwyg-editor__tool--text {
+  min-width: 4.5rem;
+}
+
+.wysiwyg-editor__divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(203, 213, 225, 0.85);
+}
+
+.wysiwyg-editor__surface-wrap {
+  position: relative;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.wysiwyg-editor__placeholder {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  pointer-events: none;
+  color: #94a3b8;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.wysiwyg-editor__surface {
+  position: relative;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: #1e293b;
+  font-size: 0.96rem;
+  line-height: 1.65;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.wysiwyg-editor__surface p {
+  margin: 0 0 0.75rem;
+}
+
+.wysiwyg-editor__surface p:last-child {
+  margin-bottom: 0;
+}
+
+.wysiwyg-editor__surface ul,
+.wysiwyg-editor__surface ol {
+  margin: 0 0 0.85rem;
+  padding-left: 1.35rem;
+}
+
+.wysiwyg-editor__surface li + li {
+  margin-top: 0.28rem;
+}
+
+.wysiwyg-editor__surface a {
+  color: #0f766e;
+  text-decoration: underline;
+}
+
+.wysiwyg-editor__foot {
+  padding: 0 1rem 0.95rem;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.wysiwyg-editor__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@media (max-width: 767.98px) {
+  .wysiwyg-editor__toolbar {
+    gap: 0.45rem;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .wysiwyg-editor__surface-wrap {
+    padding: 0.9rem;
+  }
+
+  .wysiwyg-editor__placeholder {
+    left: 1rem;
+    right: 1rem;
+  }
+}

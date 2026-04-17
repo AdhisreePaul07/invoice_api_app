@@ -1,0 +1,388 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/organizations']">Organizations</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Organization</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<datalist id="organization-legal-type-options">
+  <option *ngFor="let type of legalIdentifierTypes" [value]="type"></option>
+</datalist>
+
+<datalist id="organization-tax-type-options">
+  <option *ngFor="let type of taxDetailTypes" [value]="type"></option>
+</datalist>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12 entity-overview-column">
+    <div class="card entity-overview-card">
+      <div class="entity-summary">
+        <div class="entity-summary__avatar entity-summary__avatar--organization">
+          <i class="ph-bold ph-buildings"></i>
+        </div>
+        <div class="entity-summary__content">
+          <p class="entity-summary__eyebrow">Organization</p>
+          <h3 class="entity-summary__title">{{ pageTitle }}</h3>
+          <div class="entity-summary__meta">
+            <span>{{ planLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entity-summary__divider"></div>
+
+      <div class="entity-basic-info">
+        <h4 class="entity-basic-info__title">Basic Information</h4>
+        <div class="detail-list">
+          <div class="detail-item">
+            <span>Plan</span>
+            <strong>{{ planLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Primary Address</span>
+            <p>{{ primaryAddressDisplay }}</p>
+          </div>
+          <div class="detail-item">
+            <span>Primary Currency</span>
+            <strong>{{ primaryCurrencyLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Legal Identifiers</span>
+            <strong>{{ legalIdentifierCount }} added</strong>
+          </div>
+          <div class="detail-item">
+            <span>Tax Details</span>
+            <strong>{{ taxDetailCount }} added</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="card entity-loading-card" *ngIf="loading">
+      <div class="card-body">
+        <div class="app-skeleton-form-state" aria-hidden="true">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--block"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-footer">
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading" [formGroup]="form">
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Core organization identity and workspace details</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Organization Name</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  formControlName="org_name"
+                  placeholder="Abhinava Innovation"
+                >
+              </div>
+              <div>
+                <label class="form-label">Plan</label>
+                <select class="form-select" formControlName="org_type">
+                  <option *ngFor="let option of planOptions" [ngValue]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Organization UID</label>
+                <input class="form-control" type="text" [value]="organizationUid" readonly>
+              </div>
+              <div>
+                <label class="form-label">Workspace Slug</label>
+                <input class="form-control" type="text" [value]="organizationSlug" readonly>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('overview')"
+              [class.section-feedback--error]="feedbackFor('overview')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('overview')?.type === 'success'"
+            >
+              {{ feedbackFor('overview')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveOverviewSection()" [disabled]="sectionSaving.overview">
+              {{ sectionSaving.overview ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Legal Identifiers & Tax Details</h5>
+              <span class="entity-card__meta">Registration, compliance, and tax information for the organization</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Legal Identifiers</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addOrgId()" [disabled]="sectionSaving.compliance">
+                  Add Row
+                </button>
+              </div>
+
+              <div class="stack-list" formArrayName="org_id" *ngIf="orgIdArr.length > 0">
+                <div
+                  class="stack-list__row"
+                  *ngFor="let group of orgIdArr.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <input
+                    class="form-control"
+                    type="text"
+                    formControlName="type"
+                    list="organization-legal-type-options"
+                    placeholder="Identifier type"
+                  >
+                  <input class="form-control" type="text" formControlName="value" placeholder="Identifier value">
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeOrgId(i)"
+                    [disabled]="sectionSaving.compliance"
+                    aria-label="Remove legal identifier"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="orgIdArr.length === 0">No legal identifiers added yet.</div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Tax Details</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addTax()" [disabled]="sectionSaving.compliance">
+                  Add Row
+                </button>
+              </div>
+
+              <div class="stack-list" formArrayName="tax_detail" *ngIf="taxArr.length > 0">
+                <div
+                  class="stack-list__row"
+                  *ngFor="let group of taxArr.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <input
+                    class="form-control"
+                    type="text"
+                    formControlName="type"
+                    list="organization-tax-type-options"
+                    placeholder="Tax type"
+                  >
+                  <input class="form-control" type="text" formControlName="value" placeholder="Tax value">
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeTax(i)"
+                    [disabled]="sectionSaving.compliance"
+                    aria-label="Remove tax detail"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="taxArr.length === 0">No tax details added yet.</div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('compliance')"
+              [class.section-feedback--error]="feedbackFor('compliance')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('compliance')?.type === 'success'"
+            >
+              {{ feedbackFor('compliance')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveComplianceSection()" [disabled]="sectionSaving.compliance">
+              {{ sectionSaving.compliance ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Address & Currency Settings</h5>
+              <span class="entity-card__meta">Primary address and billing currency configuration for the organization</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="address-card" formGroupName="address">
+              <div class="address-card__head">Primary Address</div>
+              <div class="detail-grid detail-grid--three">
+                <div style="grid-column: span 2;">
+                  <label class="form-label">Address Line 1</label>
+                  <input class="form-control" type="text" formControlName="address_line1" placeholder="Address line 1">
+                </div>
+                <div>
+                  <label class="form-label">Address Line 2</label>
+                  <input class="form-control" type="text" formControlName="address_line2" placeholder="Address line 2">
+                </div>
+                <div>
+                  <label class="form-label">City</label>
+                  <input class="form-control" type="text" formControlName="city" placeholder="City">
+                </div>
+                <div>
+                  <label class="form-label">State</label>
+                  <input class="form-control" type="text" formControlName="state" placeholder="State / County">
+                </div>
+                <div>
+                  <label class="form-label">PIN Code</label>
+                  <input class="form-control" type="text" formControlName="pin_code" placeholder="PIN code">
+                </div>
+                <div>
+                  <label class="form-label">Country</label>
+                  <input class="form-control" type="text" formControlName="Country" placeholder="Country">
+                </div>
+              </div>
+            </div>
+
+            <div class="entity-divider"></div>
+
+            <div class="entity-subsection">
+              <div class="entity-subsection__head">
+                <h6 class="entity-subsection__title">Choose Currency</h6>
+              </div>
+
+              <div class="entity-inline-picker">
+                <div class="search-select">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="currencySearchCtrl"
+                    placeholder="Type to search currency..."
+                    autocomplete="off"
+                    (focus)="openCurrencyDropdown()"
+                    (blur)="closeCurrencyDropdownSoon()"
+                  >
+
+                  <div class="dropdown" *ngIf="currencyDropdownOpen">
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      *ngFor="let currency of filteredCurrencies"
+                      (mousedown)="selectCurrencyFromDropdown(currency)"
+                    >
+                      <span class="entity-mono">{{ currency.shortname }}</span>
+                      <span class="entity-muted">{{ currency.symbol }}</span>
+                      <span class="ms-auto">{{ currency.name }}</span>
+                    </button>
+
+                    <div class="dropdown-empty" *ngIf="filteredCurrencies.length === 0">No currency found.</div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-outline-primary entity-inline-picker__button"
+                  [disabled]="!selectedCurrency || sectionSaving.settings"
+                  (click)="addSelectedCurrency()"
+                >
+                  Add Currency
+                </button>
+              </div>
+
+              <div class="selection-list" *ngIf="currencyArr.length > 0" formArrayName="currencies">
+                <div
+                  class="selection-item"
+                  *ngFor="let group of currencyArr.controls; let i = index; trackBy: trackByIndex"
+                  [formGroupName]="i"
+                >
+                  <div class="selection-item__copy">
+                    <strong>{{ currencyArr.at(i).get('shortname')?.value }} {{ currencyArr.at(i).get('symbol')?.value }}</strong>
+                    <span>{{ currencyArr.at(i).get('name')?.value }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="remove-cross-button"
+                    (click)="removeCurrency(i)"
+                    [disabled]="sectionSaving.settings"
+                    aria-label="Remove currency"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-copy" *ngIf="currencyArr.length === 0">No currencies selected yet.</div>
+            </div>
+          </div>
+          <div class="card-footer entity-card__footer">
+            <div
+              class="section-feedback"
+              *ngIf="feedbackFor('settings')"
+              [class.section-feedback--error]="feedbackFor('settings')?.type === 'error'"
+              [class.section-feedback--success]="feedbackFor('settings')?.type === 'success'"
+            >
+              {{ feedbackFor('settings')?.message }}
+            </div>
+            <button type="button" class="btn btn-success" (click)="saveSettingsSection()" [disabled]="sectionSaving.settings">
+              {{ sectionSaving.settings ? 'Updating...' : 'Update Section' }}
+            </button>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="loading || isAnySectionSaving">
+            Reset All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

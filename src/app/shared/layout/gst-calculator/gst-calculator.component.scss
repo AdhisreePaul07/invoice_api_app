@@ -1,0 +1,226 @@
+:host {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1085;
+  pointer-events: none;
+}
+
+.gst-calculator {
+  width: min(438px, calc(100vw - 2rem));
+  min-height: 236px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 0.85rem;
+  background: #fff;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.14);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.gst-calculator__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.72rem 0.88rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(255, 255, 255, 0.98));
+}
+
+.gst-calculator__title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--app-heading-color, #0f172a);
+}
+
+.gst-calculator__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.72rem;
+  height: 1.72rem;
+  padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--app-heading-color, #0f172a);
+  font-size: 0.88rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.gst-calculator__close:hover {
+  transform: translateY(-1px);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+}
+
+.gst-calculator__body {
+  display: grid;
+  gap: 0.68rem;
+  padding: 0.82rem 0.88rem 0.78rem;
+}
+
+.gst-calculator__row {
+  display: grid;
+  gap: 0.68rem;
+}
+
+.gst-calculator__row--inputs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.gst-calculator__row--results {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gst-calculator__row--mode {
+  grid-template-columns: 1fr;
+}
+
+.gst-calculator__field {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.gst-calculator__field--mode {
+  gap: 0.52rem;
+}
+
+.gst-calculator__label {
+  display: inline-block;
+  margin: 0;
+  color: var(--app-heading-color, #0f172a);
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+
+.gst-calculator__input {
+  min-height: 2.5rem;
+  border-radius: 0.72rem;
+  border-color: rgba(15, 23, 42, 0.1);
+  font-weight: 600;
+  font-size: 0.88rem;
+  box-shadow: none;
+}
+
+.gst-calculator__input:focus {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.12);
+}
+
+.gst-calculator__mode-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  min-height: 2.05rem;
+  padding: 0.1rem 0.1rem 0;
+}
+
+.gst-calculator__mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--app-heading-color, #0f172a);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.gst-calculator__mode-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gst-calculator__mode-dot {
+  width: 0.98rem;
+  height: 0.98rem;
+  border: 2px solid rgba(15, 23, 42, 0.65);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 0 rgba(16, 185, 129, 1);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.gst-calculator__mode-option input:checked + .gst-calculator__mode-dot {
+  border-color: rgba(16, 185, 129, 0.95);
+  box-shadow: inset 0 0 0 0.23rem rgba(16, 185, 129, 0.95);
+}
+
+.gst-calculator__result-box {
+  display: flex;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.72rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.72rem;
+  background: #fbfcfe;
+  color: var(--app-heading-color, #0f172a);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.gst-calculator__result-box--hero {
+  min-height: 2.7rem;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.gst-calculator__helper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  color: var(--app-secondary-color, #64748b);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding-top: 0.05rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.gst-calculator__reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.85rem;
+  padding: 0.3rem 0.66rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: rgba(248, 250, 252, 0.96);
+  color: var(--app-heading-color, #0f172a);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.gst-calculator__reset:hover {
+  border-color: rgba(16, 185, 129, 0.28);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+@media (max-width: 767.98px) {
+  :host {
+    right: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+  }
+
+  .gst-calculator {
+    width: 100%;
+  }
+
+  .gst-calculator__row--inputs,
+  .gst-calculator__row--results {
+    grid-template-columns: 1fr;
+  }
+
+  .gst-calculator__helper-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,174 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/items']">Items</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Item</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12 entity-overview-column">
+    <div class="card entity-overview-card">
+      <div class="entity-summary">
+        <div class="entity-summary__avatar entity-summary__avatar--item">
+          <i class="ph-bold ph-package"></i>
+        </div>
+        <div class="entity-summary__content">
+          <p class="entity-summary__eyebrow">Item</p>
+          <h3 class="entity-summary__title">{{ itemTitle }}</h3>
+          <div class="entity-summary__meta">
+            <span>{{ currencyLabel }}</span>
+            <span class="entity-summary__pill">{{ unitPriceLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="entity-summary__divider"></div>
+
+      <div class="entity-basic-info">
+        <h4 class="entity-basic-info__title">Basic Information</h4>
+        <div class="detail-list">
+          <div class="detail-item">
+            <span>Item Code</span>
+            <strong>{{ form.get('item_code')?.value || 'Not set' }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Currency</span>
+            <strong>{{ currencyLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Unit Price</span>
+            <strong>{{ unitPriceLabel }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Default Tax</span>
+            <strong>{{ form.get('default_tax_value')?.value ?? 0 }}</strong>
+          </div>
+          <div class="detail-item">
+            <span>Description</span>
+            <strong>{{ form.get('item_details')?.value ? 'Available' : 'No description yet' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="alert alert-danger" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="card entity-loading-card" *ngIf="loading">
+      <div class="card-body">
+        <div class="app-skeleton-form-state" aria-hidden="true">
+          <div class="app-skeleton-form-card__head">
+            <span class="app-skeleton app-skeleton--title app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--text app-skeleton--w-lg"></span>
+          </div>
+          <div class="app-skeleton-form-grid">
+            <div class="app-skeleton-form-field" *ngFor="let _ of [1, 2, 3, 4]">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--input"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-grid app-skeleton-form-grid--single">
+            <div class="app-skeleton-form-field">
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-xs"></span>
+              <span class="app-skeleton app-skeleton--block"></span>
+            </div>
+          </div>
+          <div class="app-skeleton-form-footer">
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="update()" novalidate>
+      <div class="entity-section-stack">
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Overview</h5>
+              <span class="entity-card__meta">Core catalog information and item code</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Item Name</label>
+                <input class="form-control" type="text" formControlName="item_name" placeholder="Website maintenance">
+              </div>
+              <div>
+                <label class="form-label">Item Code</label>
+                <input class="form-control" type="text" formControlName="item_code" placeholder="ITM-001">
+              </div>
+              <div>
+                <label class="form-label">Currency</label>
+                <select class="form-select" formControlName="currency_code">
+                  <option *ngFor="let currency of currencies" [value]="currency.shortname">
+                    {{ currency.shortname }} - {{ currency.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Pricing & Tax</h5>
+              <span class="entity-card__meta">Default values used when this item is selected in invoices</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-grid">
+              <div>
+                <label class="form-label">Unit Price</label>
+                <input class="form-control" type="number" formControlName="default_unit_price" placeholder="0.00">
+              </div>
+              <div>
+                <label class="form-label">Default Tax Value</label>
+                <input class="form-control" type="number" formControlName="default_tax_value" placeholder="0.00">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card entity-card">
+          <div class="card-header entity-card__head">
+            <div>
+              <h5 class="entity-card__title">Description</h5>
+              <span class="entity-card__meta">Invoice-facing details for this catalog item</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <label class="form-label">Item Details</label>
+            <textarea class="form-control" rows="4" formControlName="item_details" placeholder="Description shown in invoice line items"></textarea>
+          </div>
+        </section>
+
+        <div class="entity-actions">
+          <button type="button" class="btn btn-outline-secondary" (click)="resetFormData()" [disabled]="loading || saving">
+            Reset
+          </button>
+          <button type="submit" class="btn btn-success" [disabled]="form.invalid || saving">
+            {{ saving ? 'Updating...' : 'Update Item' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

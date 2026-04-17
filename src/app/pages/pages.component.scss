@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.page-layout {
+  min-height: 100vh;
+  background: var(--custom-body-bg);
+}
+
+.app-wrapper {
+  position: relative;
+}
+
+.app-route-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(249, 250, 251, 0.82);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+.app-route-skeleton__hero {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.app-route-skeleton__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}

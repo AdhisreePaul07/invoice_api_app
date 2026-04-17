@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  height: auto;
+}
+
+.overview-card {
+  height: auto;
+}
+
+.overview-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overview-avatar__action {
+  position: absolute;
+  right: -0.25rem;
+  bottom: -0.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.overview-avatar__action-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  border: 1.25px solid rgba(15, 23, 42, 0.9);
+  color: rgba(15, 23, 42, 0.9);
+  font-size: 0.6rem;
+}
+
+.overview-avatar__action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(248, 250, 252, 0.98);
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.18);
+}
+
+.overview-avatar__action:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

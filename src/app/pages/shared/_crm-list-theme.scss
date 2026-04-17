@@ -1,0 +1,215 @@
+@mixin crm-list-theme() {
+  :host {
+    display: block;
+  }
+
+  .app-page-head {
+    margin-bottom: 1.5rem;
+  }
+
+  .crm-card {
+    border: 1px solid rgba(28, 39, 76, 0.08);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.05);
+  }
+
+  .crm-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .crm-search {
+    position: relative;
+    min-width: min(320px, 100%);
+    flex: 1 1 260px;
+  }
+
+  .crm-search i {
+    position: absolute;
+    top: 50%;
+    left: 0.95rem;
+    transform: translateY(-50%);
+    color: rgba(28, 39, 76, 0.55);
+    font-size: 0.95rem;
+    pointer-events: none;
+  }
+
+  .crm-search .form-control {
+    min-height: 2.75rem;
+    padding: 0.65rem 1rem 0.65rem 2.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(28, 39, 76, 0.12);
+    box-shadow: none;
+  }
+
+  .crm-search .form-control:focus {
+    border-color: rgba(13, 110, 253, 0.35);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+  }
+
+  .crm-filter {
+    min-width: 160px;
+    min-height: 2.75rem;
+    padding-left: 1rem;
+    padding-right: 2.5rem;
+    border-radius: 999px;
+    border-color: rgba(28, 39, 76, 0.12);
+    box-shadow: none;
+  }
+
+  .crm-meta {
+    color: rgba(28, 39, 76, 0.65);
+    font-size: 0.95rem;
+  }
+
+  .crm-table {
+    margin-bottom: 0;
+  }
+
+  .crm-table thead th {
+    border-bottom: 0;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: rgba(28, 39, 76, 0.72);
+    vertical-align: middle;
+  }
+
+  .crm-table td {
+    vertical-align: middle;
+  }
+
+  .crm-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 220px;
+  }
+
+  .crm-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--app-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .crm-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    display: block;
+  }
+
+  .crm-name-title {
+    color: var(--app-heading-color);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .crm-name-subtitle {
+    display: block;
+    margin-top: 0.15rem;
+    color: rgba(28, 39, 76, 0.55);
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .crm-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .crm-link:hover {
+    color: var(--app-primary);
+  }
+
+  .crm-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 88px;
+  }
+
+  .crm-table-empty {
+    padding: 2.25rem 1rem;
+    text-align: center;
+    color: rgba(28, 39, 76, 0.6);
+  }
+
+  .action-menu-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .action-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 145px;
+    background: #fff;
+    border: 1px solid rgba(28, 39, 76, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+    padding: 0.4rem 0;
+    z-index: 30;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.55rem 0.9rem;
+    border: 0;
+    background: transparent;
+    color: var(--app-heading-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .dropdown-item:hover {
+    background: rgba(28, 39, 76, 0.05);
+  }
+
+  .dropdown-item.danger {
+    color: #dc3545;
+  }
+
+  .dropdown-item.danger:hover {
+    background: rgba(220, 53, 69, 0.08);
+  }
+
+  @media (max-width: 767.98px) {
+    .crm-toolbar,
+    .crm-search,
+    .crm-filter {
+      width: 100%;
+      min-width: 100%;
+    }
+
+    .crm-name-cell {
+      min-width: 180px;
+    }
+
+    .action-dropdown {
+      right: auto;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+}

@@ -1,0 +1,183 @@
+<div class="app-page-head d-flex flex-wrap gap-3 align-items-center justify-content-between">
+  <div class="clearfix">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a href="/">
+            <i class="fi fi-rr-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Security</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4 col-sm-12">
+    <app-profile-overview-card [account]="account" [loading]="loadingProfile"></app-profile-overview-card>
+  </div>
+
+  <div class="col-lg-8 col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title mb-0">Security</h4>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-danger" *ngIf="passwordError" role="alert">
+          {{ passwordError }}
+        </div>
+        <div class="alert alert-success" *ngIf="passwordSuccess" role="alert">
+          {{ passwordSuccess }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submitPasswordChange()" class="mb-4 pb-4 border-bottom">
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div>
+              <h6 class="mb-1">Password Change</h6>
+              <p class="mb-0 text-body">Update your login password regularly to keep your account safe.</p>
+            </div>
+            <span class="badge bg-primary-subtle text-primary">Recommended</span>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Current Password</label>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="old_password"
+                placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                [class.is-invalid]="isInvalid('old_password')"
+              >
+              <div class="invalid-feedback" *ngIf="isInvalid('old_password')">
+                Enter your current password.
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">New Password</label>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="new_password"
+                placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                [class.is-invalid]="isInvalid('new_password')"
+              >
+              <div class="invalid-feedback" *ngIf="isInvalid('new_password')">
+                Use at least 10 characters.
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Confirm Password</label>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="confirm_password"
+                placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                [class.is-invalid]="isInvalid('confirm_password') || confirmPasswordMismatch"
+              >
+              <div class="invalid-feedback" *ngIf="isInvalid('confirm_password')">
+                Confirm your new password.
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="confirmPasswordMismatch">
+                Passwords do not match.
+              </div>
+            </div>
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary waves-effect waves-light" [disabled]="savingPassword">
+              {{ savingPassword ? 'Updating...' : 'Update Password' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+          <div>
+            <h6 class="mb-1">Active Sessions</h6>
+            <p class="mb-0 text-body">Review active devices and remove any session you do not recognize.</p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-outline-danger waves-effect waves-light"
+            (click)="logoutOtherSessions()"
+            [disabled]="loggingOutOthers || !hasRevocableSessions"
+          >
+            {{ loggingOutOthers ? 'Logging Out...' : 'Log Out Other Sessions' }}
+          </button>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="sessionsError" role="alert">
+          {{ sessionsError }}
+        </div>
+        <div class="alert alert-success" *ngIf="sessionsSuccess" role="alert">
+          {{ sessionsSuccess }}
+        </div>
+
+        <div class="app-skeleton-session-state mb-3" *ngIf="loadingSessions" aria-hidden="true">
+          <div class="app-skeleton-session-row" *ngFor="let _ of [1, 2, 3]">
+            <div class="app-skeleton-profile-row">
+              <span class="app-skeleton app-skeleton--text app-skeleton--w-md"></span>
+              <span class="app-skeleton app-skeleton--text-sm app-skeleton--w-lg"></span>
+            </div>
+            <span class="app-skeleton app-skeleton--button app-skeleton--w-sm"></span>
+          </div>
+        </div>
+
+        <div class="session-list mb-4 pb-4 border-bottom" *ngIf="!loadingSessions && sessions.length; else noSessions">
+          <div class="session-row" *ngFor="let session of sessions; trackBy: trackBySessionId">
+            <div class="session-meta">
+              <div class="fw-semibold">
+                {{ session.user_agent || 'Unknown device' }}
+              </div>
+              <small class="text-body-secondary">
+                {{ session.ip_address || 'IP unavailable' }} | Last active {{ formatTimestamp(session.last_activity) }}
+              </small>
+            </div>
+            <div class="session-actions">
+              <span class="badge bg-success-subtle text-success" *ngIf="session.is_current">Current</span>
+              <button
+                *ngIf="!session.is_current"
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="revokeSession(session)"
+                [disabled]="revokingSessionId === session.id"
+              >
+                {{ revokingSessionId === session.id ? 'Revoking...' : 'Revoke' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noSessions>
+          <div class="security-session-state text-body-secondary mb-4 pb-4 border-bottom">
+            No active sessions were returned by the API.
+          </div>
+        </ng-template>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+          <div>
+            <h6 class="mb-1">Two-Factor Authentication</h6>
+            <p class="mb-0 text-body">Add an extra verification step for every sign in.</p>
+          </div>
+          <span class="badge bg-warning-subtle text-warning">API Not Available</span>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Authenticator App</label>
+            <input type="text" class="form-control" value="Not supported by current backend" readonly>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Backup Codes</label>
+            <input type="text" class="form-control" value="Generate after backend support is added" readonly>
+          </div>
+        </div>
+        <div class="alert alert-warning security-2fa-note" role="alert">
+          <code>invoice_api</code> does not currently expose 2FA setup, verification, or backup-code endpoints,
+          so this section is intentionally disabled.
+        </div>
+        <div class="text-end">
+          <button type="button" class="btn btn-outline-primary waves-effect waves-light" disabled>Enable 2FA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

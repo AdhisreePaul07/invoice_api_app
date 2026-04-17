@@ -1,0 +1,205 @@
+@use '../../../assets/scss/_variables' as *;
+
+:host {
+  display: block;
+}
+
+.register-cover-pane {
+  min-height: 100%;
+}
+
+.cover-img--mirrored {
+  transform: scaleX(-1);
+  transform-origin: center;
+}
+
+.register-stage {
+  width: 100%;
+}
+
+.register-field-note {
+  display: grid;
+  min-height: 1.3rem;
+}
+
+.register-field-note > * {
+  grid-area: 1 / 1;
+}
+
+.register-field-note-hidden {
+  visibility: hidden;
+}
+
+.register-step {
+  animation: register-card-in 220ms ease;
+}
+
+.register-step-copy p,
+.register-footer {
+  color: $muted;
+}
+
+.register-hint {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.register-field-note .register-hint,
+.register-field-note .invalid-feedback {
+  margin-top: 0.35rem;
+}
+
+.reset-email-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(var(--app-primary-rgb), 0.18);
+  border-radius: 0.875rem;
+  background: rgba(var(--app-primary-rgb), 0.06);
+  color: var(--app-body-color);
+  font-weight: 600;
+  text-align: center;
+  word-break: break-word;
+}
+
+.otp-digit-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.otp-digit {
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.otp-digit.is-invalid,
+.was-validated .otp-digit:invalid {
+  padding-right: 0 !important;
+}
+
+.link-button {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--app-primary);
+  font-weight: 600;
+}
+
+.link-button:hover,
+.link-button:focus-visible {
+  color: var(--app-primary);
+  text-decoration: underline;
+}
+
+.password-strength {
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    max-height 160ms ease,
+    margin-top 160ms ease,
+    opacity 120ms ease;
+}
+
+.password-strength--visible {
+  max-height: 10rem;
+  margin-top: 0.65rem;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.password-strength-head {
+  margin-bottom: 0.35rem;
+}
+
+.password-strength-label {
+  color: var(--app-body-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.password-strength-score {
+  color: $muted;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.password-strength-progress {
+  height: 0.4rem;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.45rem;
+}
+
+.password-strength-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  color: $muted;
+  font-size: 0.75rem;
+}
+
+.password-strength-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+}
+
+.password-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: $muted;
+  white-space: nowrap;
+}
+
+.password-rule.is-met {
+  color: var(--app-body-color);
+}
+
+.rule-indicator {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+  flex: 0 0 auto;
+}
+
+.password-rule.is-met .rule-indicator {
+  background: var(--app-success);
+}
+
+@keyframes register-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .register-stage {
+    max-width: 540px;
+  }
+}
+
+@media (max-width: 575px) {
+  .otp-digit-grid {
+    gap: 0.45rem;
+  }
+}
